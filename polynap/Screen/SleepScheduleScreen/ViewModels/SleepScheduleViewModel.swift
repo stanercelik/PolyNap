@@ -120,17 +120,7 @@ class SleepScheduleViewModel: ObservableObject {
         }
     }
     
-    // 📊 Analytics: Schedule zorluk seviyesi belirleme helper
     private func determineDifficultyLevel(_ schedule: SleepScheduleModel) -> String {
-        switch schedule.name.lowercased() {
-        case "monophasic", "siesta", "biphasic":
-            return "easy"
-        case "everyman", "triphasic":
-            return "medium"
-        case "uberman", "dymaxion":
-            return "hard"
-        default:
-            return "unknown"
-        }
+        schedule.difficulty.rawValue
     }
 }

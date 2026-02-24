@@ -470,7 +470,6 @@ struct NotificationSettingsView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             NotificationSettingsView()
-                .modelContainer(for: [UserPreferences.self])
         }
     }
 }

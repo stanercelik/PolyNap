@@ -167,6 +167,16 @@ final class SleepScheduleRecommender {
         
         print("\nEvaluating \(schedules.count) sleep schedules...")
         
+        // Hedef zorluk seviyesini belirle
+        let targetDifficulty = determineTargetDifficulty(factors: factors)
+        let allowed = allowedDifficultyRange(for: targetDifficulty)
+        let extremeAllowed = isExtremeScheduleAllowed(factors: factors)
+        
+        print("\n=== Difficulty Gating ===")
+        print("- Target difficulty: \(targetDifficulty.rawValue)")
+        print("- Allowed range: \(allowed.map { $0.rawValue })")
+        print("- Extreme plans allowed: \(extremeAllowed)")
+        
         // Her schedule için puan hesapla
         var allScores: [(SleepScheduleModel, Double)] = []
         for schedule in schedules {
@@ -174,19 +184,43 @@ final class SleepScheduleRecommender {
             allScores.append((schedule, score))
         }
         
-        // Skorları yüksekten düşüğe sırala
-        allScores.sort { $0.1 > $1.1 }
+        // Difficulty gating: izinli aralık dışındaki schedule'ları ağır cezalandır
+        var gatedScores: [(SleepScheduleModel, Double)] = allScores.map { (schedule, score) in
+            let diff = schedule.difficulty
+            
+            // Extreme planlar için ek kilit kontrolü
+            if diff == .extreme && !extremeAllowed {
+                return (schedule, score * 0.05)
+            }
+            
+            // İzinli aralığın dışındaysa ağır ceza
+            if !allowed.contains(diff) {
+                let distance = abs(diff.numericValue - targetDifficulty.numericValue)
+                let penalty = pow(0.3, Double(distance))
+                return (schedule, score * penalty)
+            }
+            
+            // Hedef seviyeye tam uyanlara bonus
+            if diff == targetDifficulty {
+                return (schedule, score * 1.15)
+            }
+            
+            return (schedule, score)
+        }
         
-        print("\n=== Sleep Schedule Scores (Sorted) ===")
+        // Skorları yüksekten düşüğe sırala
+        gatedScores.sort { $0.1 > $1.1 }
+        
+        print("\n=== Sleep Schedule Scores (After Gating, Sorted) ===")
         print("Format: Schedule Name (Total Sleep) - Score - Difficulty")
         print("------------------------------------------------")
-        for (schedule, score) in allScores {
-            print("\(schedule.name.padRight(toLength: 20)) - Score: \(String(format: "%.3f", score)) - \(schedule.difficulty.rawValue)")
+        for (schedule, score) in gatedScores {
+            print("\(schedule.name.padRight(toLength: 30)) - Score: \(String(format: "%.3f", score)) - \(schedule.difficulty.rawValue)")
         }
         print("------------------------------------------------")
         
         // En yüksek skorlu schedule
-        guard let (bestSchedule, bestScore) = allScores.first else {
+        guard let (bestSchedule, bestScore) = gatedScores.first else {
             print("❌ No valid schedule found!")
             return nil
         }
@@ -194,6 +228,7 @@ final class SleepScheduleRecommender {
         print("\n=== Recommended Schedule: \(bestSchedule.name)")
         print("- Total Score: \(String(format: "%.3f", bestScore))")
         print("- Difficulty:  \(bestSchedule.difficulty.rawValue)")
+        print("- Target was:  \(targetDifficulty.rawValue)")
         
         // Warnings oluştur
         let warnings = generateWarnings(for: bestSchedule, factors: factors)
@@ -350,7 +385,7 @@ final class SleepScheduleRecommender {
         }
         
         // 4) Nap Environment (only matters if napCount>0)
-        let napCount = schedule.schedule.filter { !$0.isCore }.count
+        let napCount = schedule.napCount
         if napCount > 0 {
             switch factors.napEnvironment {
             case .ideal:
@@ -566,13 +601,88 @@ final class SleepScheduleRecommender {
         return finalScore
     }
     
+    // MARK: - Difficulty Gating
+    
+    /// Kullanıcı faktörlerinden hedef zorluk seviyesini belirler.
+    /// DisruptionTolerance birincil sinyal, sağlık ve motivasyon modülatör.
+    private func determineTargetDifficulty(factors: UserFactors) -> DifficultyLevel {
+        if factors.healthStatus == .seriousConditions {
+            return .beginner
+        }
+        
+        let baseTarget: DifficultyLevel
+        switch factors.disruptionTolerance {
+        case .verySensitive:
+            baseTarget = .beginner
+        case .somewhatSensitive:
+            baseTarget = .intermediate
+        case .notSensitive:
+            baseTarget = .advanced
+        }
+        
+        // Sağlık sorunları varsa bir kademe düşür
+        if factors.healthStatus == .managedConditions && baseTarget > .intermediate {
+            return .intermediate
+        }
+        
+        // Motivasyon düşükse bir kademe düşür
+        if factors.motivationLevel == .low && baseTarget > .beginner {
+            return DifficultyLevel.allCases[max(0, baseTarget.numericValue - 1)]
+        }
+        
+        // Deneyim sıfırsa ve hedef advanced+ ise intermediate'e çek
+        if factors.sleepExperience == .none && baseTarget > .intermediate {
+            return .intermediate
+        }
+        
+        return baseTarget
+    }
+    
+    /// Hedef zorluk seviyesine göre izinli aralığı (±1 kademe) belirler.
+    private func allowedDifficultyRange(for target: DifficultyLevel) -> Set<DifficultyLevel> {
+        switch target {
+        case .beginner:
+            return [.beginner, .intermediate]
+        case .intermediate:
+            return [.beginner, .intermediate, .advanced]
+        case .advanced:
+            return [.intermediate, .advanced, .extreme]
+        case .extreme:
+            return [.advanced, .extreme]
+        }
+    }
+    
+    /// Extreme planların aday listesine alınıp alınamayacağını kontrol eder.
+    /// En az 5/7 koşulun sağlanması gerekir.
+    private func isExtremeScheduleAllowed(factors: UserFactors) -> Bool {
+        let conditions: [Bool] = [
+            factors.sleepExperience == .moderate || factors.sleepExperience == .extensive,
+            factors.knowledgeLevel == .intermediate || factors.knowledgeLevel == .advanced,
+            factors.motivationLevel == .high,
+            factors.healthStatus == .healthy,
+            factors.sleepGoal == .moreProductivity || factors.sleepGoal == .curiosity,
+            factors.disruptionTolerance == .notSensitive,
+            factors.socialObligations == .moderate || factors.socialObligations == .minimal
+        ]
+        return conditions.filter { $0 }.count >= 5
+    }
+    
     // MARK: - Warnings
-    /// Ek uyarı mekanizması
+    
     private func generateWarnings(for schedule: SleepScheduleModel, factors: UserFactors) -> [SleepScheduleRecommendation.Warning] {
         var warnings: [SleepScheduleRecommendation.Warning] = []
         
-        // Difficulty = .extreme ve deneyim düşükse
+        // Extreme schedule uyarıları
         if schedule.difficulty == .extreme {
+            warnings.append(.init(
+                severity: .critical,
+                messageKey: "warning.extremeScheduleSustainability"
+            ))
+            warnings.append(.init(
+                severity: .info,
+                messageKey: "warning.canSwitchAnytime"
+            ))
+            
             switch factors.sleepExperience {
             case .none, .some:
                 warnings.append(.init(severity: .critical, messageKey: "warning.experienceTooLow"))
@@ -583,18 +693,26 @@ final class SleepScheduleRecommender {
             }
         }
         
-        // Health durumunu da ek bir kontrol
-        if schedule.difficulty == .extreme && factors.healthStatus != .healthy {
+        // Advanced schedule bilgilendirmesi
+        if schedule.difficulty == .advanced {
+            warnings.append(.init(
+                severity: .info,
+                messageKey: "warning.canSwitchAnytime"
+            ))
+        }
+        
+        // Sağlık durumu uyarısı
+        if schedule.difficulty >= .advanced && factors.healthStatus != .healthy {
             warnings.append(.init(severity: .critical, messageKey: "warning.healthConcerns"))
         }
         
-        // Naps varsa ama ortam "unsuitable" ise
+        // Nap ortamı uygunsuzsa
         let hasNaps = schedule.schedule.contains { !$0.isCore }
         if hasNaps && factors.napEnvironment == .unsuitable {
             warnings.append(.init(severity: .warning, messageKey: "warning.unsuitableNapEnvironment"))
         }
         
-        // Work hours (09:00-17:00) ile çakışma
+        // Mesai saatleriyle çakışma
         if schedule.hasNapsInWorkHours && factors.workSchedule == .regular {
             warnings.append(.init(severity: .warning, messageKey: "warning.workScheduleConflict"))
         }
@@ -603,7 +721,7 @@ final class SleepScheduleRecommender {
     }
     
     // MARK: - Adaptation Period
-    /// Deneyim ve motivasyona göre adaptasyon süresi (basit örnek)
+    
     private func calculateAdaptationPeriod(experience: PreviousSleepExperience, motivation: MotivationLevel) -> Int {
         let basePeriod = 14
         let expMult: Double

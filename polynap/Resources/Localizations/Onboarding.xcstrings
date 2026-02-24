@@ -909,43 +909,43 @@
       }
     },
     "onboarding.disruptionTolerance" : {
-      "comment" : "Section title for how user handles disruptions",
+      "comment" : "Section title for plan intensity preference",
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Störungstoleranz"
+            "value" : "Planintensität"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Disruption Tolerance"
+            "value" : "Plan Intensity"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "睡眠の中断への耐性"
+            "state" : "translated",
+            "value" : "プランの強度"
           }
         },
         "ms" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Toleransi Gangguan"
+            "value" : "Intensiti Pelan"
           }
         },
         "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "ความทนทานต่อการรบกวน"
+            "value" : "ความเข้มข้นของแผน"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uyku Bozulma Toleransı"
+            "value" : "Plan Yoğunluğu"
           }
         }
       }
@@ -956,37 +956,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔇 Nicht empfindlich"
+            "value" : "🔥 Intensiv — ich bin bereit für eine Herausforderung"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔇 Not Sensitive"
+            "value" : "🔥 Intense — I'm ready for a challenge"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "🔇 気にならない"
+            "state" : "translated",
+            "value" : "🔥 ハード — チャレンジしたい"
           }
         },
         "ms" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔇 Tidak Sensitif"
+            "value" : "🔥 Sengit — saya sedia untuk cabaran"
           }
         },
         "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔇 ไม่ไวต่อการรบกวน"
+            "value" : "🔥 เข้มข้น — พร้อมรับความท้าทาย"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔇 Hassas Değil"
+            "value" : "🔥 Yoğun — zorluğa hazırım"
           }
         }
       }
@@ -997,37 +997,37 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔕 Etwas empfindlich"
+            "value" : "⚖️ Ausgeglichen — ein moderater Plan"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔕 Somewhat Sensitive"
+            "value" : "⚖️ Balanced — a moderate plan"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "🔕 少し気になる"
+            "state" : "translated",
+            "value" : "⚖️ バランス型 — 中程度のプラン"
           }
         },
         "ms" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔕 Agak Sensitif"
+            "value" : "⚖️ Seimbang — pelan sederhana"
           }
         },
         "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔕 ไวต่อการรบกวนบ้าง"
+            "value" : "⚖️ สมดุล — แผนระดับปานกลาง"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔕 Biraz Hassas"
+            "value" : "⚖️ Dengeli — orta düzey bir plan"
           }
         }
       }
@@ -1038,79 +1038,79 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔔 Sehr empfindlich"
+            "value" : "🌱 Sanft — ich möchte leicht beginnen"
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔔 Very Sensitive"
+            "value" : "🌱 Gentle — I want to start easy"
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "🔔 すごく気になる"
+            "state" : "translated",
+            "value" : "🌱 やさしめ — 簡単に始めたい"
           }
         },
         "ms" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔔 Sangat Sensitif"
+            "value" : "🌱 Lembut — saya mahu mula dengan mudah"
           }
         },
         "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔔 ไวต่อการรบกวนมาก"
+            "value" : "🌱 อ่อนโยน — อยากเริ่มง่ายๆ"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "🔔 Çok Hassas"
+            "value" : "🌱 Yumuşak — kolay başlamak istiyorum"
           }
         }
       }
     },
     "onboarding.disruptionToleranceDescription" : {
-      "comment" : "Description about tolerance to sleep schedule disruptions",
+      "comment" : "Description about plan intensity preference",
       "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Wie gut kommst du mit Störungen deines Schlafplans zurecht?"
+            "value" : "Wie anspruchsvoll soll dein erster Plan sein? Du kannst ihn jederzeit ändern."
           }
         },
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "How well do you handle disruptions to your sleep schedule?"
+            "value" : "How ambitious should your starting plan be? You can always change it later."
           }
         },
         "ja" : {
           "stringUnit" : {
-            "state" : "new",
-            "value" : "睡眠のリズムが崩れても平気な方？"
+            "state" : "translated",
+            "value" : "最初のプランはどのくらい挑戦的がいい？あとから変更できるよ。"
           }
         },
         "ms" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sejauh mana anda menangani gangguan pada jadual tidur anda?"
+            "value" : "Sejauh mana pelan permulaan anda harus bercita-cita tinggi? Anda boleh menukarnya kemudian."
           }
         },
         "th" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "คุณรับมือกับการรบกวนตารางการนอนของคุณได้ดีแค่ไหน?"
+            "value" : "แผนเริ่มต้นของคุณควรท้าทายแค่ไหน? คุณเปลี่ยนได้ทุกเมื่อ"
           }
         },
         "tr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Uyku düzeninizin bozulmasıyla ne kadar iyi başa çıkabiliyorsunuz?"
+            "value" : "Başlangıç planın ne kadar iddialı olsun? İstediğin zaman değiştirebilirsin."
           }
         }
       }
@@ -4474,6 +4474,47 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Şekerleme"
+          }
+        }
+      }
+    },
+    "sleepSchedule.difficulty" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Schwierigkeit"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Difficulty"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "難易度"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Kesukaran"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ความยาก"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zorluk"
           }
         }
       }

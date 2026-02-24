@@ -95,10 +95,24 @@ struct ScheduleDetails: View {
                 title: NSLocalizedString("sleepSchedule.totalSleep", tableName: "Onboarding", comment: ""),
                 value: String(format: "%.1f h", schedule.totalSleepHours)
             )
+            if schedule.coreSleepHours > 0 {
+                ScheduleInfoRow(
+                    icon: "moon.fill",
+                    title: NSLocalizedString("sleepSchedule.core", tableName: "Onboarding", comment: ""),
+                    value: String(format: "%.1f h", schedule.coreSleepHours)
+                )
+            }
             ScheduleInfoRow(
                 icon: "powersleep",
-                title: NSLocalizedString("sleepSchedule.naps",tableName: "Onboarding", comment: ""),
-                value: "\(schedule.schedule.filter { !$0.isCore }.count)"
+                title: NSLocalizedString("sleepSchedule.naps", tableName: "Onboarding", comment: ""),
+                value: schedule.napCount > 0
+                    ? "\(schedule.napCount) (\(schedule.napDurationSummary))"
+                    : "0"
+            )
+            ScheduleInfoRow(
+                icon: "gauge.medium",
+                title: NSLocalizedString("sleepSchedule.difficulty", tableName: "Onboarding", comment: ""),
+                value: schedule.difficulty.localizedDescription
             )
         }
     }

@@ -269,21 +269,18 @@ struct CompactScheduleCard: View {
                     
                     // Block bilgileri - kompakt
                     HStack(spacing: PSSpacing.xs) {
-                        let coreBlocks = schedule.schedule.filter { $0.isCore }
-                        let napBlocks = schedule.schedule.filter { !$0.isCore }
-                        
-                        if !coreBlocks.isEmpty {
+                        if schedule.coreCount > 0 {
                             CompactBlockInfo(
                                 icon: "moon.fill",
-                                count: coreBlocks.count,
+                                count: schedule.coreCount,
                                 color: .appPrimary
                             )
                         }
                         
-                        if !napBlocks.isEmpty {
+                        if schedule.napCount > 0 {
                             CompactBlockInfo(
                                 icon: "powersleep",
-                                count: napBlocks.count,
+                                count: schedule.napCount,
                                 color: .appAccent
                             )
                         }
@@ -330,19 +327,43 @@ struct CompactScheduleCard: View {
                 
                 // Genişletilmiş açıklama
                 if isExpanded {
-                    Text(scheduleDescription)
-                        .font(.system(size: 13))
-                        .foregroundColor(.appText)
-                        .lineSpacing(1)
-                        .multilineTextAlignment(.leading)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal, PSSpacing.sm)
-                        .padding(.vertical, PSSpacing.xs)
-                        .background(
-                            RoundedRectangle(cornerRadius: PSCornerRadius.small)
-                                .fill(Color.appBackground.opacity(0.5))
-                        )
-                        .transition(.opacity.combined(with: .scale(scale: 0.95, anchor: .top)))
+                    VStack(alignment: .leading, spacing: PSSpacing.xs) {
+                        Text(scheduleDescription)
+                            .font(.system(size: 13))
+                            .foregroundColor(.appText)
+                            .lineSpacing(1)
+                            .multilineTextAlignment(.leading)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        if schedule.coreSleepHours > 0 {
+                            HStack(spacing: PSSpacing.xs) {
+                                Image(systemName: "moon.fill")
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.appPrimary)
+                                Text(String(format: "Core: %.1f h", schedule.coreSleepHours))
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.appTextSecondary)
+                                
+                                if schedule.napCount > 0 {
+                                    Text("·")
+                                        .foregroundColor(.appTextSecondary)
+                                    Image(systemName: "powersleep")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(.appAccent)
+                                    Text("Naps: \(schedule.napDurationSummary)")
+                                        .font(.system(size: 11))
+                                        .foregroundColor(.appTextSecondary)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal, PSSpacing.sm)
+                    .padding(.vertical, PSSpacing.xs)
+                    .background(
+                        RoundedRectangle(cornerRadius: PSCornerRadius.small)
+                            .fill(Color.appBackground.opacity(0.5))
+                    )
+                    .transition(.opacity.combined(with: .scale(scale: 0.95, anchor: .top)))
                 }
             }
             .padding(PSSpacing.md)
@@ -374,32 +395,11 @@ struct CompactScheduleCard: View {
     }
     
     private func getDifficultyEmoji() -> String {
-        let name = schedule.name.lowercased()
-        
-        // Zorluk seviyeleri:
-        // 🟢 Kolay (Beginner) - Monophasic, Siesta, Segmented
-        // 🟡 Orta (Intermediate) - Biphasic, Triphasic, E1
-        // 🟠 Zor (Advanced) - Everyman 2-4, Dual Core
-        // 🔴 Çok Zor (Expert) - Uberman, Dymaxion
-        
-        if name.contains("monophasic") || name.contains("monofazik") || 
-           name.contains("siesta") || name.contains("öğle") ||
-           name.contains("segmented") || name.contains("bölünmüş") {
-            return "🟢" // Kolay - Yeni başlayanlar için
-        } else if name.contains("biphasic") || name.contains("çift") ||
-                  name.contains("triphasic") || name.contains("üç") ||
-                  (name.contains("everyman") && name.contains("1")) ||
-                  (name.contains("her") && name.contains("1")) {
-            return "🟡" // Orta - Biraz deneyim gerekli
-        } else if (name.contains("everyman") && (name.contains("2") || name.contains("3") || name.contains("4"))) ||
-                  (name.contains("her") && (name.contains("2") || name.contains("3") || name.contains("4"))) ||
-                  name.contains("dual") || name.contains("çift çekirdek") {
-            return "🟠" // Zor - İleri seviye
-        } else if name.contains("uberman") || name.contains("uber") ||
-                  name.contains("dymaxion") {
-            return "🔴" // Çok Zor - Uzman seviye
-        } else {
-            return "🟡" // Varsayılan - Orta seviye
+        switch schedule.difficulty {
+        case .beginner:     return "🟢"
+        case .intermediate: return "🟡"
+        case .advanced:     return "🟠"
+        case .extreme:      return "🔴"
         }
     }
 }
@@ -483,21 +483,18 @@ struct PremiumLockedScheduleCard: View {
                             
                             // Block bilgileri - kompakt
                             HStack(spacing: PSSpacing.xs) {
-                                let coreBlocks = schedule.schedule.filter { $0.isCore }
-                                let napBlocks = schedule.schedule.filter { !$0.isCore }
-                                
-                                if !coreBlocks.isEmpty {
+                                if schedule.coreCount > 0 {
                                     CompactBlockInfo(
                                         icon: "moon.fill",
-                                        count: coreBlocks.count,
+                                        count: schedule.coreCount,
                                         color: .appPrimary
                                     )
                                 }
                                 
-                                if !napBlocks.isEmpty {
+                                if schedule.napCount > 0 {
                                     CompactBlockInfo(
                                         icon: "powersleep",
-                                        count: napBlocks.count,
+                                        count: schedule.napCount,
                                         color: .appAccent
                                     )
                                 }
@@ -610,32 +607,11 @@ struct PremiumLockedScheduleCard: View {
     }
     
     private func getDifficultyEmoji() -> String {
-        let name = schedule.name.lowercased()
-        
-        // Zorluk seviyeleri:
-        // 🟢 Kolay (Beginner) - Monophasic, Siesta, Segmented
-        // 🟡 Orta (Intermediate) - Biphasic, Triphasic, E1
-        // 🟠 Zor (Advanced) - Everyman 2-4, Dual Core
-        // 🔴 Çok Zor (Expert) - Uberman, Dymaxion
-        
-        if name.contains("monophasic") || name.contains("monofazik") || 
-           name.contains("siesta") || name.contains("öğle") ||
-           name.contains("segmented") || name.contains("bölünmüş") {
-            return "🟢" // Kolay - Yeni başlayanlar için
-        } else if name.contains("biphasic") || name.contains("çift") ||
-                  name.contains("triphasic") || name.contains("üç") ||
-                  (name.contains("everyman") && name.contains("1")) ||
-                  (name.contains("her") && name.contains("1")) {
-            return "🟡" // Orta - Biraz deneyim gerekli
-        } else if (name.contains("everyman") && (name.contains("2") || name.contains("3") || name.contains("4"))) ||
-                  (name.contains("her") && (name.contains("2") || name.contains("3") || name.contains("4"))) ||
-                  name.contains("dual") || name.contains("çift çekirdek") {
-            return "🟠" // Zor - İleri seviye
-        } else if name.contains("uberman") || name.contains("uber") ||
-                  name.contains("dymaxion") {
-            return "🔴" // Çok Zor - Uzman seviye
-        } else {
-            return "🟡" // Varsayılan - Orta seviye
+        switch schedule.difficulty {
+        case .beginner:     return "🟢"
+        case .intermediate: return "🟡"
+        case .advanced:     return "🟠"
+        case .extreme:      return "🔴"
         }
     }
 }

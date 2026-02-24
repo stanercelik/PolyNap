@@ -18,15 +18,15 @@ enum SleepAdjustmentType: String, Codable, CaseIterable {
 
 @Model
 final class SleepEntry {
-    @Attribute(.unique) var id: UUID
+    @Attribute(.unique) var id: UUID = UUID()
     var user: User? // User ile ilişki (Supabase: user_id)
     
-    var date: Date // Genellikle uyku bloğunun başladığı gün/tarih
+    var date: Date = Date() // Genellikle uyku bloğunun başladığı gün/tarih
     
     var blockId: String? // Hangi schedule block'una ait olduğu (opsiyonel)
     var emoji: String?
-    var rating: Double // 1-5 arası (0.5 increment'li buçuklu puanlar)
-    var source: String // "manual" veya "health" - veri kaynağını belirtir
+    var rating: Double = 0.0 // 1-5 arası (0.5 increment'li buçuklu puanlar)
+    var source: String = "manual" // "manual" veya "health" - veri kaynağını belirtir
     
     // Sleep adjustment metadata
     var adjustmentType: String? // Adjustment type as string for SwiftData compatibility
@@ -35,10 +35,10 @@ final class SleepEntry {
     var originalScheduledEndTime: Date? // Original scheduled end time
 
     // Supabase'deki user_sleep_blocks tablosundan gelen alanlar:
-    var startTime: Date // Bloğun kesin başlangıç zamanı (saat ve dakika dahil)
-    var endTime: Date   // Bloğun kesin bitiş zamanı
-    var durationMinutes: Int // Dakika cinsinden süre
-    var isCore: Bool    // Ana uyku mu, şekerleme mi?
+    var startTime: Date = Date() // Bloğun kesin başlangıç zamanı (saat ve dakika dahil)
+    var endTime: Date = Date()   // Bloğun kesin bitiş zamanı
+    var durationMinutes: Int = 0 // Dakika cinsinden süre
+    var isCore: Bool = false    // Ana uyku mu, şekerleme mi?
 
     var type: SleepType { // isCore'a göre hesaplanır
         isCore ? .core : .powerNap
@@ -53,8 +53,8 @@ final class SleepEntry {
         Double(durationMinutes * 60)
     }
 
-    var createdAt: Date
-    var updatedAt: Date
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
     var syncId: String?
 
     // HistoryModel ile ters ilişki (bir uyku kaydı bir günlük geçmişe ait olabilir)

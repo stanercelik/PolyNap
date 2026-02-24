@@ -207,6 +207,13 @@ public struct SleepScheduleModel: Codable, Identifiable, Equatable {
 
 // MARK: - Schedule Analysis
 extension SleepScheduleModel {
+    
+    private static let extremeByDesignIDs: Set<String> = [
+        "uberman", "dymaxion", "dymaxion-alt",
+        "nap-only-tesla", "nap-only-spamayl",
+        "everyman-sevarny"
+    ]
+    
     /// Check if schedule has naps during typical work hours (9-17)
     var hasNapsInWorkHours: Bool {
         let workStart = 9
@@ -221,21 +228,52 @@ extension SleepScheduleModel {
         }
     }
     
+    var napCount: Int {
+        schedule.filter { !$0.isCore }.count
+    }
+    
+    var coreCount: Int {
+        schedule.filter { $0.isCore }.count
+    }
+    
+    var coreSleepHours: Double {
+        Double(schedule.filter { $0.isCore }.reduce(0) { $0 + $1.duration }) / 60.0
+    }
+    
+    var napDurationSummary: String {
+        let naps = schedule.filter { !$0.isCore }
+        guard !naps.isEmpty else { return "" }
+        let durations = naps.map { $0.duration }
+        if Set(durations).count == 1 {
+            return "\(durations[0])m x \(naps.count)"
+        } else {
+            return naps.map { "\($0.duration)m" }.joined(separator: ", ")
+        }
+    }
+    
+    var isExtremeByDesign: Bool {
+        Self.extremeByDesignIDs.contains(id)
+    }
+    
     /// Calculate difficulty level based on schedule characteristics
     var difficulty: DifficultyLevel {
-        let napCount = schedule.filter { !$0.isCore }.count
-        let totalSleepTime = totalSleepHours
-        
-        switch (napCount, totalSleepTime) {
-        case (0, 6...8):
-            return .beginner
-        case (1, 5...7):
-            return .intermediate
-        case (2, 4...6):
-            return .advanced
-        default:
+        if isExtremeByDesign {
             return .extreme
         }
+        
+        let naps = napCount
+        let cores = coreCount
+        let totalSleep = totalSleepHours
+        
+        if cores == 0 && naps > 0 { return .extreme }
+        if totalSleep < 3.0 { return .extreme }
+        if naps >= 5 { return .extreme }
+        
+        if totalSleep >= 6.0 && naps <= 1 { return .beginner }
+        if totalSleep >= 5.0 && naps <= 2 { return .intermediate }
+        if totalSleep >= 4.0 && naps <= 3 { return .advanced }
+        
+        return .extreme
     }
     
     /// Converts SleepScheduleModel to UserScheduleModel

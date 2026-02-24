@@ -1080,7 +1080,7 @@ struct DailySleepCard: View {
         let days = calendar.dateComponents([.day], from: date, to: now).day ?? 0
         if days <= 7 { return String(format: L("history.relative.daysAgo", table: "History"), days) }
         let weeks = days / 7
-        return weeks == 1 ? L("history.relative.oneWeekAgo", table: "History") : String(format: L("history.relative.weeksAgo", table: "History"), weeks)
+        return weeks == 1 ? L("history.relative.oneWeekAgo", table: "History") : String(format: L("history.relative.weeksAgo", table: "Localizable"), weeks)
     }
     
     private func relativeTimeColor(from date: Date) -> Color {
@@ -1731,7 +1731,7 @@ struct UnratedHealthKitIndicator: View {
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.orange)
                 
-                Text(L("history.action.rate", table: "History"))
+                Text(L("history.action.rate", table: "Localizable"))
                     .font(.system(size: 12, weight: .medium))
                     .foregroundColor(.orange)
                     .lineLimit(1)

@@ -4,15 +4,15 @@ import SwiftData
 // MARK: - User Model
 @Model
 final class User {
-    @Attribute(.unique) var id: UUID
+    @Attribute(.unique) var id: UUID = UUID()
     var email: String?
     var displayName: String?
     var avatarUrl: String?
-    var isAnonymous: Bool
+    var isAnonymous: Bool = false
     var preferences: String? // JSONB için String veya Data kullanılabilir, sonra parse edilir
-    var createdAt: Date
-    var updatedAt: Date
-    var isPremium: Bool
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
+    var isPremium: Bool = false
 
     // İlişkiler
     @Relationship(deleteRule: .cascade, inverse: \UserSchedule.user)
@@ -49,16 +49,16 @@ final class User {
 // MARK: - UserSchedule Model
 @Model
 final class UserSchedule {
-    @Attribute(.unique) var id: UUID
+    @Attribute(.unique) var id: UUID = UUID()
     var user: User? // İlişki: User'a ait
-    var name: String
+    var name: String = ""
     var scheduleDescription: String? // JSONB için String veya Data, 'description' Swift'te özel bir anlam taşıdığı için 'scheduleDescription'
-    var totalSleepHours: Double?
-    var adaptationPhase: Int?
+    var totalSleepHours: Double? = 0
+    var adaptationPhase: Int? = 0
     var adaptationStartDate: Date?
-    var createdAt: Date
-    var updatedAt: Date
-    var isActive: Bool
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
+    var isActive: Bool = false
 
     // İlişkiler
     @Relationship(deleteRule: .cascade, inverse: \UserSleepBlock.schedule)
@@ -90,14 +90,14 @@ final class UserSchedule {
 // MARK: - UserSleepBlock Model
 @Model
 final class UserSleepBlock {
-    @Attribute(.unique) var id: UUID
+    @Attribute(.unique) var id: UUID = UUID()
     var schedule: UserSchedule? // İlişki: UserSchedule'a ait
-    var startTime: Date // TIME tipi için Date kullanılabilir, sadece saat/dakika kısmı relevant olacak
-    var endTime: Date   // TIME tipi için Date kullanılabilir, sadece saat/dakika kısmı relevant olacak
-    var durationMinutes: Int
-    var isCore: Bool
-    var createdAt: Date
-    var updatedAt: Date
+    var startTime: Date = Date() // TIME tipi için Date kullanılabilir, sadece saat/dakika kısmı relevant olacak
+    var endTime: Date = Date()   // TIME tipi için Date kullanılabilir, sadece saat/dakika kısmı relevant olacak
+    var durationMinutes: Int = 0
+    var isCore: Bool = false
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
     var syncId: String?
 
     init(id: UUID = UUID(),
@@ -124,16 +124,16 @@ final class UserSleepBlock {
 // MARK: - ScheduleEntity Model
 @Model
 final class ScheduleEntity {
-    @Attribute(.unique) var id: UUID
-    var userId: UUID
-    var name: String
-    var descriptionJson: String // JSON formatında lokalize açıklamalar
-    var totalSleepHours: Double
-    var isActive: Bool
-    var isDeleted: Bool
-    var createdAt: Date
-    var updatedAt: Date
-    var syncId: String?
+    @Attribute(.unique) var id: UUID = UUID()
+    var userId: UUID = UUID()
+    var name: String = ""
+    var descriptionJson: String = "{}" // JSON formatında lokalize açıklamalar
+    var totalSleepHours: Double = 0.0
+    var isActive: Bool = false
+    var isDeleted: Bool = false
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
+    var syncId: String? = UUID().uuidString
 
     @Relationship(deleteRule: .cascade, inverse: \SleepBlockEntity.schedule)
     var sleepBlocks: [SleepBlockEntity] = []
@@ -164,16 +164,16 @@ final class ScheduleEntity {
 // MARK: - SleepBlockEntity Model
 @Model
 final class SleepBlockEntity {
-    @Attribute(.unique) var id: UUID
+    @Attribute(.unique) var id: UUID = UUID()
     var schedule: ScheduleEntity?
-    var startTime: String // Saat formatı: "23:00"
-    var endTime: String   // Saat formatı: "01:00"
-    var durationMinutes: Int
-    var isCore: Bool
-    var isDeleted: Bool
-    var createdAt: Date
-    var updatedAt: Date
-    var syncId: String?
+    var startTime: String = "00:00" // Saat formatı: "23:00"
+    var endTime: String = "00:00"   // Saat formatı: "01:00"
+    var durationMinutes: Int = 0
+    var isCore: Bool = false
+    var isDeleted: Bool = false
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
+    var syncId: String? = UUID().uuidString
 
     init(id: UUID = UUID(),
          schedule: ScheduleEntity? = nil,
@@ -201,16 +201,16 @@ final class SleepBlockEntity {
 // MARK: - SleepEntryEntity Model
 @Model
 final class SleepEntryEntity {
-    @Attribute(.unique) var id: UUID
-    var userId: UUID
-    var date: Date
+    @Attribute(.unique) var id: UUID = UUID()
+    var userId: UUID = UUID()
+    var date: Date = Date()
     var blockId: String?
     var emoji: String?
-    var rating: Double
-    var isDeleted: Bool
-    var createdAt: Date
-    var updatedAt: Date
-    var syncId: String?
+    var rating: Double = 0.0
+    var isDeleted: Bool = false
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
+    var syncId: String? = UUID().uuidString
 
     init(id: UUID = UUID(),
          userId: UUID,
@@ -238,13 +238,13 @@ final class SleepEntryEntity {
 // MARK: - PendingChange Model
 @Model
 final class PendingChange {
-    @Attribute(.unique) var id: UUID
-    var entityName: String
-    var entityId: String
-    var operationType: String // "create", "update", "delete"
+    @Attribute(.unique) var id: UUID = UUID()
+    var entityName: String = ""
+    var entityId: String = ""
+    var operationType: String = "create" // "create", "update", "delete"
     var payload: String? // JSON formatında veri
-    var createdAt: Date
-    var attempts: Int
+    var createdAt: Date = Date()
+    var attempts: Int = 0
     var lastAttemptAt: Date?
     var errorInfo: String?
 
@@ -272,17 +272,17 @@ final class PendingChange {
 // MARK: - AlarmSettings Model
 @Model
 final class AlarmSettings {
-    @Attribute(.unique) var id: UUID
-    var userId: UUID
-    var isEnabled: Bool
-    var soundName: String
-    var volume: Double // 0.0 - 1.0
-    var vibrationEnabled: Bool
-    var snoozeEnabled: Bool
-    var snoozeDurationMinutes: Int
-    var maxSnoozeCount: Int
-    var createdAt: Date
-    var updatedAt: Date
+    @Attribute(.unique) var id: UUID = UUID()
+    var userId: UUID = UUID()
+    var isEnabled: Bool = true
+    var soundName: String = "Alarm 1.caf"
+    var volume: Double = 0.8 // 0.0 - 1.0
+    var vibrationEnabled: Bool = true
+    var snoozeEnabled: Bool = true
+    var snoozeDurationMinutes: Int = 5
+    var maxSnoozeCount: Int = 3
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
     
     init(id: UUID = UUID(),
          userId: UUID,
@@ -312,16 +312,16 @@ final class AlarmSettings {
 // MARK: - AlarmNotification Model
 @Model
 final class AlarmNotification {
-    @Attribute(.unique) var id: UUID
-    var userId: UUID
-    var scheduleId: UUID
-    var blockId: UUID
-    var notificationIdentifier: String
-    var scheduledTime: Date
-    var isActive: Bool
-    var createdAt: Date
+    @Attribute(.unique) var id: UUID = UUID()
+    var userId: UUID = UUID()
+    var scheduleId: UUID = UUID()
+    var blockId: UUID = UUID()
+    var notificationIdentifier: String = ""
+    var scheduledTime: Date = Date()
+    var isActive: Bool = true
+    var createdAt: Date = Date()
     var firedAt: Date?
-    var snoozedCount: Int
+    var snoozedCount: Int = 0
     
     init(id: UUID = UUID(),
          userId: UUID,
@@ -349,13 +349,13 @@ final class AlarmNotification {
 // MARK: - HealthKit Rating Model
 @Model
 final class HealthKitSleepRating {
-    @Attribute(.unique) var id: UUID
-    var healthKitIdentifier: String // HealthKit sample'ın unique identifier'ı
-    var startDate: Date // HealthKit sample'ın start date'i (ek identifier olarak)
-    var endDate: Date // HealthKit sample'ın end date'i (ek identifier olarak) 
-    var rating: Double // Kullanıcının verdiği puan (1-5)
-    var createdAt: Date
-    var updatedAt: Date
+    @Attribute(.unique) var id: UUID = UUID()
+    var healthKitIdentifier: String = "" // HealthKit sample'ın unique identifier'ı
+    var startDate: Date = Date() // HealthKit sample'ın start date'i (ek identifier olarak)
+    var endDate: Date = Date() // HealthKit sample'ın end date'i (ek identifier olarak) 
+    var rating: Double = 0.0 // Kullanıcının verdiği puan (1-5)
+    var createdAt: Date = Date()
+    var updatedAt: Date = Date()
     
     init(id: UUID = UUID(),
          healthKitIdentifier: String,

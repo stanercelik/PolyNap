@@ -70,6 +70,7 @@ class BaseRepository: ObservableObject {
                 SleepScheduleStore.self, UserPreferences.self, UserFactor.self, HistoryModel.self, SleepEntry.self,
                 OnboardingAnswerData.self, User.self, UserSchedule.self, UserSleepBlock.self,
                 ScheduleEntity.self, SleepBlockEntity.self, SleepEntryEntity.self, PendingChange.self,
+                AlarmSettings.self, AlarmNotification.self, HealthKitSleepRating.self,
                 configurations: config
             )
             _modelContext = emergencyContainer.mainContext

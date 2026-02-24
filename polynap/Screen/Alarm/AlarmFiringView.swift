@@ -348,6 +348,5 @@ struct AlarmFiringView_Previews: PreviewProvider {
     static var previews: some View {
         AlarmFiringView()
             .environmentObject(AlarmManager.shared)
-            .modelContainer(for: [AlarmSettings.self])
     }
 } 

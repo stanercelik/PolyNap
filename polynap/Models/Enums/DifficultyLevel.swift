@@ -1,7 +1,7 @@
 import Foundation
 
 /// Represents the difficulty level of a sleep schedule
-public enum DifficultyLevel: String, CaseIterable, Identifiable {
+public enum DifficultyLevel: String, CaseIterable, Identifiable, Comparable {
     /// Basic sleep schedules suitable for beginners
     case beginner
     
@@ -15,6 +15,19 @@ public enum DifficultyLevel: String, CaseIterable, Identifiable {
     case extreme
     
     public var id: String { rawValue }
+    
+    var numericValue: Int {
+        switch self {
+        case .beginner: return 0
+        case .intermediate: return 1
+        case .advanced: return 2
+        case .extreme: return 3
+        }
+    }
+    
+    public static func < (lhs: DifficultyLevel, rhs: DifficultyLevel) -> Bool {
+        lhs.numericValue < rhs.numericValue
+    }
     
     /// Returns a localized description of the difficulty level
     var localizedDescription: String {

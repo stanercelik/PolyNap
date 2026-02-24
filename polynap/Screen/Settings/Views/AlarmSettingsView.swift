@@ -574,21 +574,34 @@ struct AlarmSettingsView: View {
     }
     
     private func createDefaultSettings() {
-        let defaultSettings = AlarmSettings(userId: UUID())
-        defaultSettings.soundName = "Alarm 1.caf" // Varsayılan ses dosyası
-        defaultSettings.volume = 0.8
-        defaultSettings.isEnabled = true
-        defaultSettings.vibrationEnabled = true
-        defaultSettings.snoozeEnabled = true
-        defaultSettings.snoozeDurationMinutes = 5
-        defaultSettings.maxSnoozeCount = 3
-        
-        modelContext.insert(defaultSettings)
+        // MIGRATION FİX: AlarmSettings entity'si yoksa güvenli yaklaşım
         do {
+            let defaultSettings = AlarmSettings(userId: UUID())
+            defaultSettings.soundName = "Alarm 1.caf" // Varsayılan ses dosyası
+            defaultSettings.volume = 0.8
+            defaultSettings.isEnabled = true
+            defaultSettings.vibrationEnabled = true
+            defaultSettings.snoozeEnabled = true
+            defaultSettings.snoozeDurationMinutes = 5
+            defaultSettings.maxSnoozeCount = 3
+            
+            modelContext.insert(defaultSettings)
             try modelContext.save()
             currentSettings = defaultSettings
+            print("✅ Varsayılan AlarmSettings oluşturuldu")
+            
         } catch {
-            print("PolyNap Debug: Varsayılan alarm ayarları oluşturulamadı: \(error)")
+            print("❌ Varsayılan alarm ayarları oluşturulamadı: \(error)")
+            print("⚠️ Bu hata yeni entity migration sorunundan kaynaklanabilir")
+            // Fallback: UserDefaults'tan yükle
+            isEnabled = UserDefaults.standard.object(forKey: "alarm_isEnabled") as? Bool ?? true
+            selectedSound = UserDefaults.standard.string(forKey: "alarm_soundName") ?? "Alarm 1.caf"
+            volume = UserDefaults.standard.object(forKey: "alarm_volume") as? Double ?? 0.8
+            vibrationEnabled = UserDefaults.standard.object(forKey: "alarm_vibrationEnabled") as? Bool ?? true
+            snoozeEnabled = UserDefaults.standard.object(forKey: "alarm_snoozeEnabled") as? Bool ?? true
+            snoozeDuration = UserDefaults.standard.object(forKey: "alarm_snoozeDuration") as? Int ?? 5
+            maxSnoozeCount = UserDefaults.standard.object(forKey: "alarm_maxSnoozeCount") as? Int ?? 3
+            print("✅ Varsayılan ayarlar UserDefaults'tan yüklendi")
         }
     }
     
@@ -606,30 +619,43 @@ struct AlarmSettingsView: View {
     
     private func saveSettingsToSwiftData() async {
         await MainActor.run {
-            // Mevcut ayarları bul veya yeni oluştur
-            let settings: AlarmSettings
-            if let existingSettings = alarmSettings.first {
-                settings = existingSettings
-            } else {
-                settings = AlarmSettings(userId: UUID())
-                modelContext.insert(settings)
-            }
-            
-            // State değişkenlerini SwiftData modeline aktar
-            settings.isEnabled = isEnabled
-            settings.soundName = selectedSound
-            settings.volume = volume
-            settings.vibrationEnabled = vibrationEnabled
-            settings.snoozeEnabled = snoozeEnabled
-            settings.snoozeDurationMinutes = snoozeDuration
-            settings.maxSnoozeCount = maxSnoozeCount
-            settings.updatedAt = Date()
-            
+            // MIGRATION FİX: AlarmSettings entity'si yoksa güvenli yaklaşım
             do {
+                // Mevcut ayarları bul veya yeni oluştur
+                let settings: AlarmSettings
+                if let existingSettings = alarmSettings.first {
+                    settings = existingSettings
+                } else {
+                    settings = AlarmSettings(userId: UUID())
+                    modelContext.insert(settings)
+                }
+                
+                // State değişkenlerini SwiftData modeline aktar
+                settings.isEnabled = isEnabled
+                settings.soundName = selectedSound
+                settings.volume = volume
+                settings.vibrationEnabled = vibrationEnabled
+                settings.snoozeEnabled = snoozeEnabled
+                settings.snoozeDurationMinutes = snoozeDuration
+                settings.maxSnoozeCount = maxSnoozeCount
+                settings.updatedAt = Date()
+                
                 try modelContext.save()
                 currentSettings = settings
+                print("✅ AlarmSettings başarıyla kaydedildi")
+                
             } catch {
-                // Alarm ayarları kaydedilemedi
+                print("❌ AlarmSettings kaydetme hatası: \(error)")
+                print("⚠️ Bu hata yeni entity migration sorunundan kaynaklanabilir")
+                // Fallback: UserDefaults kullan
+                UserDefaults.standard.set(isEnabled, forKey: "alarm_isEnabled")
+                UserDefaults.standard.set(selectedSound, forKey: "alarm_soundName")
+                UserDefaults.standard.set(volume, forKey: "alarm_volume")
+                UserDefaults.standard.set(vibrationEnabled, forKey: "alarm_vibrationEnabled")
+                UserDefaults.standard.set(snoozeEnabled, forKey: "alarm_snoozeEnabled")
+                UserDefaults.standard.set(snoozeDuration, forKey: "alarm_snoozeDuration")
+                UserDefaults.standard.set(maxSnoozeCount, forKey: "alarm_maxSnoozeCount")
+                print("✅ Alarm ayarları UserDefaults'a fallback olarak kaydedildi")
             }
         }
         
@@ -826,7 +852,6 @@ struct ModernTestButton: View {
 #Preview {
     NavigationStack {
         AlarmSettingsView()
-            .modelContainer(for: [AlarmSettings.self])
             .environmentObject(LanguageManager.shared)
     }
 } 

@@ -109,7 +109,6 @@ struct MainTabBarView: View {
 struct MainTabBarView_Previews: PreviewProvider {
     static var previews: some View {
         MainTabBarView()
-            .modelContainer(for: SleepScheduleStore.self)
             .environmentObject(LanguageManager.shared)
     }
 }

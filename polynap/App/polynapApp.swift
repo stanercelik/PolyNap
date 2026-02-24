@@ -270,10 +270,19 @@ struct polynapApp: App {
         FirebaseApp.configure()
 
         do {
-            let config = ModelConfiguration(isStoredInMemoryOnly: false)
+            // MIGRATION FİX: Güvenli ModelContainer initialization
+            // İlk olarak tüm entity'ler ile deneme
+            print("🔄 SwiftData: Tam entity listesi ile initialization deneniyor...")
+            
+            let config = ModelConfiguration(
+                isStoredInMemoryOnly: false,
+                allowsSave: true,
+                groupContainer: .automatic,
+                cloudKitDatabase: .none
+            )
+            
             modelContainer = try ModelContainer(
-                for: 
-                    SleepScheduleStore.self,
+                for: SleepScheduleStore.self,
                 UserPreferences.self,
                 UserFactor.self,
                 HistoryModel.self,
@@ -287,29 +296,83 @@ struct polynapApp: App {
                 SleepEntryEntity.self,
                 PendingChange.self,
                 AlarmSettings.self,
-                AlarmNotification.self
-                ,
+                AlarmNotification.self,
+                HealthKitSleepRating.self,
                 configurations: config
             )
             
             let context = modelContainer.mainContext
             Repository.shared.setModelContext(context)
-            
-            // SharedRepository'yi de configure et
             SharedRepository.shared.setModelContext(context)
             
-            print("SwiftData başarıyla yapılandırıldı")
+            print("✅ SwiftData başarıyla yapılandırıldı (tüm entity'ler)")
             
-            Task {
-                do {
-                    try await Repository.shared.migrateScheduleEntitiesToUserSchedules()
-                    print("✅ Migration başarıyla tamamlandı")
-                } catch {
-                    print("❌ Migration hatası: \(error)")
+            // Migration'ı açılıştan sonra, UI ayağa kalkınca çalıştır
+            // Böylece konteyner açılışı sırasında crash riski azalır
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                Task {
+                    do {
+                        try await Repository.shared.migrateScheduleEntitiesToUserSchedules()
+                        print("✅ Migration başarıyla tamamlandı")
+                    } catch {
+                        print("❌ Migration hatası: \(error)")
+                    }
                 }
             }
+            
         } catch {
-            fatalError("Could not initialize ModelContainer: \(error)")
+            print("❌ ModelContainer full init failed: \(error)")
+            print("❌ Error details: \(error.localizedDescription)")
+            if let nsError = error as NSError? {
+                print("❌ Error domain: \(nsError.domain)")
+                print("❌ Error code: \(nsError.code)")
+                print("❌ Error userInfo: \(nsError.userInfo)")
+            }
+            print("🔄 Fallback: Core entity'ler ile deneniyor...")
+            
+            // FALLBACK: Yeni entity'ler olmadan deneme (crash engellemek için)
+            do {
+                // Minimum canlı sistem için gerçekten gerekli modeller ile tekrar dene
+                // Not: Problemli eski tablolar (ScheduleEntity, SleepBlockEntity, SleepEntryEntity vb.) hariç tutuldu
+                let minimalConfig = ModelConfiguration(isStoredInMemoryOnly: false)
+                modelContainer = try ModelContainer(
+                    for: SleepScheduleStore.self,
+                    UserPreferences.self,
+                    UserFactor.self,
+                    OnboardingAnswerData.self,
+                    configurations: minimalConfig
+                )
+                
+                let context = modelContainer.mainContext
+                Repository.shared.setModelContext(context)
+                SharedRepository.shared.setModelContext(context)
+                
+                print("⚠️ SwiftData minimal fallback initialization başarılı (yalnızca kritik modeller)")
+                print("⚠️ Eski History/Schedule entity'leri yüklenmedi. İlgili ekranlar sınırlı çalışabilir.")
+                
+            } catch {
+                print("❌ Minimal fallback da başarısız: \(error)")
+                print("🔄 Son çare: Bellek içi (in-memory) konteyner ile ayağa kaldırma deneniyor...")
+                do {
+                    let memoryConfig = ModelConfiguration(isStoredInMemoryOnly: true)
+                    modelContainer = try ModelContainer(
+                        for: SleepScheduleStore.self,
+                        UserPreferences.self,
+                        UserFactor.self,
+                        OnboardingAnswerData.self,
+                        configurations: memoryConfig
+                    )
+                    
+                    let context = modelContainer.mainContext
+                    Repository.shared.setModelContext(context)
+                    SharedRepository.shared.setModelContext(context)
+                    
+                    print("✅ In-memory ModelContainer ile uygulama çalıştırıldı (geçici).")
+                } catch {
+                    print("🚨 CRITICAL: In-memory ModelContainer dahi oluşturulamadı: \(error)")
+                    fatalError("SwiftData initialization tamamen başarısız: \(error)")
+                }
+            }
         }
     }
     
@@ -391,43 +454,30 @@ struct ContentView: View {
     var body: some View {
         Group {
             if let preferences = userPreferences.first {
-                // Debug reset will be handled in WelcomeView.onAppear
-                
-                // FIXED: Ensure proper onboarding flow
-                // Only show MainTabBarView if user has truly completed the full onboarding process
-                // This prevents cases where hasCompletedOnboarding is true but user never went through questions
                 let shouldShowMainApp = preferences.hasCompletedOnboarding && (preferences.hasCompletedQuestions || preferences.hasSkippedOnboarding)
                 
                 if shouldShowMainApp {
                     MainTabBarView()
                         .transition(.opacity.combined(with: .scale(scale: 1.02)))
                         .onAppear {
-                            print("🏠 ContentView: SHOWING MAIN APP - shouldShowMainApp = true")
+                            print("🏠 ContentView: SHOWING MAIN APP")
                         }
                 } else {
-                    // If hasCompletedOnboarding is true but questions weren't completed and onboarding wasn't skipped,
-                    // this indicates corrupted state - reset it and show Welcome
-                    WelcomeView()
+                    NewOnboardingContainerView()
                         .onAppear {
-                            // DEBUG: Log current UserPreferences state
-                            print("🔍 ContentView: SHOWING WELCOME VIEW - shouldShowMainApp = false")
-                            print("🔍 ContentView: UserPreferences found - hasCompletedOnboarding: \(preferences.hasCompletedOnboarding), hasSkippedOnboarding: \(preferences.hasSkippedOnboarding), hasCompletedQuestions: \(preferences.hasCompletedQuestions)")
-                            
+                            print("🔍 ContentView: SHOWING NEW ONBOARDING")
                             if preferences.hasCompletedOnboarding && !preferences.hasCompletedQuestions && !preferences.hasSkippedOnboarding {
-                                print("⚠️ ContentView: Detected corrupted onboarding state - resetting to allow proper flow")
                                 preferences.hasCompletedOnboarding = false
                                 try? modelContext.save()
                             }
                         }
                 }
             } else {
-                WelcomeView()
+                NewOnboardingContainerView()
                     .onAppear {
-                        print("🔍 ContentView: No UserPreferences found, creating new one with hasCompletedOnboarding: false")
                         let newPreferences = UserPreferences()
                         modelContext.insert(newPreferences)
                         try? modelContext.save()
-                        print("🔍 ContentView: New UserPreferences created and saved")
                     }
             }
         }
