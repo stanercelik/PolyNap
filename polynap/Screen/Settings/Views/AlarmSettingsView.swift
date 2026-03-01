@@ -15,6 +15,9 @@ struct AlarmSettingsView: View {
     @State private var currentSettings: AlarmSettings?
     @State private var showingPermissionAlert = false
     @State private var showingTestAlarm = false
+    @State private var showingAlarmKitTest = false
+    @State private var alarmKitTestMessage = ""
+    @State private var alarmKitAuthStatus = ""
     
     // State for UI reflecting AlarmService status
     @State private var notificationAuthStatus: UNAuthorizationStatus = .notDetermined
@@ -437,6 +440,79 @@ struct AlarmSettingsView: View {
                                 }
                             }
                         }
+                        
+                        // MARK: - [DEV] Test Section
+                        ModernSettingsSection(
+                            title: "[DEV] Alarm Test",
+                            icon: "hammer.fill",
+                            iconColor: .red,
+                            isMinimal: true
+                        ) {
+                            VStack(spacing: PSSpacing.lg) {
+                                if AlarmKitService.isAvailable {
+                                    ModernInfoCard(
+                                        icon: "checkmark.circle.fill",
+                                        title: "AlarmKit Kullanılabilir",
+                                        message: "iOS 26+ algılandı. AlarmKit API aktif.",
+                                        color: .green
+                                    )
+                                } else {
+                                    ModernInfoCard(
+                                        icon: "xmark.circle.fill",
+                                        title: "AlarmKit Kullanılamıyor",
+                                        message: "iOS 26 gerekli. UserNotifications kullanılacak.",
+                                        color: .orange
+                                    )
+                                }
+                                
+                                if !alarmKitAuthStatus.isEmpty {
+                                    ModernInfoCard(
+                                        icon: "info.circle.fill",
+                                        title: "Durum",
+                                        message: alarmKitAuthStatus,
+                                        color: .blue
+                                    )
+                                }
+                                
+                                ModernDivider()
+                                
+                                ModernTestButton(
+                                    icon: "alarm.waves.left.and.right.fill",
+                                    title: "[DEV] AlarmKit Test",
+                                    subtitle: "AlarmKit API ile 5 saniye sonra alarm kur (iOS 26+)",
+                                    color: .red
+                                ) {
+                                    testAlarmKit()
+                                }
+                                
+                                ModernTestButton(
+                                    icon: "bell.badge.fill",
+                                    title: "[DEV] Bildirim Test",
+                                    subtitle: "UserNotifications ile 5 saniye sonra alarm kur",
+                                    color: .blue
+                                ) {
+                                    testAlarm()
+                                }
+                                
+                                ModernTestButton(
+                                    icon: "arrow.clockwise.circle.fill",
+                                    title: "[DEV] AlarmKit İzin Kontrol",
+                                    subtitle: "AlarmKit yetkilendirme durumunu kontrol et",
+                                    color: .purple
+                                ) {
+                                    checkAlarmKitAuth()
+                                }
+                                
+                                ModernTestButton(
+                                    icon: "trash.circle.fill",
+                                    title: "[DEV] Tüm AlarmKit Alarmlarını Sil",
+                                    subtitle: "AlarmKit ile kurulmuş tüm alarmları iptal et",
+                                    color: .orange
+                                ) {
+                                    cancelAllAlarmKitAlarms()
+                                }
+                            }
+                        }
                     }
                     } // end of isLoading else
                     
@@ -460,6 +536,11 @@ struct AlarmSettingsView: View {
             Button("Tamam") { }
         } message: {
             Text("Test alarmı 5 saniye sonra çalacak. Uygulamayı kapatabilir, arka plana alabilir veya açık bırakabilirsiniz.")
+        }
+        .alert("[DEV] AlarmKit Test", isPresented: $showingAlarmKitTest) {
+            Button("Tamam") { }
+        } message: {
+            Text(alarmKitTestMessage)
         }
         .onAppear {
             loadDataAsync()
@@ -686,6 +767,63 @@ struct AlarmSettingsView: View {
     private func openAppSettings() {
         if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(settingsUrl)
+        }
+    }
+    
+    // MARK: - [DEV] AlarmKit Test Functions
+    
+    private func testAlarmKit() {
+        Task {
+            guard AlarmKitService.isAvailable else {
+                alarmKitTestMessage = "AlarmKit kullanılamıyor. iOS 26+ gerekli.\nMevcut cihaz desteklemiyor."
+                showingAlarmKitTest = true
+                return
+            }
+            
+            let authState = await AlarmKitService.shared.requestAuthorization()
+            guard authState == .authorized else {
+                alarmKitTestMessage = "AlarmKit izni verilmedi.\nDurum: \(authState)\nAyarlar > PolyNap > Alarmlar'dan izin verin."
+                showingAlarmKitTest = true
+                return
+            }
+            
+            do {
+                try await AlarmKitService.shared.scheduleTestAlarm()
+                alarmKitTestMessage = "AlarmKit test alarmı 5 saniye sonra çalacak!\n\nBu alarm Do Not Disturb modunu atlayabilir ve Lock Screen'de countdown gösterebilir."
+                showingAlarmKitTest = true
+            } catch {
+                alarmKitTestMessage = "AlarmKit test alarmı kurulamadı:\n\(error.localizedDescription)"
+                showingAlarmKitTest = true
+            }
+        }
+    }
+    
+    private func checkAlarmKitAuth() {
+        Task {
+            guard AlarmKitService.isAvailable else {
+                alarmKitAuthStatus = "AlarmKit mevcut değil (iOS 26+ gerekli)"
+                return
+            }
+            
+            let authState = await AlarmKitService.shared.checkAuthorizationStatus()
+            switch authState {
+            case .authorized:
+                alarmKitAuthStatus = "✅ AlarmKit: İzin verilmiş"
+            case .denied:
+                alarmKitAuthStatus = "❌ AlarmKit: İzin reddedilmiş"
+            case .notDetermined:
+                alarmKitAuthStatus = "⏳ AlarmKit: İzin henüz istenmemiş"
+            case .unsupported:
+                alarmKitAuthStatus = "⚠️ AlarmKit: Desteklenmiyor"
+            }
+        }
+    }
+    
+    private func cancelAllAlarmKitAlarms() {
+        Task {
+            await AlarmKitService.shared.cancelAllAlarms()
+            alarmKitTestMessage = "Tüm AlarmKit alarmları iptal edildi."
+            showingAlarmKitTest = true
         }
     }
     

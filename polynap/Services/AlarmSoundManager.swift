@@ -1,8 +1,13 @@
 import Foundation
 import AVFoundation
 import UIKit
+#if canImport(AlarmKit)
+import AlarmKit
+import ActivityKit
+#endif
 
 /// Medium makalesine göre alarm ses dosyalarını yönetir ve optimize eder
+/// AlarmKit uyumlu ses yapılandırması desteği eklenmiştir
 class AlarmSoundManager {
     static let shared = AlarmSoundManager()
     
@@ -10,6 +15,26 @@ class AlarmSoundManager {
     private let supportedInputFormats = ["mp3", "wav", "aiff", "m4a", "mp4"]
     private let targetFormat = "caf" // Apple'ın önerdiği format
     private let maxDuration: TimeInterval = 30.0 // Apple'ın 30 saniye kuralı
+    
+    // MARK: - AlarmKit Ses Yapılandırması
+    
+    #if canImport(AlarmKit)
+    /// AlarmKit için ses yapılandırması oluşturur
+    @available(iOS 26.0, *)
+    func getAlarmKitSound(for soundName: String?) -> AlertConfiguration.AlertSound {
+        if let soundName = soundName, !soundName.isEmpty {
+            if availableSounds.contains(where: { $0.fileName == soundName }) {
+                return .named(soundName)
+            }
+        }
+        return .default
+    }
+    #endif
+    
+    /// Kullanılabilir sesleri AlarmKit formatında döndürür
+    func getAlarmKitAvailableSounds() -> [String] {
+        return availableSounds.map { $0.fileName }
+    }
     
     // Alarm ses profilleri
     struct AlarmSoundProfile {

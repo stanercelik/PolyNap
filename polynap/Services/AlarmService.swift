@@ -3,6 +3,9 @@ import UserNotifications
 import SwiftData
 import UIKit
 
+/// Alarm yönetim servisi - Hibrit yaklaşım:
+/// - iOS 26+: AlarmKit API kullanır
+/// - iOS < 26: UserNotifications API kullanır
 @MainActor
 final class AlarmService: ObservableObject {
     static let shared = AlarmService()
@@ -16,13 +19,35 @@ final class AlarmService: ObservableObject {
     // Bildirim kategori tanımlayıcıları
     static let alarmCategoryIdentifier = "ALARM_CATEGORY"
     static let reminderCategoryIdentifier = "REMINDER_CATEGORY"
+    
+    // AlarmKit kullanılabilir mi?
+    private var useAlarmKit: Bool {
+        return AlarmKitService.isAvailable
+    }
 
     // Bu sadece bir kez çağrılır.
     private init() {
         Task {
-            await requestAuthorization()
-            await registerNotificationCategories()
+            await initializeAlarmService()
         }
+    }
+    
+    /// Alarm servisini başlatır - AlarmKit veya UserNotifications izni ister
+    private func initializeAlarmService() async {
+        if AlarmKitService.isAvailable {
+            // iOS 26+ için AlarmKit izni iste
+            let authState = await AlarmKitService.shared.requestAuthorization()
+            if authState == .authorized {
+                print("✅ AlarmService: AlarmKit başarıyla başlatıldı (iOS 26+)")
+                return
+            }
+            // AlarmKit izni reddedilirse veya hata olursa UserNotifications'a geri dön
+            print("⚠️ AlarmService: AlarmKit başlatılamadı, UserNotifications'a geçiliyor...")
+        }
+        
+        // UserNotifications için yetkilendirme
+        await requestAuthorization()
+        await registerNotificationCategories()
     }
 
     // MARK: - Yetkilendirme ve Kurulum
@@ -70,7 +95,63 @@ final class AlarmService: ObservableObject {
 
     /// Aktif uyku programı için tüm alarmları ve hatırlatıcıları planlayan ana fonksiyondur.
     /// Kullanıcının programı veya alarm ayarları değiştiğinde çağrılmalıdır.
+    /// iOS 26+ cihazlarda AlarmKit, daha eski cihazlarda UserNotifications kullanır.
     func rescheduleNotificationsForActiveSchedule(modelContext: ModelContext) async {
+        // iOS 26+ için AlarmKit kullan
+        if useAlarmKit {
+            await rescheduleWithAlarmKit(modelContext: modelContext)
+            return
+        }
+        
+        // Eski cihazlar için UserNotifications kullan
+        await rescheduleWithNotifications(modelContext: modelContext)
+    }
+    
+    /// AlarmKit ile alarmları planlar (iOS 26+)
+    private func rescheduleWithAlarmKit(modelContext: ModelContext) async {
+        guard let activeSchedule = try? getActiveSchedule(context: modelContext) else {
+            print("ℹ️ AlarmService: Aktif program bulunamadı. Tüm alarmlar iptal ediliyor.")
+            await AlarmKitService.shared.cancelAllAlarms()
+            return
+        }
+        
+        guard let alarmSettings = try? getAlarmSettings(context: modelContext) else {
+            print("ℹ️ AlarmService: Alarm ayarları bulunamadı.")
+            return
+        }
+        
+        print("🔄 AlarmService: '\(activeSchedule.name)' programı için AlarmKit alarmları planlanıyor...")
+        
+        // Önceki alarmları iptal et
+        await AlarmKitService.shared.cancelAllAlarms()
+        
+        // Gelecek 7 gün için uyku bloklarını işle
+        let futureBlocks = calculateFutureBlocks(for: activeSchedule, daysInAdvance: 7)
+        
+        var scheduledCount = 0
+        
+        for blockInstance in futureBlocks {
+            // Alarm ayarları aktifse planla
+            if alarmSettings.isEnabled {
+                do {
+                    try await AlarmKitService.shared.scheduleSleepBlockAlarm(
+                        at: blockInstance.endDate,
+                        scheduleId: activeSchedule.id,
+                        blockId: blockInstance.blockId,
+                        scheduleName: blockInstance.scheduleName
+                    )
+                    scheduledCount += 1
+                } catch {
+                    print("🚨 AlarmKitService: Alarm planlanamadı: \(error.localizedDescription)")
+                }
+            }
+        }
+        
+        print("✅ AlarmService: \(scheduledCount) AlarmKit alarmı planlandı.")
+    }
+    
+    /// UserNotifications ile bildirimleri planlar (iOS < 26)
+    private func rescheduleWithNotifications(modelContext: ModelContext) async {
         // 1. Gerekli ayarları ve programı SwiftData'dan al
         guard let activeSchedule = try? getActiveSchedule(context: modelContext) else {
             print("ℹ️ AlarmService: Aktif program bulunamadı. Tüm bildirimler iptal ediliyor.")
@@ -88,7 +169,7 @@ final class AlarmService: ObservableObject {
             return
         }
         
-        print("🔄 AlarmService: '\(activeSchedule.name)' programı için bildirimler yeniden planlanıyor...")
+        print("🔄 AlarmService: '\(activeSchedule.name)' programı için bildirimler yeniden planlanıyor (UserNotifications)...")
         
         // 2. Kopya bildirimleri önlemek için önceden planlanmış tüm bildirimleri iptal et
         await cancelAllNotifications()
@@ -261,6 +342,7 @@ final class AlarmService: ObservableObject {
         let startDate: Date
         let endDate: Date
         let scheduleName: String
+        let blockId: UUID  // AlarmKit için block ID eklendi
     }
 
     private func calculateFutureBlocks(for schedule: UserSchedule, daysInAdvance: Int) -> [BlockInstance] {
@@ -288,7 +370,12 @@ final class AlarmService: ObservableObject {
                 }
                 
                 if blockEndDate > Date() {
-                    instances.append(BlockInstance(startDate: blockStartDate, endDate: blockEndDate, scheduleName: schedule.name))
+                    instances.append(BlockInstance(
+                        startDate: blockStartDate,
+                        endDate: blockEndDate,
+                        scheduleName: schedule.name,
+                        blockId: block.id  // Block ID eklendi
+                    ))
                 }
             }
         }
