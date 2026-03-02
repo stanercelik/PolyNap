@@ -173,16 +173,10 @@ struct MainScreenView: View {
                             viewModel.cancelChartEdit()
                         }) {
                             Text(L("common.cancel", table: "Common"))
-                                .font(.system(.caption, design: .rounded).weight(.medium))
-                                .foregroundColor(.appTextSecondary)
-                                .padding(.horizontal, PSSpacing.sm)
-                                .padding(.vertical, PSSpacing.xs)
-                                .background(
-                                    RoundedRectangle(cornerRadius: PSCornerRadius.small)
-                                        .fill(Color.appTextSecondary.opacity(0.1))
-                                )
+                                .font(.system(.body, design: .rounded).weight(.regular))
+                                .foregroundColor(.secondary)
                         }
-                        .transition(.move(edge: .leading).combined(with: .opacity))
+                        .transition(.opacity.combined(with: .scale(0.9)))
                     }
                 }
                 
@@ -192,19 +186,11 @@ struct MainScreenView: View {
                             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                             viewModel.saveChartEdit()
                         }) {
-                            HStack(spacing: PSSpacing.xs) {
-                                Image(systemName: "checkmark")
-                                    .symbolRenderingMode(.hierarchical)
-                                    .font(.system(size: 16, weight: .medium))
-                                Text(L("mainScreen.chart.save", table: "MainScreen"))
-                                    .font(.system(.caption, design: .rounded).weight(.medium))
-                            }
-                            .foregroundColor(.appSuccess)
-                            .padding(.horizontal, PSSpacing.sm)
-                            .padding(.vertical, PSSpacing.xs)
-                            .background(RoundedRectangle(cornerRadius: PSCornerRadius.small).fill(Color.appSuccess.opacity(0.1)))
+                            Text(L("mainScreen.chart.save", table: "MainScreen"))
+                                .font(.system(.body, design: .rounded).weight(.semibold))
+                                .foregroundColor(.appPrimary)
                         }
-                        .animation(.easeInOut(duration: 0.2), value: viewModel.isChartEditMode)
+                        .transition(.opacity.combined(with: .scale(0.9)))
                     }
                 }
             }
@@ -247,8 +233,8 @@ struct MainHeroSection: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: PSSpacing.sm) {
-            // Greeting + Date row
-            HStack {
+            // Greeting + Date + Schedule pill (single row)
+            HStack(alignment: .center) {
                 Text(viewModel.greetingText)
                     .font(.system(.caption, design: .rounded).weight(.medium))
                     .foregroundColor(.white.opacity(0.6))
@@ -257,28 +243,20 @@ struct MainHeroSection: View {
                 Text(currentDateFormatted)
                     .font(.system(.caption, design: .rounded).weight(.medium))
                     .foregroundColor(.white.opacity(0.6))
-                Spacer()
-            }
-            .opacity(appeared ? 1 : 0)
-            .offset(y: appeared || reduceMotion ? 0 : 8)
-            
-            // Name + Schedule name
-            HStack(alignment: .center, spacing: PSSpacing.sm) {
-                let name = viewModel.userDisplayName
-                Text(name.isEmpty ? L("mainScreen.title", table: "MainScreen") : name)
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                    .foregroundColor(.white)
                     .lineLimit(1)
                 
                 Spacer()
                 
-                // Schedule name pill (tappable)
-                Button(action: { viewModel.showScheduleSelectionSheet() }) {
+                // Schedule pill (tappable) — replaces big title
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    viewModel.showScheduleSelectionSheet()
+                }) {
                     HStack(spacing: 4) {
                         Text("📋")
-                            .font(.system(size: 12))
+                            .font(.system(size: 11))
                         Text(viewModel.model.schedule.name)
-                            .font(.system(.caption, design: .rounded).weight(.semibold))
+                            .font(.system(.caption2, design: .rounded).weight(.semibold))
                             .foregroundColor(.white)
                             .lineLimit(1)
                     }
@@ -291,7 +269,7 @@ struct MainHeroSection: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared || reduceMotion ? 0 : 8)
             
-            Spacer().frame(height: PSSpacing.md)
+            Spacer().frame(height: PSSpacing.sm)
             
             // "Next Sleep" label
             Text(L("mainScreen.nextSleepBlock", table: "MainScreen"))
@@ -559,7 +537,7 @@ struct HomeMetricCard: View {
         .disabled(onTap == nil)
         .opacity(appeared ? 1 : 0)
         .scaleEffect(appeared || reduceMotion ? 1 : 0.95)
-        .animation(.easeOut(duration: 0.3).delay(delay), value: appeared)
+        .animation(.spring(response: 0.4, dampingFraction: 0.85).delay(delay), value: appeared)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(title): \(value)")
         .accessibilityAddTraits(onTap != nil ? .isButton : .isStaticText)
@@ -615,14 +593,14 @@ struct MainChartCard: View {
                         .id(dragInfo)
                 } else {
                     ChartEditControls(viewModel: viewModel)
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .transition(.opacity.combined(with: .scale(0.95, anchor: .bottom)))
                 }
             }
         }
         .padding(PSSpacing.md)
         .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: PSCornerRadius.extraLarge))
         .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 3)
-        .animation(.easeInOut(duration: 0.3), value: viewModel.isChartEditMode)
+        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: viewModel.isChartEditMode)
     }
 }
 
@@ -630,41 +608,53 @@ struct MainChartCard: View {
 struct ChartEditControls: View {
     @ObservedObject var viewModel: MainScreenViewModel
     
+    private var isDragging: Bool {
+        viewModel.draggedBlockId != nil || viewModel.isResizing
+    }
+    
     var body: some View {
-        VStack(spacing: PSSpacing.xs) {
-            HStack(spacing: PSSpacing.xs) {
-                Image(systemName: "hand.draw")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.appTextSecondary)
-                Text(L("mainScreen.chart.instruction.move", table: "MainScreen"))
-                    .font(PSTypography.caption)
-                    .foregroundColor(.appTextSecondary)
-            }
-            
-            HStack(spacing: PSSpacing.xs) {
-                Image(systemName: "trash")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.appTextSecondary)
-                Text(L("mainScreen.chart.instruction.delete", table: "MainScreen"))
-                    .font(PSTypography.caption)
-                    .foregroundColor(.appTextSecondary)
-            }
-            
-            HStack(spacing: PSSpacing.xs) {
-                Image(systemName: "plus")
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundColor(.appTextSecondary)
-                Text(L("mainScreen.chart.instruction.add", table: "MainScreen"))
-                    .font(PSTypography.caption)
-                    .foregroundColor(.appTextSecondary)
-            }
+        HStack(spacing: PSSpacing.sm) {
+            EditChip(
+                icon: "hand.draw",
+                label: LanguageManager.shared.currentLanguage == "tr" ? "Sürükle" : "Move",
+                isActive: isDragging
+            )
+            EditChip(
+                icon: "trash",
+                label: LanguageManager.shared.currentLanguage == "tr" ? "Sil" : "Delete",
+                isActive: false
+            )
+            EditChip(
+                icon: "plus",
+                label: LanguageManager.shared.currentLanguage == "tr" ? "Ekle" : "Add",
+                isActive: false
+            )
         }
-        .padding(.horizontal, PSSpacing.md)
-        .padding(.vertical, PSSpacing.sm)
+        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: isDragging)
+    }
+}
+
+private struct EditChip: View {
+    let icon: String
+    let label: String
+    let isActive: Bool
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .medium))
+            Text(label)
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+        }
+        .foregroundColor(isActive ? Color.heroBottom : .appTextSecondary)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .frame(minHeight: 32)
         .background(
-            RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                .fill(Color.appTextSecondary.opacity(0.05))
+            Capsule()
+                .fill(isActive ? Color.heroBottom.opacity(0.12) : Color.appTextSecondary.opacity(0.07))
         )
+        .animation(.spring(response: 0.25, dampingFraction: 0.85), value: isActive)
     }
 }
 

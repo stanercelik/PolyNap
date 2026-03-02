@@ -17,6 +17,7 @@ class MainScreenViewModel: ObservableObject {
     @Published private(set) var nextSleepBlock: SleepBlock?
     @Published private(set) var timeUntilNextBlock: TimeInterval = 0
     @Published private(set) var selectedSchedule: UserScheduleModel?
+    @Published private(set) var adaptationStartDate: Date? = nil
     @Published var showAddBlockSheet: Bool = false
     @Published var showEditNameSheet: Bool = false
     @Published var editingTitle: String = "" {
@@ -104,6 +105,11 @@ class MainScreenViewModel: ObservableObject {
     @Published var initialResizeBlock: SleepBlock? = nil
 
 
+    // MARK: - Arc Drag Haptic Tracking
+    private var lastHapticSnappedTime: String = ""
+    private let selectionFeedback = UISelectionFeedbackGenerator()
+    private let mediumImpact = UIImpactFeedbackGenerator(style: .medium)
+    
     // MARK: - Enhanced Edit Mode Features
     @Published var editFeedbackMessage: String = ""
     @Published var editFeedbackType: EditFeedbackType = .none
@@ -290,6 +296,42 @@ class MainScreenViewModel: ObservableObject {
         } else {
             return L("mainScreen.awakeTime", table: "MainScreen")
         }
+    }
+    
+    /// Adaptasyon başlangıcından bu yana kaç gün geçtiğini döndürür (1-indexed)
+    var adaptationDayCount: Int {
+        guard let startDate = adaptationStartDate else { return 1 }
+        let calendar = Calendar.current
+        let start = calendar.startOfDay(for: startDate)
+        let today = calendar.startOfDay(for: Date())
+        let days = calendar.dateComponents([.day], from: start, to: today).day ?? 0
+        return max(1, days + 1)
+    }
+    
+    /// Saate göre selamlama metni döndürür
+    var greetingText: String {
+        let hour = Calendar.current.component(.hour, from: Date())
+        if languageManager.currentLanguage == "tr" {
+            switch hour {
+            case 5..<12: return "Günaydın"
+            case 12..<17: return "İyi öğlenler"
+            case 17..<21: return "İyi akşamlar"
+            default: return "İyi geceler"
+            }
+        } else {
+            switch hour {
+            case 5..<12: return "Good morning"
+            case 12..<17: return "Good afternoon"
+            case 17..<21: return "Good evening"
+            default: return "Good night"
+            }
+        }
+    }
+    
+    /// Kullanıcının görünen adını döndürür
+    var userDisplayName: String {
+        guard let name = userPreferences?.userName, !name.isEmpty else { return "" }
+        return name
     }
     
     init(model: MainScreenModel = MainScreenModel(schedule: UserScheduleModel.placeholder), languageManager: LanguageManager = LanguageManager.shared) {
@@ -891,6 +933,13 @@ class MainScreenViewModel: ObservableObject {
         
         do {
             if let activeSchedule = try await Repository.shared.getActiveSchedule() {
+                // Adaptasyon başlangıç tarihini yükle
+                let startDate: Date?
+                if let scheduleUUID = UUID(uuidString: activeSchedule.id) {
+                    startDate = AdaptationManager.shared.getCurrentAdaptationStartDate(scheduleId: scheduleUUID)
+                } else {
+                    startDate = nil
+                }
                 await MainActor.run {
                     // Total sleep hours'ı güncelle
                     var updatedSchedule = activeSchedule
@@ -898,6 +947,7 @@ class MainScreenViewModel: ObservableObject {
                     
                     self.selectedSchedule = updatedSchedule
                     self.model = MainScreenModel(schedule: updatedSchedule)
+                    self.adaptationStartDate = startDate
                     self.isLoading = false
                     self.updateAlarms()
                 }
@@ -1425,6 +1475,7 @@ class MainScreenViewModel: ObservableObject {
     
     /// Grafik düzenleme modunu başlatır
     func startChartEdit() {
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         tempScheduleBlocks = model.schedule.schedule
         initialDragState = Dictionary(uniqueKeysWithValues: tempScheduleBlocks.map { ($0.id, (startTime: $0.startTime, duration: $0.duration)) })
         isChartEditMode = true
@@ -1513,6 +1564,7 @@ class MainScreenViewModel: ObservableObject {
         dragAngleOffset = 0
         liveBlockTimeString = nil // Canlı zaman gösterimini temizle
         previewBlock = nil // Preview block'u da temizle
+        lastHapticSnappedTime = "" // Haptic tracking sıfırla
         
         isResizing = false
         resizeBlockId = nil
@@ -1553,6 +1605,7 @@ class MainScreenViewModel: ObservableObject {
         // Açıyı 5 dakikaya yuvarla
         let snappedAngle = snapAngleToFiveMinutes(newAngleInDegrees)
         let newTime = timeFromAngle(snappedAngle)
+        fireSnapHapticIfNeeded(for: newTime)
 
         var newStartTime = initialBlock.startTime
         var newEndTime = initialBlock.endTime
@@ -1646,6 +1699,18 @@ class MainScreenViewModel: ObservableObject {
     
     // MARK: - Helper Functions for Chart Editing
     
+    /// Arc snap değişiminde haptic tetikler — her 5 dk selection, her saat başı medium impact
+    private func fireSnapHapticIfNeeded(for time: String) {
+        guard time != lastHapticSnappedTime else { return }
+        lastHapticSnappedTime = time
+        let parts = time.split(separator: ":").compactMap { Int($0) }
+        if parts.count == 2 && parts[1] == 0 {
+            mediumImpact.impactOccurred()
+        } else {
+            selectionFeedback.selectionChanged()
+        }
+    }
+
     /// Açıyı 5 dakikaya snap eder
     func snapAngleToFiveMinutes(_ angle: Double) -> Double {
         let degreesPerMinute = 360.0 / (24.0 * 60.0) // 0.25 derece/dakika
@@ -1733,6 +1798,7 @@ class MainScreenViewModel: ObservableObject {
         
         // Pozisyondan yeni zamanı hesapla
         let newStartTime = getCurrentTimeFromPosition(position, center: center)
+        fireSnapHapticIfNeeded(for: newStartTime)
         
         // Floating block'u güncellenmiş zamanla yeniden oluştur
         floatingBlock = SleepBlock(
