@@ -286,6 +286,11 @@ struct EditableCircularSleepChart: View {
                         }
                     : nil
                 )
+                .simultaneousGesture(
+                    viewModel.isChartEditMode ?
+                    TapGesture().onEnded { viewModel.selectChartBlock(block) }
+                    : nil
+                )
                 
                 // Enhanced drag handle sadece edit mode'da
                 if viewModel.isChartEditMode && !viewModel.isResizing {

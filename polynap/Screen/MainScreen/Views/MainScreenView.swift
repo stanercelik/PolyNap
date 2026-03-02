@@ -568,6 +568,9 @@ struct MainChartCard: View {
         .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: PSCornerRadius.extraLarge))
         .shadow(color: .black.opacity(0.18), radius: 8, x: 0, y: 3)
         .animation(.spring(response: 0.35, dampingFraction: 0.85), value: viewModel.isChartEditMode)
+        .sheet(isPresented: $viewModel.showChartBlockEditSheet) {
+            ChartBlockEditSheet(viewModel: viewModel)
+        }
     }
 }
 
@@ -622,6 +625,100 @@ private struct EditChip: View {
                 .fill(isActive ? Color.heroBottom.opacity(0.12) : Color.appTextSecondary.opacity(0.07))
         )
         .animation(.spring(response: 0.25, dampingFraction: 0.85), value: isActive)
+    }
+}
+
+// MARK: - Chart Block Tap Edit Sheet
+struct ChartBlockEditSheet: View {
+    @ObservedObject var viewModel: MainScreenViewModel
+    @Environment(\.dismiss) private var dismiss
+    private var isTR: Bool { LanguageManager.shared.currentLanguage == "tr" }
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                // Block type badge
+                if let block = viewModel.chartEditingBlock {
+                    HStack(spacing: PSSpacing.sm) {
+                        Image(systemName: block.isCore ? "moon.fill" : "powersleep")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundColor(block.isCore ? .appPrimary : .appSecondary)
+                        Text(block.isCore
+                             ? L("mainScreen.sleepBlockCore", table: "MainScreen")
+                             : L("mainScreen.sleepBlockNap", table: "MainScreen"))
+                            .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                            .foregroundColor(block.isCore ? .appPrimary : .appSecondary)
+                    }
+                    .padding(.horizontal, PSSpacing.lg)
+                    .padding(.vertical, PSSpacing.sm)
+                    .background((block.isCore ? Color.appPrimary : Color.appSecondary).opacity(0.1),
+                                in: Capsule())
+                    .padding(.top, PSSpacing.lg)
+                }
+
+                Form {
+                    Section(header: Text(isTR ? "Başlangıç" : "Start Time")
+                        .font(.system(.caption, design: .rounded).weight(.semibold))) {
+                        DatePicker("",
+                                   selection: $viewModel.chartEditStartDate,
+                                   displayedComponents: .hourAndMinute)
+                            .datePickerStyle(.wheel)
+                            .labelsHidden()
+                            .frame(maxWidth: .infinity)
+                    }
+                    Section(header: Text(isTR ? "Bitiş" : "End Time")
+                        .font(.system(.caption, design: .rounded).weight(.semibold))) {
+                        DatePicker("",
+                                   selection: $viewModel.chartEditEndDate,
+                                   displayedComponents: .hourAndMinute)
+                            .datePickerStyle(.wheel)
+                            .labelsHidden()
+                            .frame(maxWidth: .infinity)
+                    }
+                    Section {
+                        Button(role: .destructive, action: {
+                            viewModel.deleteChartBlock()
+                        }) {
+                            HStack {
+                                Spacer()
+                                Label(isTR ? "Bloğu Sil" : "Delete Block",
+                                      systemImage: "trash")
+                                    .font(.system(.body, design: .rounded).weight(.medium))
+                                Spacer()
+                            }
+                        }
+                    }
+                }
+                .scrollContentBackground(.hidden)
+                .background(Color.appBackground)
+            }
+            .background(Color.appBackground)
+            .navigationTitle(isTR ? "Bloğu Düzenle" : "Edit Block")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button(action: {
+                        viewModel.showChartBlockEditSheet = false
+                        viewModel.chartEditingBlock = nil
+                    }) {
+                        Text(L("common.cancel", table: "Common"))
+                            .font(.system(.body, design: .rounded).weight(.regular))
+                            .foregroundColor(.secondary)
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button(action: {
+                        viewModel.applyChartBlockEdit()
+                    }) {
+                        Text(isTR ? "Tamam" : "Done")
+                            .font(.system(.body, design: .rounded).weight(.semibold))
+                            .foregroundColor(Color("SuccessColor"))
+                    }
+                }
+            }
+        }
+        .presentationDetents([.medium])
+        .presentationDragIndicator(.visible)
     }
 }
 

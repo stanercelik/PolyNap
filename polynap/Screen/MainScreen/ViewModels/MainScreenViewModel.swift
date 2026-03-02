@@ -110,6 +110,12 @@ class MainScreenViewModel: ObservableObject {
     private let selectionFeedback = UISelectionFeedbackGenerator()
     private let mediumImpact = UIImpactFeedbackGenerator(style: .medium)
     
+    // MARK: - Chart Block Tap Edit
+    @Published var showChartBlockEditSheet: Bool = false
+    @Published var chartEditingBlock: SleepBlock? = nil
+    @Published var chartEditStartDate: Date = Date()
+    @Published var chartEditEndDate: Date = Date()
+
     // MARK: - Enhanced Edit Mode Features
     @Published var editFeedbackMessage: String = ""
     @Published var editFeedbackType: EditFeedbackType = .none
@@ -1513,8 +1519,55 @@ class MainScreenViewModel: ObservableObject {
         resetDragAndDropState()
         analyticsManager.logFeatureUsed(featureName: "chart_edit_mode_cancelled", action: "edit_cancelled")
     }
-    
-    /// Bir bloğu sürüklemeye başlar
+
+    // MARK: - Chart Block Tap-to-Edit
+
+    func selectChartBlock(_ block: SleepBlock) {
+        chartEditingBlock = block
+        // Convert startTime "HH:mm" → Date for DatePicker
+        let cal = Calendar.current
+        var comps = cal.dateComponents([.year, .month, .day], from: Date())
+        if let (h, m) = TimeFormatter.time(from: block.startTime) {
+            comps.hour = h; comps.minute = m
+        }
+        chartEditStartDate = cal.date(from: comps) ?? Date()
+        if let (h, m) = TimeFormatter.time(from: block.endTime) {
+            comps.hour = h; comps.minute = m
+        }
+        chartEditEndDate = cal.date(from: comps) ?? Date()
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        showChartBlockEditSheet = true
+    }
+
+    func applyChartBlockEdit() {
+        guard let block = chartEditingBlock,
+              let idx = tempScheduleBlocks.firstIndex(where: { $0.id == block.id }) else { return }
+        let cal = Calendar.current
+        let sh = cal.component(.hour, from: chartEditStartDate)
+        let sm = cal.component(.minute, from: chartEditStartDate)
+        let eh = cal.component(.hour, from: chartEditEndDate)
+        let em = cal.component(.minute, from: chartEditEndDate)
+        let newStart = String(format: "%02d:%02d", sh, sm)
+        let endTotal = eh * 60 + em
+        let startTotal = sh * 60 + sm
+        var dur = endTotal - startTotal
+        if dur <= 0 { dur += 24 * 60 }
+        let updated = SleepBlock(startTime: newStart, duration: dur, type: block.type, isCore: block.isCore)
+        tempScheduleBlocks[idx] = updated
+        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        showChartBlockEditSheet = false
+        chartEditingBlock = nil
+    }
+
+    func deleteChartBlock() {
+        guard let block = chartEditingBlock else { return }
+        tempScheduleBlocks.removeAll { $0.id == block.id }
+        UINotificationFeedbackGenerator().notificationOccurred(.warning)
+        showChartBlockEditSheet = false
+        chartEditingBlock = nil
+    }
+
+
     func startDragging(blockId: UUID, at position: CGPoint) {
         guard isChartEditMode else { return }
         
