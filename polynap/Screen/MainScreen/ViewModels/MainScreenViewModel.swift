@@ -107,6 +107,7 @@ class MainScreenViewModel: ObservableObject {
 
     // MARK: - Arc Drag Haptic Tracking
     private var lastHapticSnappedTime: String = ""
+    private var recentlyDragged: Bool = false
     private let selectionFeedback = UISelectionFeedbackGenerator()
     private let mediumImpact = UIImpactFeedbackGenerator(style: .medium)
     
@@ -1523,6 +1524,7 @@ class MainScreenViewModel: ObservableObject {
     // MARK: - Chart Block Tap-to-Edit
 
     func selectChartBlock(_ block: SleepBlock) {
+        guard !recentlyDragged, draggedBlockId == nil, !isResizing else { return }
         chartEditingBlock = block
         // Convert startTime "HH:mm" → Date for DatePicker
         let cal = Calendar.current
@@ -1603,6 +1605,12 @@ class MainScreenViewModel: ObservableObject {
         
         resetDragState()
         resetFloatingBlockState()
+        
+        // Suppress tap-to-edit for a short window after drag ends
+        recentlyDragged = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { [weak self] in
+            self?.recentlyDragged = false
+        }
         
         // Trash area state'ini sıfırla - keep trash area visible in edit mode
         // showTrashArea = false // Keep visible in edit mode

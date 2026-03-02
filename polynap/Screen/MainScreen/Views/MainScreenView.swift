@@ -653,12 +653,15 @@ struct ChartBlockEditSheet: View {
                     .padding(.vertical, PSSpacing.sm)
                     .background((block.isCore ? Color.appPrimary : Color.appSecondary).opacity(0.1),
                                 in: Capsule())
-                    .padding(.top, PSSpacing.lg)
+                    .padding(.top, PSSpacing.md)
                 }
 
-                Form {
-                    Section(header: Text(isTR ? "Başlangıç" : "Start Time")
-                        .font(.system(.caption, design: .rounded).weight(.semibold))) {
+                // Side-by-side time pickers
+                HStack(alignment: .top, spacing: 0) {
+                    VStack(spacing: PSSpacing.xs) {
+                        Text(isTR ? "Başlangıç" : "Start")
+                            .font(.system(.caption, design: .rounded).weight(.semibold))
+                            .foregroundColor(.appTextSecondary)
                         DatePicker("",
                                    selection: $viewModel.chartEditStartDate,
                                    displayedComponents: .hourAndMinute)
@@ -666,8 +669,17 @@ struct ChartBlockEditSheet: View {
                             .labelsHidden()
                             .frame(maxWidth: .infinity)
                     }
-                    Section(header: Text(isTR ? "Bitiş" : "End Time")
-                        .font(.system(.caption, design: .rounded).weight(.semibold))) {
+                    .frame(maxWidth: .infinity)
+
+                    Rectangle()
+                        .fill(Color.appTextSecondary.opacity(0.15))
+                        .frame(width: 1)
+                        .padding(.top, 26)
+
+                    VStack(spacing: PSSpacing.xs) {
+                        Text(isTR ? "Bitiş" : "End")
+                            .font(.system(.caption, design: .rounded).weight(.semibold))
+                            .foregroundColor(.appTextSecondary)
                         DatePicker("",
                                    selection: $viewModel.chartEditEndDate,
                                    displayedComponents: .hourAndMinute)
@@ -675,22 +687,30 @@ struct ChartBlockEditSheet: View {
                             .labelsHidden()
                             .frame(maxWidth: .infinity)
                     }
-                    Section {
-                        Button(role: .destructive, action: {
-                            viewModel.deleteChartBlock()
-                        }) {
-                            HStack {
-                                Spacer()
-                                Label(isTR ? "Bloğu Sil" : "Delete Block",
-                                      systemImage: "trash")
-                                    .font(.system(.body, design: .rounded).weight(.medium))
-                                Spacer()
-                            }
-                        }
-                    }
+                    .frame(maxWidth: .infinity)
                 }
-                .scrollContentBackground(.hidden)
-                .background(Color.appBackground)
+                .padding(.horizontal, PSSpacing.md)
+                .padding(.top, PSSpacing.sm)
+
+                Divider()
+                    .padding(.top, PSSpacing.sm)
+
+                // Delete button
+                Button(role: .destructive, action: {
+                    viewModel.deleteChartBlock()
+                }) {
+                    HStack {
+                        Spacer()
+                        Label(isTR ? "Bloğu Sil" : "Delete Block",
+                              systemImage: "trash")
+                            .font(.system(.body, design: .rounded).weight(.medium))
+                        Spacer()
+                    }
+                    .padding(.vertical, PSSpacing.md)
+                }
+                .padding(.horizontal, PSSpacing.md)
+
+                Spacer()
             }
             .background(Color.appBackground)
             .navigationTitle(isTR ? "Bloğu Düzenle" : "Edit Block")
