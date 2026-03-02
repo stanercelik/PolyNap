@@ -1,66 +1,6 @@
 import SwiftUI
 import SwiftData
 
-// MARK: - Modern Segmented Control
-struct ModernSegmentedControl: View {
-    @Binding var selectedSegment: Int
-    @Namespace private var animation
-    
-    private let segments = [
-        ("chart.pie.fill", L("mainScreen.segment.overview", table: "MainScreen")),
-        ("list.bullet.clipboard.fill", L("mainScreen.segment.details", table: "MainScreen"))
-    ]
-    
-    var body: some View {
-        HStack(spacing: PSSpacing.xs) {
-            ForEach(Array(segments.enumerated()), id: \.offset) { index, segment in
-                let isSelected = selectedSegment == index
-                Button(action: {
-                    let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                    impactFeedback.impactOccurred()
-                    
-                    withAnimation(.spring(response: 0.5, dampingFraction: 0.6, blendDuration: 0.1)) {
-                        selectedSegment = index
-                    }
-                }) {
-                    HStack(spacing: PSSpacing.xs) {
-                        Image(systemName: segment.0)
-                            .font(.system(size: 15, weight: .medium))
-                            .symbolVariant(isSelected ? .fill : .none)
-                            .symbolRenderingMode(.hierarchical)
-                        
-                        Text(segment.1)
-                            .font(PSTypography.caption.weight(.semibold))
-                    }
-                    .foregroundColor(isSelected ? .appTextOnPrimary : .appTextSecondary)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 36)
-                    .background {
-                        if isSelected {
-                            RoundedRectangle(cornerRadius: PSCornerRadius.small)
-                                .fill(Color.appPrimary)
-                                .matchedGeometryEffect(id: "selectedSegment", in: animation)
-                        }
-                    }
-                    .scaleEffect(isSelected ? 1.0 : 0.96)
-                    .animation(.spring(response: 0.4, dampingFraction: 0.6), value: isSelected)
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(PSSpacing.xs)
-        .background(
-            RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                .fill(Color.appCardBackground)
-                .overlay(
-                    RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                        .stroke(Color.appPrimary.opacity(0.06), lineWidth: 0.5)
-                )
-        )
-        .shadow(color: .black.opacity(0.04), radius: 4, x: 0, y: 2)
-    }
-}
-
 // MARK: - Redacted Shimmer Effect Modifier
 struct RedactedShimmerModifier: ViewModifier {
     func body(content: Content) -> some View {
@@ -146,98 +86,90 @@ struct MainScreenView: View {
                 Color.appBackground
                     .ignoresSafeArea()
                 
-                VStack(spacing: 0) {
-                    // Skipped Onboarding Card - Show at top when needed
-                    if viewModel.shouldShowSkippedOnboardingCard {
-                        SkippedOnboardingCardView(
-                            isPresented: $viewModel.showSkippedOnboardingCard,
-                            onChooseSchedule: {
-                                viewModel.showScheduleSelectionSheet()
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 0) {
+                        // Hero Section (gradient header)
+                        MainHeroSection(viewModel: viewModel)
+                        
+                        // Content Area
+                        VStack(spacing: PSSpacing.xl) {
+                            // Skipped Onboarding Card
+                            if viewModel.shouldShowSkippedOnboardingCard {
+                                SkippedOnboardingCardView(
+                                    isPresented: $viewModel.showSkippedOnboardingCard,
+                                    onChooseSchedule: {
+                                        viewModel.showScheduleSelectionSheet()
+                                    }
+                                )
+                                .onDisappear {
+                                    viewModel.dismissSkippedOnboardingCard()
+                                }
                             }
-                        )
-                        .onDisappear {
-                            viewModel.dismissSkippedOnboardingCard()
+                            
+                            // Metrics Grid
+                            MetricsGridSection(viewModel: viewModel)
+                            
+                            // Circular Sleep Chart
+                            MainChartCard(viewModel: viewModel)
+                            
+                            // Sleep Blocks Section
+                            SleepBlocksSection(viewModel: viewModel)
+                            
+                            // Daily Tip Section (Nimmy)
+                            DailyTipSection(viewModel: viewModel)
                         }
-                        .padding(.top, PSSpacing.lg)
-                        .safeAreaPadding(.top)
-                    }
-                    
-                    // Modern Segmented Control
-                    ModernSegmentedControl(selectedSegment: $viewModel.selectedSegment)
                         .padding(.horizontal, PSSpacing.lg)
-                        .padding(.top, PSSpacing.sm)
-                        .padding(.bottom, PSSpacing.md)
-                    
-                    // Content based on selected segment
-                    Group {
-                        if viewModel.selectedSegment == 0 {
-                            MinimalSegmentView(viewModel: viewModel)
-                                .transition(.asymmetric(
-                                    insertion: .move(edge: .leading).combined(with: .opacity),
-                                    removal: .move(edge: .trailing).combined(with: .opacity)
-                                ))
-                        } else {
-                            DetailedSegmentView(viewModel: viewModel)
-                                .transition(.asymmetric(
-                                    insertion: .move(edge: .trailing).combined(with: .opacity),
-                                    removal: .move(edge: .leading).combined(with: .opacity)
-                                ))
-                        }
+                        .padding(.top, PSSpacing.xl)
+                        .padding(.bottom, PSSpacing.xxxl)
                     }
-                    .animation(.spring(response: 0.6, dampingFraction: 0.7, blendDuration: 0.2), value: viewModel.selectedSegment)
-                    
-                    // Error Overlay
-                    if let errorMessage = viewModel.errorMessage {
+                }
+                
+                // Error Overlay
+                if let errorMessage = viewModel.errorMessage {
+                    VStack {
+                        Spacer()
                         ErrorOverlayCard(errorMessage: errorMessage, viewModel: viewModel)
                     }
-                    
-                    // Sleep Quality Rating Card (Global overlay)
-                    if viewModel.showSleepQualityRating, let lastBlock = viewModel.lastSleepBlock {
-                        if let startTime = TimeFormatter.time(from: lastBlock.startTime),
-                           let endTime = TimeFormatter.time(from: lastBlock.endTime) {
-                        
-                            let now = Date()
-                            let startDate = Calendar.current.date(
-                                bySettingHour: startTime.hour,
-                                minute: startTime.minute,
-                                second: 0,
-                                of: now
-                            ) ?? now
-                            
-                            let endDate = Calendar.current.date(
-                                bySettingHour: endTime.hour,
-                                minute: endTime.minute,
-                                second: 0,
-                                of: now
-                            ) ?? now
-                            
+                }
+                
+                // Sleep Quality Rating Card
+                if viewModel.showSleepQualityRating, let lastBlock = viewModel.lastSleepBlock {
+                    if let startTime = TimeFormatter.time(from: lastBlock.startTime),
+                       let endTime = TimeFormatter.time(from: lastBlock.endTime) {
+                        let now = Date()
+                        let startDate = Calendar.current.date(
+                            bySettingHour: startTime.hour, minute: startTime.minute, second: 0, of: now
+                        ) ?? now
+                        let endDate = Calendar.current.date(
+                            bySettingHour: endTime.hour, minute: endTime.minute, second: 0, of: now
+                        ) ?? now
+                        VStack {
+                            Spacer()
                             SleepQualityRatingCard(
                                 startTime: startDate,
                                 endTime: endDate,
                                 isPresented: $viewModel.showSleepQualityRating,
                                 viewModel: viewModel
                             )
+                            .padding(.horizontal, PSSpacing.lg)
+                            .padding(.bottom, PSSpacing.lg)
                             .transition(.move(edge: .bottom).combined(with: .opacity))
-                            .zIndex(100)
                         }
+                        .zIndex(100)
                     }
                 }
             }
-            .navigationTitle(L("mainScreen.title", table: "MainScreen"))
             .navigationBarTitleDisplayMode(.inline)
-            .toolbarBackground(Color.appBackground, for: .navigationBar)
-            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    // Cancel button for edit mode
                     if viewModel.isChartEditMode {
                         Button(action: {
-                            let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                            impactFeedback.impactOccurred()
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
                             viewModel.cancelChartEdit()
                         }) {
                             Text(L("common.cancel", table: "Common"))
-                                .font(PSTypography.caption.weight(.medium))
+                                .font(.system(.caption, design: .rounded).weight(.medium))
                                 .foregroundColor(.appTextSecondary)
                                 .padding(.horizontal, PSSpacing.sm)
                                 .padding(.vertical, PSSpacing.xs)
@@ -247,75 +179,35 @@ struct MainScreenView: View {
                                 )
                         }
                         .transition(.move(edge: .leading).combined(with: .opacity))
-                    } else {
-                        Button(action: shareSchedule) {
-                            Image(systemName: "square.and.arrow.up")
-                                .symbolRenderingMode(.hierarchical)
-                                .foregroundColor(.appPrimary)
-                        }
-                        .transition(.move(edge: .leading).combined(with: .opacity))
                     }
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-                        impactFeedback.impactOccurred()
-                        
-                        if viewModel.isChartEditMode {
+                    if viewModel.isChartEditMode {
+                        Button(action: {
+                            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                             viewModel.saveChartEdit()
-                        } else {
-                            // Eğer detailed segment'tayken edit'e basılırsa, önce overview'e geç
-                            if viewModel.selectedSegment != 0 {
-                                withAnimation(.easeInOut(duration: 0.3)) {
-                                    viewModel.selectedSegment = 0
-                                }
-                                // Biraz bekle, sonra edit modunu başlat
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                                    viewModel.startChartEdit()
-                                }
-                            } else {
-                                viewModel.startChartEdit()
-                            }
-                        }
-                    }) {
-                        HStack(spacing: PSSpacing.xs) {
-                            Image(systemName: viewModel.isChartEditMode ? "checkmark" : "pencil")
-                                .symbolRenderingMode(.hierarchical)
-                                .font(.system(size: 16, weight: .medium))
-                            
-                            if viewModel.isChartEditMode {
+                        }) {
+                            HStack(spacing: PSSpacing.xs) {
+                                Image(systemName: "checkmark")
+                                    .symbolRenderingMode(.hierarchical)
+                                    .font(.system(size: 16, weight: .medium))
                                 Text(L("mainScreen.chart.save", table: "MainScreen"))
-                                    .font(PSTypography.caption.weight(.medium))
-                            } else {
-                                Text(L("mainScreen.chart.edit", table: "MainScreen"))
-                                    .font(PSTypography.caption.weight(.medium))
+                                    .font(.system(.caption, design: .rounded).weight(.medium))
                             }
+                            .foregroundColor(.appSuccess)
+                            .padding(.horizontal, PSSpacing.sm)
+                            .padding(.vertical, PSSpacing.xs)
+                            .background(RoundedRectangle(cornerRadius: PSCornerRadius.small).fill(Color.appSuccess.opacity(0.1)))
                         }
-                        .foregroundColor(viewModel.isChartEditMode ? .appSuccess : .appPrimary)
-                        .padding(.horizontal, PSSpacing.sm)
-                        .padding(.vertical, PSSpacing.xs)
-                        .background(
-                            RoundedRectangle(cornerRadius: PSCornerRadius.small)
-                                .fill(
-                                    viewModel.isChartEditMode ? 
-                                    Color.appSuccess.opacity(0.1) : 
-                                    Color.appPrimary.opacity(0.1)
-                                )
-                        )
+                        .animation(.easeInOut(duration: 0.2), value: viewModel.isChartEditMode)
                     }
-                    .animation(.easeInOut(duration: 0.2), value: viewModel.isChartEditMode)
                 }
             }
             .onAppear {
                 viewModel.setModelContext(modelContext)
-                
-                // Analytics: Main screen görüntüleme (sadece bir defa)
                 if !hasLoggedScreenView {
-                    analyticsManager.logScreenView(
-                        screenName: "main_screen",
-                        screenClass: "MainScreenView"
-                    )
+                    analyticsManager.logScreenView(screenName: "main_screen", screenClass: "MainScreenView")
                     hasLoggedScreenView = true
                 }
             }
@@ -325,11 +217,7 @@ struct MainScreenView: View {
         }
         .onChange(of: viewModel.showAddBlockSheet) { isPresented in
             if isPresented {
-                // Analytics: Add Sleep Block sheet açılma
-                analyticsManager.logFeatureUsed(
-                    featureName: "add_sleep_block",
-                    action: "sheet_opened"
-                )
+                analyticsManager.logFeatureUsed(featureName: "add_sleep_block", action: "sheet_opened")
             }
         }
         .sheet(isPresented: $viewModel.showScheduleSelection) {
@@ -345,124 +233,325 @@ struct MainScreenView: View {
             .environmentObject(languageManager)
         }
     }
+}
+
+// MARK: - Hero Section
+struct MainHeroSection: View {
+    @ObservedObject var viewModel: MainScreenViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var appeared = false
     
-    private func shareSchedule() {
-        // Analytics: Schedule share
-        analyticsManager.logFeatureUsed(
-            featureName: "main_schedule_share",
-            action: "share_button_tap"
-        )
-        
-        let activityVC = UIActivityViewController(
-            activityItems: [viewModel.shareScheduleInfo],
-            applicationActivities: nil
-        )
-        
-        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-           let window = windowScene.windows.first,
-           let rootVC = window.rootViewController {
-            rootVC.present(activityVC, animated: true)
+    var body: some View {
+        VStack(alignment: .leading, spacing: PSSpacing.sm) {
+            // Greeting + Date row
+            HStack {
+                Text(viewModel.greetingText)
+                    .font(.system(.caption, design: .rounded).weight(.medium))
+                    .foregroundColor(.white.opacity(0.6))
+                Text("·")
+                    .foregroundColor(.white.opacity(0.4))
+                Text(currentDateFormatted)
+                    .font(.system(.caption, design: .rounded).weight(.medium))
+                    .foregroundColor(.white.opacity(0.6))
+                Spacer()
+            }
+            .opacity(appeared ? 1 : 0)
+            .offset(y: appeared || reduceMotion ? 0 : 8)
+            
+            // Name + Adaptation badge
+            HStack(alignment: .center, spacing: PSSpacing.sm) {
+                let name = viewModel.userDisplayName
+                Text(name.isEmpty ? L("mainScreen.title", table: "MainScreen") : name)
+                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .foregroundColor(.white)
+                    .lineLimit(1)
+                
+                Spacer()
+                
+                // Adaptation day badge
+                HStack(spacing: 4) {
+                    Text("🔥")
+                        .font(.system(size: 13))
+                    Text(adaptationLabel)
+                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal, PSSpacing.sm)
+                .padding(.vertical, 5)
+                .background(Color.metricAmber.opacity(0.3), in: Capsule())
+            }
+            .opacity(appeared ? 1 : 0)
+            .offset(y: appeared || reduceMotion ? 0 : 8)
+            
+            Spacer().frame(height: PSSpacing.md)
+            
+            // "Next Sleep" label
+            Text(L("mainScreen.nextSleepBlock", table: "MainScreen"))
+                .font(.system(size: 11, weight: .medium, design: .rounded))
+                .foregroundColor(.white.opacity(0.5))
+                .textCase(.uppercase)
+                .tracking(0.5)
+                .opacity(appeared ? 1 : 0)
+            
+            // Big countdown
+            Text(viewModel.nextSleepBlockFormatted)
+                .font(.system(size: 44, weight: .bold, design: .rounded))
+                .foregroundColor(.white)
+                .monospacedDigit()
+                .minimumScaleFactor(0.7)
+                .lineLimit(1)
+                .opacity(appeared ? 1 : 0)
+                .offset(y: appeared || reduceMotion ? 0 : 12)
+            
+            // Status pill
+            HStack(spacing: 6) {
+                Image(systemName: viewModel.isInSleepTime ? "moon.fill" : "sun.max.fill")
+                    .font(.system(size: 12, weight: .semibold))
+                Text(viewModel.sleepStatusMessage)
+                    .font(.system(.caption, design: .rounded).weight(.semibold))
+            }
+            .foregroundColor(.white)
+            .padding(.horizontal, PSSpacing.md)
+            .padding(.vertical, 6)
+            .background(Color.white.opacity(0.15), in: Capsule())
+            .opacity(appeared ? 1 : 0)
         }
+        .padding(.horizontal, 20)
+        .padding(.top, PSSpacing.lg)
+        .padding(.bottom, 28)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            LinearGradient(
+                colors: [Color.heroTop, Color.heroBottom],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .ignoresSafeArea(edges: .top)
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(heroAccessibilityLabel)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.4).delay(0.1)) {
+                appeared = true
+            }
+        }
+    }
+    
+    private var adaptationLabel: String {
+        let day = viewModel.adaptationDayCount
+        if LanguageManager.shared.currentLanguage == "tr" {
+            return "Gün \(day)"
+        } else {
+            return "Day \(day)"
+        }
+    }
+    
+    private var currentDateFormatted: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: LanguageManager.shared.currentLanguage == "tr" ? "tr_TR" : "en_US")
+        formatter.dateFormat = LanguageManager.shared.currentLanguage == "tr" ? "EEEE, d MMM" : "EEEE, MMM d"
+        return formatter.string(from: Date())
+    }
+    
+    private var heroAccessibilityLabel: String {
+        let next = viewModel.nextSleepBlockFormatted
+        let status = viewModel.sleepStatusMessage
+        return "\(viewModel.greetingText). \(L("mainScreen.nextSleepBlock", table: "MainScreen")) \(next). \(status)"
     }
 }
 
-// MARK: - Minimal Segment View (Overview)
-struct MinimalSegmentView: View {
+// MARK: - Metrics Grid Section
+struct MetricsGridSection: View {
+    @ObservedObject var viewModel: MainScreenViewModel
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var appeared = false
+    
+    private let columns = [
+        GridItem(.flexible(), spacing: PSSpacing.md),
+        GridItem(.flexible(), spacing: PSSpacing.md)
+    ]
+    
+    var body: some View {
+        LazyVGrid(columns: columns, spacing: PSSpacing.md) {
+            HomeMetricCard(
+                emoji: "🌙",
+                title: L("mainScreen.totalSleep", table: "MainScreen"),
+                value: viewModel.totalSleepTimeFormatted,
+                accentColor: .appPrimary,
+                appeared: appeared,
+                reduceMotion: reduceMotion,
+                delay: 0.0
+            )
+            
+            HomeMetricCard(
+                emoji: "🔥",
+                title: adaptationTitle,
+                value: adaptationValue,
+                accentColor: .metricAmber,
+                appeared: appeared,
+                reduceMotion: reduceMotion,
+                delay: 0.08
+            )
+            
+            HomeMetricCard(
+                emoji: "📋",
+                title: scheduleTitle,
+                value: viewModel.model.schedule.name,
+                accentColor: .metricTeal,
+                appeared: appeared,
+                reduceMotion: reduceMotion,
+                delay: 0.16,
+                onTap: { viewModel.showScheduleSelectionSheet() }
+            )
+            
+            HomeMetricCard(
+                emoji: viewModel.isInSleepTime ? "😴" : "⏰",
+                title: statusTitle,
+                value: viewModel.sleepStatusMessage,
+                accentColor: viewModel.isInSleepTime ? .metricEmerald : .metricPurple,
+                appeared: appeared,
+                reduceMotion: reduceMotion,
+                delay: 0.24
+            )
+        }
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.35).delay(0.2)) {
+                appeared = true
+            }
+        }
+    }
+    
+    private var scheduleTitle: String {
+        LanguageManager.shared.currentLanguage == "tr" ? "Program" : "Schedule"
+    }
+    
+    private var adaptationTitle: String {
+        LanguageManager.shared.currentLanguage == "tr" ? "Adaptasyon" : "Adaptation"
+    }
+    
+    private var adaptationValue: String {
+        let day = viewModel.adaptationDayCount
+        return LanguageManager.shared.currentLanguage == "tr" ? "Gün \(day)" : "Day \(day)"
+    }
+    
+    private var statusTitle: String {
+        LanguageManager.shared.currentLanguage == "tr" ? "Durum" : "Status"
+    }
+}
+
+// MARK: - Metric Card
+struct HomeMetricCard: View {
+    let emoji: String
+    let title: String
+    let value: String
+    let accentColor: Color
+    let appeared: Bool
+    let reduceMotion: Bool
+    var delay: Double = 0
+    var onTap: (() -> Void)? = nil
+    
+    var body: some View {
+        Button(action: { onTap?() }) {
+            VStack(alignment: .leading, spacing: PSSpacing.sm) {
+                // Emoji circle
+                Text(emoji)
+                    .font(.system(size: 20))
+                    .frame(width: 36, height: 36)
+                    .background(accentColor.opacity(0.12), in: Circle())
+                
+                // Value + Title
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(value)
+                        .font(.system(size: 18, weight: .bold, design: .rounded))
+                        .foregroundColor(.appText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.7)
+                    
+                    Text(title)
+                        .font(.system(size: 12, weight: .medium, design: .rounded))
+                        .foregroundColor(.appTextSecondary)
+                        .lineLimit(1)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .frame(minHeight: 90)
+            .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: 18))
+            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 3)
+        }
+        .buttonStyle(.plain)
+        .disabled(onTap == nil)
+        .opacity(appeared ? 1 : 0)
+        .scaleEffect(appeared || reduceMotion ? 1 : 0.95)
+        .animation(.easeOut(duration: 0.3).delay(delay), value: appeared)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(title): \(value)")
+        .accessibilityAddTraits(onTap != nil ? .isButton : .isStaticText)
+    }
+}
+
+// MARK: - Chart Card
+struct MainChartCard: View {
     @ObservedObject var viewModel: MainScreenViewModel
     @State private var chartDragInfo: String? = nil
     
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            VStack(spacing: PSSpacing.xl) {
-                // Header with schedule name
-                VStack(spacing: PSSpacing.md) {
-                    Text(viewModel.model.schedule.name)
-                        .font(PSTypography.title1.weight(.semibold))
+        VStack(spacing: PSSpacing.sm) {
+            // Header row with edit button
+            HStack {
+                Text(L("mainScreen.segment.overview", table: "MainScreen"))
+                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                    .foregroundColor(.appTextSecondary)
+                Spacer()
+                if !viewModel.isChartEditMode {
+                    Button(action: { viewModel.startChartEdit() }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 12, weight: .medium))
+                            Text(L("mainScreen.chart.edit", table: "MainScreen"))
+                                .font(.system(.caption, design: .rounded).weight(.medium))
+                        }
                         .foregroundColor(.appPrimary)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .lineLimit(2)
-                }
-                .padding(.top, PSSpacing.md)
-
-
-                // Bilgi Kartı (Sonraki Uyku & Toplam Uyku)
-                PSCard(padding: PSSpacing.md) {
-                    HStack(alignment: .center, spacing: PSSpacing.lg) {
-                        VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                            Text(L("mainScreen.nextSleepBlock", table: "MainScreen"))
-                                .font(PSTypography.caption)
-                                .foregroundColor(.appTextSecondary)
-                            Text(viewModel.nextSleepBlockFormatted)
-                                .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                .foregroundColor(.appSecondary)
-                        }
-
-                        Spacer()
-
-                        VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                            Text(L("mainScreen.totalSleep", table: "MainScreen"))
-                                .font(PSTypography.caption)
-                                .foregroundColor(.appTextSecondary)
-                            Text(viewModel.totalSleepTimeFormatted)
-                                .font(.system(size: 14, weight: .semibold, design: .rounded))
-                                .foregroundColor(.appPrimary)
-                        }
-
-                        Spacer()
-
-                        PSStatusBadge(
-                            viewModel.sleepStatusMessage,
-                            icon: viewModel.isInSleepTime ? "moon.fill" : "sun.max.fill",
-                            color: viewModel.isInSleepTime ? .appSecondary : .appAccent,
-                            style: .compact
-                        )
+                        .padding(.horizontal, PSSpacing.sm)
+                        .padding(.vertical, PSSpacing.xs)
+                        .background(Color.appPrimary.opacity(0.1), in: Capsule())
                     }
+                    .buttonStyle(.plain)
                 }
             }
-            .padding(.horizontal, PSSpacing.lg)
-            .padding(.bottom, PSSpacing.lg)
-                
-                // Circular Sleep Chart with Edit Mode
-                PSCard(padding: PSSpacing.md) {
-                    VStack(spacing: PSSpacing.sm) {
-                        // Chart
-                        EditableCircularSleepChart(
-                            viewModel: viewModel,
-                            chartSize: .extraLarge,
-                            activeDragInfo: $chartDragInfo
-                        )
-                        .aspectRatio(1, contentMode: .fit)
-                        .frame(minHeight: 280)
-                        
-                        // Chart edit instructions
-                        if viewModel.isChartEditMode {
-                            if let dragInfo = chartDragInfo {
-                                // Canlı sürükleme feedback'i
-                                Text(dragInfo)
-                                    .font(.system(.caption, design: .monospaced).weight(.medium))
-                                    .foregroundColor(.appPrimary)
-                                    .padding(.top, PSSpacing.sm)
-                                    .transition(.opacity)
-                                    .id(dragInfo)
-                            } else {
-                                // Edit mode talimatları
-                                ChartEditControls(viewModel: viewModel)
-                                    .transition(.move(edge: .bottom).combined(with: .opacity))
-                            }
-                        }
-                    }
-                    .padding(PSSpacing.sm)
-                    .animation(.easeInOut(duration: 0.3), value: viewModel.isChartEditMode)
+            
+            // Chart
+            EditableCircularSleepChart(
+                viewModel: viewModel,
+                chartSize: .extraLarge,
+                activeDragInfo: $chartDragInfo
+            )
+            .aspectRatio(1, contentMode: .fit)
+            .frame(minHeight: 260)
+            
+            // Chart edit feedback
+            if viewModel.isChartEditMode {
+                if let dragInfo = chartDragInfo {
+                    Text(dragInfo)
+                        .font(.system(.caption, design: .monospaced).weight(.medium))
+                        .foregroundColor(.appPrimary)
+                        .transition(.opacity)
+                        .id(dragInfo)
+                } else {
+                    ChartEditControls(viewModel: viewModel)
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
-                .padding(.horizontal, PSSpacing.lg)
-                
+            }
         }
-        .accessibilityLabel(L("mainScreen.segment.overview", table: "MainScreen"))
+        .padding(PSSpacing.md)
+        .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: PSCornerRadius.extraLarge))
+        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 3)
+        .animation(.easeInOut(duration: 0.3), value: viewModel.isChartEditMode)
     }
 }
 
 // MARK: - Chart Edit UI Components
-
 struct ChartEditControls: View {
     @ObservedObject var viewModel: MainScreenViewModel
     
@@ -502,278 +591,6 @@ struct ChartEditControls: View {
                 .fill(Color.appTextSecondary.opacity(0.05))
         )
     }
-
-}
-
-// MARK: - Detailed Segment View
-struct DetailedSegmentView: View {
-    @ObservedObject var viewModel: MainScreenViewModel
-    
-    var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            LazyVStack(spacing: PSSpacing.lg) {
-                // Schedule Management Section
-                ScheduleManagementSection(viewModel: viewModel)
-                
-                // Quick Status Section
-                ProgressInfoSection(viewModel: viewModel)
-                
-                // Sleep Blocks Section
-                SleepBlocksSection(viewModel: viewModel)
-                
-                // Daily Tip Section
-                DailyTipSection(viewModel: viewModel)
-            }
-            .padding(.horizontal, PSSpacing.lg)
-            .padding(.top, PSSpacing.md)
-            .padding(.bottom, PSSpacing.xl)
-        }
-        .accessibilityLabel(L("mainScreen.segment.details", table: "MainScreen"))
-    }
-}
-
-// MARK: - Schedule Management Section
-struct ScheduleManagementSection: View {
-    @ObservedObject var viewModel: MainScreenViewModel
-    @State private var showScheduleDescription = false
-    
-    var body: some View {
-        PSCard {
-            VStack(spacing: PSSpacing.md) {
-                // Schedule name and change button
-                HStack(spacing: PSSpacing.md) {
-                    VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                        Text(viewModel.model.schedule.name)
-                            .font(PSTypography.headline.weight(.semibold))
-                            .foregroundColor(.appPrimary)
-                            .lineLimit(2)
-                    }
-                    
-                    Spacer()
-                    
-                    // Program değiştirme butonu - daha modern
-                    Button(action: {
-                        viewModel.showScheduleSelectionSheet()
-                    }) {
-                        HStack(spacing: PSSpacing.xs) {
-                            Text(L("mainScreen.changeSchedule.button", table: "MainScreen"))
-                                .font(PSTypography.caption.weight(.medium))
-                                .foregroundColor(.appPrimary)
-                            
-                            Image(systemName: "chevron.right")
-                                .font(.system(size: 10, weight: .semibold))
-                                .foregroundColor(.appPrimary)
-                        }
-                        .padding(.horizontal, PSSpacing.sm)
-                        .padding(.vertical, PSSpacing.xs)
-                        .background(
-                            RoundedRectangle(cornerRadius: PSCornerRadius.small)
-                                .fill(Color.appPrimary.opacity(0.1))
-                        )
-                    }
-                    .buttonStyle(.plain)
-                }
-                
-                // Program açıklaması toggle
-                Button(action: {
-                    withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                        showScheduleDescription.toggle()
-                    }
-                }) {
-                    HStack(spacing: PSSpacing.sm) {
-                        Image(systemName: "info.circle")
-                            .font(.system(size: PSIconSize.small))
-                        
-                        Text(L("mainScreen.scheduleDescription.title", table: "MainScreen"))
-                            .font(PSTypography.caption.weight(.medium))
-                        
-                        Spacer()
-                        
-                        Image(systemName: showScheduleDescription ? "chevron.up" : "chevron.down")
-                            .font(.system(size: PSIconSize.small))
-                    }
-                    .foregroundColor(.appTextSecondary)
-                    .padding(.horizontal, PSSpacing.md)
-                    .padding(.vertical, PSSpacing.sm)
-                    .background(Color.appTextSecondary.opacity(0.05), in: RoundedRectangle(cornerRadius: PSCornerRadius.small))
-                }
-                
-                // Program açıklaması
-                if showScheduleDescription {
-                    Text(viewModel.scheduleDescription)
-                        .font(PSTypography.caption)
-                        .foregroundColor(.appTextSecondary)
-                        .lineSpacing(4)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(PSSpacing.sm)
-                        .background(.quaternary, in: RoundedRectangle(cornerRadius: PSCornerRadius.medium))
-                        .transition(.opacity.combined(with: .scale(scale: 0.95, anchor: .top)))
-                }
-            }
-        }
-    }
-}
-
-// MARK: - Progress Info Section
-struct ProgressInfoSection: View {
-    @ObservedObject var viewModel: MainScreenViewModel
-    
-    var body: some View {
-        PSCard {
-            HStack(alignment: .center, spacing: PSSpacing.md) {
-                VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                    Text(L("mainScreen.nextSleepBlock", table: "MainScreen"))
-                        .font(PSTypography.caption)
-                        .foregroundColor(.appTextSecondary)
-                    Text(viewModel.nextSleepBlockFormatted)
-                        .font(PSTypography.subheadline)
-                        .fontWeight(.semibold)
-                }
-                Spacer()
-                VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                    Text(L("mainScreen.totalSleep", table: "MainScreen"))
-                        .font(PSTypography.caption)
-                        .foregroundColor(.appTextSecondary)
-                    Text(viewModel.totalSleepTimeFormatted)
-                        .font(PSTypography.subheadline)
-                        .fontWeight(.semibold)
-                }
-                Spacer()
-                PSStatusBadge(
-                    viewModel.sleepStatusMessage,
-                    icon: viewModel.isInSleepTime ? "moon.fill" : "sun.max.fill",
-                    color: viewModel.isInSleepTime ? .appSecondary : .appAccent,
-                    style: .compact
-                )
-            }
-        }
-    }
-}
-
-// MARK: - Status Cards Grid (Legacy - kept for backward compatibility)
-struct StatusCardsGrid: View {
-    @ObservedObject var viewModel: MainScreenViewModel
-    
-    var body: some View {
-        LazyVGrid(columns: [
-            GridItem(.flexible()),
-            GridItem(.flexible())
-        ], spacing: PSSpacing.md) {
-            StatusCard(
-                icon: "chart.line.uptrend.xyaxis",
-                title: L("mainScreen.progress", table: "MainScreen"),
-                value: "\(Int(viewModel.dailyProgress * 100))%",
-                color: .appAccent
-            )
-            
-            StatusCard(
-                icon: "clock.fill",
-                title: L("mainScreen.nextSleepBlock", table: "MainScreen"),
-                value: viewModel.nextSleepBlockFormatted,
-                color: .appSecondary
-            )
-        }
-    }
-}
-
-// MARK: - Status Card
-struct StatusCard: View {
-    let icon: String
-    let title: String
-    let value: String
-    let color: Color
-    
-    var body: some View {
-        PSCard {
-            VStack(alignment: .leading, spacing: PSSpacing.sm) {
-                HStack {
-                    Image(systemName: icon)
-                        .font(.system(size: PSIconSize.medium))
-                        .foregroundColor(color)
-                    
-                    Spacer()
-                }
-                
-                Text(title)
-                    .font(PSTypography.caption)
-                    .foregroundColor(.appTextSecondary)
-                    .lineLimit(1)
-                
-                Text(value)
-                    .font(PSTypography.headline)
-                    .foregroundColor(.appText)
-                    .lineLimit(1)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-        }
-    }
-}
-
-// MARK: - Sleep Chart Section
-struct SleepChartSection: View {
-    @ObservedObject var viewModel: MainScreenViewModel
-    @State private var chartDragInfo: String? = nil
-    
-    var body: some View {
-        VStack(spacing: PSSpacing.md) {
-            
-            ZStack(alignment: .bottom) {
-                EditableCircularSleepChart(
-                    viewModel: viewModel,
-                    activeDragInfo: $chartDragInfo
-                )
-                    .frame(height: 300)
-                    .padding(.horizontal, -PSSpacing.lg)
-
-                // Canlı zaman ve geri bildirim göstergesi
-                if viewModel.isChartEditMode {
-                    let (text, color) = feedbackTextAndColor()
-                    
-                    if let text = text, let color = color {
-                        Text(text)
-                            .font(.system(size: 18, weight: .bold, design: .monospaced))
-                            .foregroundColor(color)
-                            .padding(.vertical, PSSpacing.sm)
-                            .padding(.horizontal, PSSpacing.md)
-                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: PSCornerRadius.medium))
-                            .transition(.opacity.animation(.easeInOut(duration: 0.3)))
-                            .id("feedback_\(text)") // Animasyonun tekrarlanması için
-                            .padding(.bottom, 10) // Chart'ın biraz altında durması için
-                    }
-                }
-            }
-            
-            if viewModel.isChartEditMode {
-                ChartEditControls(viewModel: viewModel)
-            }
-        }
-    }
-    
-    private func feedbackTextAndColor() -> (String?, Color?) {
-        // Önce edit feedback mesajını kontrol et
-        if !viewModel.editFeedbackMessage.isEmpty {
-            let color: Color = {
-                switch viewModel.editFeedbackType {
-                case .success:
-                    return .appSuccess
-                case .collision, .tooShort:
-                    return .appError
-                case .resizing, .moving:
-                    return .appInfo
-                default:
-                    return .appTextSecondary
-                }
-            }()
-            return (viewModel.editFeedbackMessage, color)
-        }
-        
-        // Sonra canlı zaman gösterimini kontrol et
-        if let liveTime = viewModel.liveBlockTimeString {
-            return (liveTime, .appPrimary)
-        }
-        
-        return (nil, nil)
-    }
 }
 
 // MARK: - Sleep Blocks Section
@@ -781,66 +598,71 @@ struct SleepBlocksSection: View {
     @ObservedObject var viewModel: MainScreenViewModel
     
     var body: some View {
-        PSCard {
-            VStack(spacing: PSSpacing.md) {
-                HStack {
-                    PSSectionHeader(
-                        L("mainScreen.sleepBlocks", table: "MainScreen"),
-                        icon: "bed.double.fill"
-                    )
-                    
-                    Spacer()
-                    
-                    // Düzenleme modu aktifken edit butonu
-                    if viewModel.isEditing {
-                        HStack(spacing: PSSpacing.sm) {
-                            PSStatusBadge(
-                                L("mainScreen.editing.mode", table: "MainScreen"),
-                                color: .appSecondary
-                            )
-                            
-                            PSIconButton(
-                                icon: "checkmark",
-                                backgroundColor: Color.appSecondary.opacity(0.15),
-                                foregroundColor: .appSecondary
-                            ) {
-                                withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
-                                    viewModel.isEditing.toggle()
-                                }
-                            }
-                        }
-                    } else {
-                        PSIconButton(icon: "pencil") {
+        VStack(spacing: PSSpacing.sm) {
+            HStack {
+                PSSectionHeader(
+                    L("mainScreen.sleepBlocks", table: "MainScreen"),
+                    icon: "bed.double.fill"
+                )
+                
+                Spacer()
+                
+                if viewModel.isEditing {
+                    HStack(spacing: PSSpacing.sm) {
+                        PSStatusBadge(
+                            L("mainScreen.editing.mode", table: "MainScreen"),
+                            color: .appSecondary
+                        )
+                        
+                        PSIconButton(
+                            icon: "checkmark",
+                            backgroundColor: Color.appSecondary.opacity(0.15),
+                            foregroundColor: .appSecondary
+                        ) {
                             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                                 viewModel.isEditing.toggle()
                             }
                         }
                     }
-                }
-            
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: PSSpacing.md) {
-                    if viewModel.isEditing {
-                        AddSleepBlockCard(viewModel: viewModel)
-                            .transition(.asymmetric(
-                                insertion: .scale(scale: 0.8, anchor: .leading).combined(with: .opacity),
-                                removal: .scale(scale: 0.8, anchor: .leading).combined(with: .opacity)
-                            ))
+                } else {
+                    PSIconButton(icon: "pencil") {
+                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                            viewModel.isEditing.toggle()
+                        }
                     }
-                    
-                    ForEach(viewModel.model.schedule.schedule) { block in
-                        SleepBlockCard(
-                            block: block,
-                            nextBlock: viewModel.model.schedule.nextBlock,
-                            nextBlockTime: viewModel.nextSleepBlockFormatted,
-                            viewModel: viewModel
-                        )
-                    }
-                    }
-                    .padding(.horizontal, PSSpacing.xs)
-                    .animation(.spring(response: 0.4, dampingFraction: 0.8), value: viewModel.isEditing)
                 }
             }
+            .padding(.horizontal, PSSpacing.md)
+            
+            // Vertical block list
+            VStack(spacing: 0) {
+                ForEach(Array(viewModel.model.schedule.schedule.enumerated()), id: \.element.id) { index, block in
+                    SleepBlockRow(
+                        block: block,
+                        isNext: block.id == viewModel.model.schedule.nextBlock?.id,
+                        nextBlockTime: viewModel.nextSleepBlockFormatted,
+                        viewModel: viewModel
+                    )
+                    
+                    if index < viewModel.model.schedule.schedule.count - 1 {
+                        Divider()
+                            .padding(.leading, 56)
+                    }
+                }
+                
+                if viewModel.isEditing {
+                    Divider()
+                        .padding(.leading, 56)
+                    AddSleepBlockRow(viewModel: viewModel)
+                        .transition(.asymmetric(
+                            insertion: .move(edge: .top).combined(with: .opacity),
+                            removal: .opacity
+                        ))
+                }
+            }
+            .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: 18))
+            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 3)
+            .animation(.spring(response: 0.45, dampingFraction: 0.8), value: viewModel.isEditing)
         }
     }
 }
@@ -850,21 +672,36 @@ struct DailyTipSection: View {
     @ObservedObject var viewModel: MainScreenViewModel
     
     var body: some View {
-        PSCard {
-            VStack(spacing: PSSpacing.md) {
-                PSSectionHeader(
-                    L("mainScreen.dailyTip.title", table: "MainScreen"),
-                    icon: "lightbulb.fill"
-                )
+        VStack(spacing: PSSpacing.sm) {
+            HStack(spacing: PSSpacing.xs) {
+                Image(systemName: "lightbulb.fill")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.appAccent)
+                Text(L("mainScreen.dailyTip.title", table: "MainScreen"))
+                    .font(.system(.caption, design: .rounded).weight(.semibold))
+                    .foregroundColor(.appAccent)
+                Spacer()
+            }
+            .padding(.horizontal, PSSpacing.md)
+            
+            HStack(alignment: .top, spacing: PSSpacing.md) {
+                NimmyImage(.meditation, size: 64)
                 
                 Text(viewModel.dailyTip, tableName: "Tips")
-                    .font(PSTypography.subheadline)
-                    .foregroundColor(.appTextSecondary)
+                    .font(.system(.subheadline, design: .rounded))
+                    .foregroundColor(.appText)
                     .lineSpacing(4)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(PSSpacing.sm)
-                    .background(.quaternary, in: RoundedRectangle(cornerRadius: PSCornerRadius.medium))
             }
+            .padding(PSSpacing.md)
+            .background(
+                LinearGradient(
+                    colors: [Color.appAccent.opacity(0.08), Color.appAccent.opacity(0.03)],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                ),
+                in: RoundedRectangle(cornerRadius: 18)
+            )
         }
     }
 }
@@ -908,55 +745,46 @@ struct ErrorOverlayCard: View {
     }
 }
 
-// MARK: - Add Sleep Block Card
-struct AddSleepBlockCard: View {
+// MARK: - Add Sleep Block Row
+struct AddSleepBlockRow: View {
     @ObservedObject var viewModel: MainScreenViewModel
     
     var body: some View {
         Button(action: {
             viewModel.showAddBlockSheet = true
         }) {
-            VStack(alignment: .leading, spacing: PSSpacing.sm) {
-                HStack(spacing: PSSpacing.sm) {
-                    Image(systemName: "plus.circle.fill")
-                        .font(.system(size: PSIconSize.medium))
-                        .foregroundColor(.appAccent)
-                    
-                    VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                        Text(L("mainScreen.addSleepBlock", table: "MainScreen"))
-                            .font(PSTypography.button)
-                            .foregroundColor(.appAccent)
-                            .multilineTextAlignment(.leading)
-                            .lineLimit(2)
-                    }
-                    
-                    Spacer(minLength: 0)
-                }
+            HStack(spacing: PSSpacing.md) {
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 20))
+                    .foregroundColor(.appAccent)
+                    .frame(width: 36, height: 36)
+                
+                Text(L("mainScreen.addSleepBlock", table: "MainScreen"))
+                    .font(.system(.subheadline, design: .rounded).weight(.medium))
+                    .foregroundColor(.appAccent)
+                
+                Spacer()
             }
-            .frame(minWidth: 150, maxWidth: .infinity)
-            .frame(height: 85)
-            .padding(PSSpacing.md)
-            .background(Color.appAccent.opacity(0.1), in: RoundedRectangle(cornerRadius: PSCornerRadius.medium))
-            .overlay(
-                RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                    .stroke(Color.appAccent.opacity(0.3), style: StrokeStyle(lineWidth: 1, dash: [6, 3]))
-            )
+            .padding(.horizontal, PSSpacing.lg)
+            .padding(.vertical, PSSpacing.md)
+            .frame(minHeight: 56)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(L("mainScreen.addSleepBlock", table: "MainScreen"))
+        .accessibilityAddTraits(.isButton)
     }
 }
 
-// MARK: - Sleep Block Card
-struct SleepBlockCard: View {
+// MARK: - Sleep Block Row
+struct SleepBlockRow: View {
     let block: SleepBlock
-    let nextBlock: SleepBlock?
+    let isNext: Bool
     let nextBlockTime: String
     
     @State private var showingEditSheet = false
     @State private var showDeleteConfirmation = false
     @ObservedObject var viewModel: MainScreenViewModel
     
-    // Kullanıcının seçtiği emojiler
     private var coreEmoji: String {
         UserDefaults.standard.string(forKey: "selectedCoreEmoji") ?? "🌙"
     }
@@ -966,44 +794,50 @@ struct SleepBlockCard: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: PSSpacing.sm) {
-            HStack(spacing: PSSpacing.sm) {
-                // Kişiselleştirilmiş emoji kullan
-                Text(block.isCore ? coreEmoji : napEmoji)
-                    .font(.system(size: PSIconSize.medium - 4))
-                    .frame(width: PSIconSize.medium + 12, height: PSIconSize.medium + 12)
-                    .background(
-                        Circle()
-                            .fill(block.isCore ? Color.appPrimary.opacity(0.15) : Color.appSecondary.opacity(0.15))
-                    )
-                
-                VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                    // Saatleri yan yana daha düzgün göstermek için
-                    HStack(spacing: PSSpacing.xs) {
-                        Text(TimeFormatter.formattedString(from: block.startTime))
-                            .font(.system(.subheadline, design: .monospaced).weight(.semibold))
-                            .foregroundColor(.appText)
-                        
-                        Text("—")
-                            .font(PSTypography.body)
-                            .foregroundColor(.appTextSecondary)
-                        
-                        Text(TimeFormatter.formattedString(from: block.endTime))
-                            .font(.system(.subheadline, design: .monospaced).weight(.semibold))
-                            .foregroundColor(.appText)
-                    }
+        HStack(spacing: PSSpacing.md) {
+            // Emoji circle
+            Text(block.isCore ? coreEmoji : napEmoji)
+                .font(.system(size: 18))
+                .frame(width: 36, height: 36)
+                .background(
+                    Circle()
+                        .fill(block.isCore ? Color.appPrimary.opacity(0.12) : Color.appSecondary.opacity(0.12))
+                )
+            
+            // Time + type
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: PSSpacing.xs) {
+                    Text(TimeFormatter.formattedString(from: block.startTime))
+                        .font(.system(.subheadline, design: .monospaced).weight(.semibold))
+                        .foregroundColor(.appText)
                     
-                    Text(block.isCore ? L("mainScreen.sleepBlockCore", table: "MainScreen") : L("mainScreen.sleepBlockNap", table: "MainScreen"))
-                        .font(PSTypography.caption)
+                    Text("—")
+                        .font(.system(.caption, design: .rounded))
                         .foregroundColor(.appTextSecondary)
-                        .lineLimit(1)
+                    
+                    Text(TimeFormatter.formattedString(from: block.endTime))
+                        .font(.system(.subheadline, design: .monospaced).weight(.semibold))
+                        .foregroundColor(.appText)
                 }
                 
-                Spacer(minLength: 0)
+                Text(block.isCore ? L("mainScreen.sleepBlockCore", table: "MainScreen") : L("mainScreen.sleepBlockNap", table: "MainScreen"))
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundColor(.appTextSecondary)
             }
-        }
-        .overlay(alignment: .topTrailing) {
-            // Context menu butonu - card'ın tam sağ üst köşesinde
+            
+            Spacer()
+            
+            // Next badge
+            if isNext {
+                PSStatusBadge(
+                    nextBlockTime,
+                    icon: "arrow.right",
+                    color: .appPrimary,
+                    style: .compact
+                )
+            }
+            
+            // Edit menu (visible when editing)
             if viewModel.isEditing {
                 Menu {
                     Button(action: {
@@ -1022,29 +856,16 @@ struct SleepBlockCard: View {
                     Image(systemName: "ellipsis")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.appTextSecondary)
-                        .frame(width: 28, height: 28)
-                        .background(
-                            Circle()
-                                .fill(Color.appBackground.opacity(0.9))
-                        )
-                        .overlay(
-                            Circle()
-                                .stroke(Color.appTextSecondary.opacity(0.2), lineWidth: 1)
-                        )
-                        .shadow(color: .black.opacity(0.1), radius: 2, x: 0, y: 1)
+                        .frame(width: 32, height: 32)
+                        .background(Color.appBackground.opacity(0.8), in: Circle())
                 }
-                .offset(x: 0, y: 0)
                 .transition(.scale(scale: 0.8).combined(with: .opacity))
             }
         }
-        .frame(minWidth: 150, maxWidth: .infinity)
-        .frame(height: 85)
-        .padding(PSSpacing.md)
-        .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: PSCornerRadius.medium))
-        .overlay(
-            RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                .stroke(block.isCore ? Color.appPrimary.opacity(0.2) : Color.appSecondary.opacity(0.2), lineWidth: 1)
-        )
+        .padding(.horizontal, PSSpacing.lg)
+        .padding(.vertical, PSSpacing.md)
+        .frame(minHeight: 64)
+        .contentShape(Rectangle())
         .sheet(isPresented: $showingEditSheet) {
             EditSleepBlockSheet(viewModel: viewModel)
         }
@@ -1062,6 +883,8 @@ struct SleepBlockCard: View {
         } message: {
             Text(L("sleepBlock.delete.message", table: "MainScreen"))
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(block.isCore ? L("mainScreen.sleepBlockCore", table: "MainScreen") : L("mainScreen.sleepBlockNap", table: "MainScreen")). \(TimeFormatter.formattedString(from: block.startTime)) — \(TimeFormatter.formattedString(from: block.endTime))")
     }
 }
 

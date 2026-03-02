@@ -36,4 +36,12 @@ extension Color {
     // Diğer Renkler
     static let appDisabled = Color("DisabledColor")
     static let appAccent = Color("AccentColor") // Önceden AccentColor.colorset olarak adlandırılmıştı
+
+    // Hero & Metric Renkleri
+    static let heroTop = Color(hex: "0D1B3E")
+    static let heroBottom = Color(hex: "1A3366")
+    static let metricAmber = Color(hex: "F59E0B")
+    static let metricTeal = Color(hex: "0EA5E9")
+    static let metricPurple = Color(hex: "8B5CF6")
+    static let metricEmerald = Color(hex: "10B981")
 }
