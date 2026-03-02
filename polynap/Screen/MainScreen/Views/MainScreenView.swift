@@ -83,12 +83,12 @@ struct MainScreenView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color(hex: "F8F8F8")
+                Color.appBackground
                     .ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 0) {
-                        // Hero Section (gradient header)
+                        // Hero Section (gradient header – extends behind status bar)
                         MainHeroSection(viewModel: viewModel)
                         
                         // Content Area
@@ -126,6 +126,7 @@ struct MainScreenView: View {
                         .padding(.bottom, PSSpacing.xxxl)
                     }
                 }
+                .ignoresSafeArea(.container, edges: .top)
                 
                 // Error Overlay
                 if let errorMessage = viewModel.errorMessage {
@@ -311,7 +312,7 @@ struct MainHeroSection: View {
                 .offset(y: appeared || reduceMotion ? 0 : 12)
         }
         .padding(.horizontal, 20)
-        .padding(.top, PSSpacing.lg)
+        .padding(.top, statusBarHeight + PSSpacing.lg)
         .padding(.bottom, 32)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
@@ -322,7 +323,7 @@ struct MainHeroSection: View {
             )
         )
         .clipShape(HeroShape())
-        .shadow(color: Color.heroTop.opacity(0.25), radius: 16, x: 0, y: 8)
+        .shadow(color: Color.heroTop.opacity(0.35), radius: 20, x: 0, y: 12)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(heroAccessibilityLabel)
         .onAppear {
@@ -330,6 +331,12 @@ struct MainHeroSection: View {
                 appeared = true
             }
         }
+    }
+    
+    private var statusBarHeight: CGFloat {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.statusBarManager?.statusBarFrame.height ?? 54
     }
     
     private var currentDateFormatted: String {
@@ -367,7 +374,7 @@ struct WeeklyStreakSection: View {
     @ObservedObject var viewModel: MainScreenViewModel
     
     var body: some View {
-        VStack(spacing: PSSpacing.md) {
+        VStack(spacing: 8) {
             // Header
             HStack {
                 Text(LanguageManager.shared.currentLanguage == "tr" ? "Adaptasyon Serisi" : "Adaptation Streak")
@@ -390,15 +397,15 @@ struct WeeklyStreakSection: View {
             // Week days row
             HStack(spacing: 0) {
                 ForEach(weekDays, id: \.dayName) { day in
-                    VStack(spacing: 6) {
+                    VStack(spacing: 4) {
                         Text(day.dayName)
-                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .font(.system(size: 10, weight: .medium, design: .rounded))
                             .foregroundColor(.appTextSecondary)
                         
                         Text(day.dateNum)
-                            .font(.system(size: 13, weight: day.isToday ? .bold : .medium, design: .rounded))
+                            .font(.system(size: 12, weight: day.isToday ? .bold : .medium, design: .rounded))
                             .foregroundColor(day.isToday ? .white : (day.isCompleted ? .appText : .appTextTertiary))
-                            .frame(width: 32, height: 32)
+                            .frame(width: 28, height: 28)
                             .background(
                                 Circle()
                                     .fill(day.isToday ? Color.heroBottom : (day.isCompleted ? Color.metricAmber.opacity(0.15) : Color.clear))
@@ -412,7 +419,8 @@ struct WeeklyStreakSection: View {
                 }
             }
         }
-        .padding(PSSpacing.lg)
+        .padding(.horizontal, PSSpacing.lg)
+        .padding(.vertical, 12)
         .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: 18))
         .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 3)
     }
@@ -522,8 +530,8 @@ struct HomeMetricCard: View {
             VStack(alignment: .leading, spacing: PSSpacing.sm) {
                 // Emoji circle
                 Text(emoji)
-                    .font(.system(size: 20))
-                    .frame(width: 36, height: 36)
+                    .font(.system(size: 18))
+                    .frame(width: 32, height: 32)
                     .background(accentColor.opacity(0.12), in: Circle())
                 
                 // Value + Title
@@ -541,9 +549,9 @@ struct HomeMetricCard: View {
                 }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .frame(minHeight: 90)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .frame(minHeight: 70)
             .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: 18))
             .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 3)
         }
@@ -568,8 +576,8 @@ struct MainChartCard: View {
             // Header row with edit button
             HStack {
                 Text(L("mainScreen.segment.overview", table: "MainScreen"))
-                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
-                    .foregroundColor(.appTextSecondary)
+                    .font(.system(.headline, design: .rounded).weight(.semibold))
+                    .foregroundColor(.appText)
                 Spacer()
                 if !viewModel.isChartEditMode {
                     Button(action: { viewModel.startChartEdit() }) {

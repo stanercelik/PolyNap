@@ -4,7 +4,7 @@ import SwiftUI
 enum OBColors {
     static let darkNavy = Color(hex: "0D1B3E")
     static let accentBlue = Color(hex: "4A90D9")
-    static let softGray = Color(hex: "F8F8F8")
+    static let softGray = Color("BackgroundColor")
     static let cardGray = Color(hex: "EBEBEB")
     
     static let textPrimary = Color(hex: "1A1A1A")
