@@ -83,7 +83,7 @@ struct MainScreenView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.appBackground
+                Color(hex: "F8F8F8")
                     .ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
@@ -106,7 +106,10 @@ struct MainScreenView: View {
                                 }
                             }
                             
-                            // Metrics Grid
+                            // Weekly Streak Tracker
+                            WeeklyStreakSection(viewModel: viewModel)
+                            
+                            // Metrics Grid (Total Sleep + Schedule)
                             MetricsGridSection(viewModel: viewModel)
                             
                             // Circular Sleep Chart
@@ -258,7 +261,7 @@ struct MainHeroSection: View {
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared || reduceMotion ? 0 : 8)
             
-            // Name + Adaptation badge
+            // Name + Schedule name
             HStack(alignment: .center, spacing: PSSpacing.sm) {
                 let name = viewModel.userDisplayName
                 Text(name.isEmpty ? L("mainScreen.title", table: "MainScreen") : name)
@@ -268,17 +271,21 @@ struct MainHeroSection: View {
                 
                 Spacer()
                 
-                // Adaptation day badge
-                HStack(spacing: 4) {
-                    Text("🔥")
-                        .font(.system(size: 13))
-                    Text(adaptationLabel)
-                        .font(.system(.caption, design: .rounded).weight(.semibold))
-                        .foregroundColor(.white)
+                // Schedule name pill (tappable)
+                Button(action: { viewModel.showScheduleSelectionSheet() }) {
+                    HStack(spacing: 4) {
+                        Text("📋")
+                            .font(.system(size: 12))
+                        Text(viewModel.model.schedule.name)
+                            .font(.system(.caption, design: .rounded).weight(.semibold))
+                            .foregroundColor(.white)
+                            .lineLimit(1)
+                    }
+                    .padding(.horizontal, PSSpacing.sm)
+                    .padding(.vertical, 5)
+                    .background(Color.white.opacity(0.15), in: Capsule())
                 }
-                .padding(.horizontal, PSSpacing.sm)
-                .padding(.vertical, 5)
-                .background(Color.metricAmber.opacity(0.3), in: Capsule())
+                .buttonStyle(.plain)
             }
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared || reduceMotion ? 0 : 8)
@@ -302,23 +309,10 @@ struct MainHeroSection: View {
                 .lineLimit(1)
                 .opacity(appeared ? 1 : 0)
                 .offset(y: appeared || reduceMotion ? 0 : 12)
-            
-            // Status pill
-            HStack(spacing: 6) {
-                Image(systemName: viewModel.isInSleepTime ? "moon.fill" : "sun.max.fill")
-                    .font(.system(size: 12, weight: .semibold))
-                Text(viewModel.sleepStatusMessage)
-                    .font(.system(.caption, design: .rounded).weight(.semibold))
-            }
-            .foregroundColor(.white)
-            .padding(.horizontal, PSSpacing.md)
-            .padding(.vertical, 6)
-            .background(Color.white.opacity(0.15), in: Capsule())
-            .opacity(appeared ? 1 : 0)
         }
         .padding(.horizontal, 20)
         .padding(.top, PSSpacing.lg)
-        .padding(.bottom, 28)
+        .padding(.bottom, 32)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
             LinearGradient(
@@ -326,23 +320,15 @@ struct MainHeroSection: View {
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
-            .ignoresSafeArea(edges: .top)
         )
+        .clipShape(HeroShape())
+        .shadow(color: Color.heroTop.opacity(0.25), radius: 16, x: 0, y: 8)
         .accessibilityElement(children: .combine)
         .accessibilityLabel(heroAccessibilityLabel)
         .onAppear {
             withAnimation(.easeOut(duration: 0.4).delay(0.1)) {
                 appeared = true
             }
-        }
-    }
-    
-    private var adaptationLabel: String {
-        let day = viewModel.adaptationDayCount
-        if LanguageManager.shared.currentLanguage == "tr" {
-            return "Gün \(day)"
-        } else {
-            return "Day \(day)"
         }
     }
     
@@ -355,8 +341,123 @@ struct MainHeroSection: View {
     
     private var heroAccessibilityLabel: String {
         let next = viewModel.nextSleepBlockFormatted
-        let status = viewModel.sleepStatusMessage
-        return "\(viewModel.greetingText). \(L("mainScreen.nextSleepBlock", table: "MainScreen")) \(next). \(status)"
+        let schedule = viewModel.model.schedule.name
+        return "\(viewModel.greetingText). \(schedule). \(L("mainScreen.nextSleepBlock", table: "MainScreen")) \(next)"
+    }
+}
+
+// MARK: - Hero Shape (Rounded Bottom)
+struct HeroShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: .zero)
+        path.addLine(to: CGPoint(x: rect.maxX, y: 0))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.maxY - 24))
+        path.addQuadCurve(
+            to: CGPoint(x: 0, y: rect.maxY - 24),
+            control: CGPoint(x: rect.midX, y: rect.maxY + 12)
+        )
+        path.closeSubpath()
+        return path
+    }
+}
+
+// MARK: - Weekly Streak Section
+struct WeeklyStreakSection: View {
+    @ObservedObject var viewModel: MainScreenViewModel
+    
+    var body: some View {
+        VStack(spacing: PSSpacing.md) {
+            // Header
+            HStack {
+                Text(LanguageManager.shared.currentLanguage == "tr" ? "Adaptasyon Serisi" : "Adaptation Streak")
+                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                    .foregroundColor(.appText)
+                Spacer()
+                // Total streak badge
+                HStack(spacing: 4) {
+                    Text("🔥")
+                        .font(.system(size: 14))
+                    Text(streakText)
+                        .font(.system(.caption, design: .rounded).weight(.bold))
+                        .foregroundColor(.metricAmber)
+                }
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(Color.metricAmber.opacity(0.12), in: Capsule())
+            }
+            
+            // Week days row
+            HStack(spacing: 0) {
+                ForEach(weekDays, id: \.dayName) { day in
+                    VStack(spacing: 6) {
+                        Text(day.dayName)
+                            .font(.system(size: 11, weight: .medium, design: .rounded))
+                            .foregroundColor(.appTextSecondary)
+                        
+                        Text(day.dateNum)
+                            .font(.system(size: 13, weight: day.isToday ? .bold : .medium, design: .rounded))
+                            .foregroundColor(day.isToday ? .white : (day.isCompleted ? .appText : .appTextTertiary))
+                            .frame(width: 32, height: 32)
+                            .background(
+                                Circle()
+                                    .fill(day.isToday ? Color.heroBottom : (day.isCompleted ? Color.metricAmber.opacity(0.15) : Color.clear))
+                            )
+                            .overlay(
+                                Circle()
+                                    .stroke(day.isCompleted && !day.isToday ? Color.metricAmber.opacity(0.4) : Color.clear, lineWidth: 1.5)
+                            )
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+        }
+        .padding(PSSpacing.lg)
+        .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: 18))
+        .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 3)
+    }
+    
+    private var streakText: String {
+        let days = viewModel.adaptationDayCount
+        return LanguageManager.shared.currentLanguage == "tr" ? "\(days) gün" : "\(days) days"
+    }
+    
+    private struct WeekDay {
+        let dayName: String
+        let dateNum: String
+        let isToday: Bool
+        let isCompleted: Bool
+    }
+    
+    private var weekDays: [WeekDay] {
+        let calendar = Calendar.current
+        let today = Date()
+        let isTR = LanguageManager.shared.currentLanguage == "tr"
+        
+        // Find Monday of current week
+        var comps = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
+        comps.weekday = 2 // Monday
+        let monday = calendar.date(from: comps) ?? today
+        
+        let dayNames: [String] = isTR
+            ? ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"]
+            : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        
+        let adaptationStart = viewModel.adaptationStartDate ?? today
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "d"
+        
+        return (0..<7).map { offset in
+            let date = calendar.date(byAdding: .day, value: offset, to: monday) ?? today
+            let isToday = calendar.isDateInToday(date)
+            let isCompleted = date >= calendar.startOfDay(for: adaptationStart) && date <= calendar.startOfDay(for: today)
+            return WeekDay(
+                dayName: dayNames[offset],
+                dateNum: dateFormatter.string(from: date),
+                isToday: isToday,
+                isCompleted: isCompleted
+            )
+        }
     }
 }
 
@@ -384,34 +485,13 @@ struct MetricsGridSection: View {
             )
             
             HomeMetricCard(
-                emoji: "🔥",
-                title: adaptationTitle,
-                value: adaptationValue,
-                accentColor: .metricAmber,
-                appeared: appeared,
-                reduceMotion: reduceMotion,
-                delay: 0.08
-            )
-            
-            HomeMetricCard(
-                emoji: "📋",
-                title: scheduleTitle,
-                value: viewModel.model.schedule.name,
+                emoji: "🛏️",
+                title: blocksTitle,
+                value: "\(viewModel.model.schedule.schedule.count)",
                 accentColor: .metricTeal,
                 appeared: appeared,
                 reduceMotion: reduceMotion,
-                delay: 0.16,
-                onTap: { viewModel.showScheduleSelectionSheet() }
-            )
-            
-            HomeMetricCard(
-                emoji: viewModel.isInSleepTime ? "😴" : "⏰",
-                title: statusTitle,
-                value: viewModel.sleepStatusMessage,
-                accentColor: viewModel.isInSleepTime ? .metricEmerald : .metricPurple,
-                appeared: appeared,
-                reduceMotion: reduceMotion,
-                delay: 0.24
+                delay: 0.08
             )
         }
         .onAppear {
@@ -421,21 +501,8 @@ struct MetricsGridSection: View {
         }
     }
     
-    private var scheduleTitle: String {
-        LanguageManager.shared.currentLanguage == "tr" ? "Program" : "Schedule"
-    }
-    
-    private var adaptationTitle: String {
-        LanguageManager.shared.currentLanguage == "tr" ? "Adaptasyon" : "Adaptation"
-    }
-    
-    private var adaptationValue: String {
-        let day = viewModel.adaptationDayCount
-        return LanguageManager.shared.currentLanguage == "tr" ? "Gün \(day)" : "Day \(day)"
-    }
-    
-    private var statusTitle: String {
-        LanguageManager.shared.currentLanguage == "tr" ? "Durum" : "Status"
+    private var blocksTitle: String {
+        LanguageManager.shared.currentLanguage == "tr" ? "Uyku Blokları" : "Sleep Blocks"
     }
 }
 
