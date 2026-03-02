@@ -819,6 +819,7 @@ extension EditableCircularSleepChart {
                 .shadow(color: .black.opacity(0.4), radius: 8, x: 0, y: 4)
         )
         .scaleEffect(isInTrash ? 1.1 : 1.0)
+        .drawingGroup()
         .position(position)
         .accessibilityLabel("Dragging sleep block")
         .accessibilityValue("Duration: \(block.duration) minutes, Time: \(timeRange)")

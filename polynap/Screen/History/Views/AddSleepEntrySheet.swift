@@ -37,11 +37,11 @@ enum DurationAdjustment: Equatable {
     
     var color: Color {
         switch self {
-        case .none: return .green
+        case .none: return .appSuccess
         case .differentTime(let minutes):
-            return minutes > 0 ? .blue : .orange
-        case .custom: return .purple
-        case .skipped: return .red
+            return minutes > 0 ? .appPrimary : .metricAmber
+        case .custom: return .appSecondary
+        case .skipped: return .appError
         }
     }
 }
@@ -122,7 +122,7 @@ struct AddSleepEntrySheet: View {
                     .ignoresSafeArea()
                 
                 ScrollView {
-                    VStack(spacing: PSSpacing.xl) {
+                    VStack(spacing: PSSpacing.md) {
                         datePickerCard
                         blockSelectionCard
                         
@@ -140,7 +140,9 @@ struct AddSleepEntrySheet: View {
                         Spacer(minLength: PSSpacing.xl)
                     }
                     .padding(.horizontal, PSSpacing.lg)
-                    .padding(.vertical, PSSpacing.md)
+                    .padding(.top, PSSpacing.sm)
+                    .padding(.bottom, PSSpacing.xxl)
+                    .fontDesign(.rounded)
                 }
             }
             .navigationTitle(L("sleepEntry.add", table: "AddSleepEntrySheet"))
@@ -175,22 +177,52 @@ struct AddSleepEntrySheet: View {
     
     // MARK: - Flexible Duration Adjustment
     private func FlexibleDurationAdjustment() -> some View {
-        VStack(spacing: PSSpacing.lg) {
+        VStack(spacing: PSSpacing.md) {
+            // Compact duration summary
+            HStack(spacing: PSSpacing.sm) {
+                VStack(spacing: 2) {
+                    Text(L("sleepModification.scheduled", table: "AddSleepEntrySheet"))
+                        .font(.caption2.weight(.medium))
+                        .foregroundColor(.appTextSecondary)
+                        .textCase(.uppercase)
+                    Text(formatDuration(scheduledDuration))
+                        .font(.headline.weight(.bold))
+                        .foregroundColor(.appText)
+                        .contentTransition(.numericText())
+                }
+                .frame(maxWidth: .infinity)
+                
+                Image(systemName: "arrow.right")
+                    .font(.caption)
+                    .foregroundColor(.appTextTertiary)
+                
+                VStack(spacing: 2) {
+                    Text(L("sleepModification.actual", table: "AddSleepEntrySheet"))
+                        .font(.caption2.weight(.medium))
+                        .foregroundColor(.appTextSecondary)
+                        .textCase(.uppercase)
+                    Text(formatDuration(actualDuration))
+                        .font(.headline.weight(.bold))
+                        .foregroundColor(adjustmentMinutes == 0 ? .appText : (adjustmentMinutes > 0 ? .appPrimary : .metricAmber))
+                        .contentTransition(.numericText())
+                        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: actualDuration)
+                }
+                .frame(maxWidth: .infinity)
+            }
+            .padding(PSSpacing.md)
+            .background(
+                RoundedRectangle(cornerRadius: PSCornerRadius.small)
+                    .fill(Color.appBackground)
+            )
+            
             VStack(spacing: PSSpacing.sm) {
-                Text(L("sleepModification.adjustDuration", table: "AddSleepEntrySheet"))
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
+                // Title only
+                Text(L("sleepModification.howMuchDiff", table: "AddSleepEntrySheet"))
+                    .font(.subheadline.weight(.semibold))
                     .foregroundColor(.appText)
                 
-                Text(L("sleepModification.adjustDurationDescription", table: "AddSleepEntrySheet"))
-                    .font(.caption)
-                    .foregroundColor(.appTextSecondary)
-                    .multilineTextAlignment(.center)
-            }
-            
-            VStack(spacing: PSSpacing.md) {
                 // Duration Slider
-                VStack(spacing: PSSpacing.sm) {
+                VStack(spacing: PSSpacing.xs) {
                     HStack {
                         Text("-60m")
                             .font(.caption)
@@ -199,9 +231,8 @@ struct AddSleepEntrySheet: View {
                         Spacer()
                         
                         Text("\(Int(adjustmentMinutes) > 0 ? "+" : "")\(Int(adjustmentMinutes))m")
-                            .font(.headline)
-                            .fontWeight(.semibold)
-                            .foregroundColor(adjustmentMinutes == 0 ? .appText : (adjustmentMinutes > 0 ? .blue : .orange))
+                            .font(.headline.weight(.semibold))
+                            .foregroundColor(adjustmentMinutes == 0 ? .appText : (adjustmentMinutes > 0 ? .appPrimary : .metricAmber))
                         
                         Spacer()
                         
@@ -211,7 +242,7 @@ struct AddSleepEntrySheet: View {
                     }
                     
                     Slider(value: $adjustmentMinutes, in: -60...120, step: 5)
-                        .tint(adjustmentMinutes == 0 ? .appPrimary : (adjustmentMinutes > 0 ? .blue : .orange))
+                        .tint(adjustmentMinutes == 0 ? .appPrimary : (adjustmentMinutes > 0 ? .appPrimary : .metricAmber))
                         .onChange(of: adjustmentMinutes) { _ in
                             withAnimation(.spring(response: 0.2, dampingFraction: 0.8)) {
                                 durationAdjustment = .differentTime(minutes: Int(adjustmentMinutes))
@@ -220,31 +251,10 @@ struct AddSleepEntrySheet: View {
                         }
                 }
                 
-                // Quick Preset Buttons
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: PSSpacing.xs), count: 4), spacing: PSSpacing.sm) {
-                    ForEach([-15, -10, -5, 0, 5, 10, 15, 30], id: \.self) { minutes in
-                        Button(action: {
-                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                adjustmentMinutes = Double(minutes)
-                                durationAdjustment = .differentTime(minutes: minutes)
-                            }
-                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        }) {
-                            Text(minutes == 0 ? "0" : "\(minutes > 0 ? "+" : "")\(minutes)m")
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundColor(Int(adjustmentMinutes) == minutes ? .white : (minutes == 0 ? .appPrimary : (minutes > 0 ? .blue : .orange)))
-                                .frame(minWidth: 44, minHeight: 32)
-                                .background(
-                                    RoundedRectangle(cornerRadius: PSCornerRadius.small)
-                                        .fill(Int(adjustmentMinutes) == minutes ? 
-                                              (minutes == 0 ? .appPrimary : (minutes > 0 ? .blue : .orange)) : 
-                                              (minutes == 0 ? Color.appPrimary.opacity(0.1) : (minutes > 0 ? Color.blue.opacity(0.1) : Color.orange.opacity(0.1)))
-                                        )
-                                )
-                        }
-                    }
-                }
+                // Hint at bottom
+                Text(L("sleepModification.howMuchDiffHint", table: "AddSleepEntrySheet"))
+                    .font(.caption)
+                    .foregroundColor(.appTextSecondary)
             }
         }
         .padding(PSSpacing.md)
@@ -253,7 +263,7 @@ struct AddSleepEntrySheet: View {
                 .fill(Color.appBackground)
                 .overlay(
                     RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                        .stroke(Color.appPrimary.opacity(0.3), lineWidth: 1)
+                        .stroke(Color.appPrimary.opacity(0.2), lineWidth: 1)
                 )
         )
     }
@@ -280,47 +290,56 @@ struct AddSleepEntrySheet: View {
     
     // MARK: - Card Components
     private var datePickerCard: some View {
-        PSCard {
-            VStack(alignment: .leading, spacing: PSSpacing.lg) {
-                PSSectionHeader(
-                    L("sleepEntry.date", table: "AddSleepEntrySheet"),
-                    icon: "calendar.circle.fill"
-                )
+        PSCard(padding: PSSpacing.md) {
+            HStack(alignment: .center, spacing: PSSpacing.sm) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Label {
+                        Text(L("sleepEntry.date", table: "AddSleepEntrySheet"))
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundColor(.appText)
+                    } icon: {
+                        Image(systemName: "calendar.circle.fill")
+                            .foregroundColor(.appPrimary)
+                    }
+                    
+                    Text(L("sleepEntry.dateInfo", table: "AddSleepEntrySheet"))
+                        .font(.caption)
+                        .foregroundColor(.appTextSecondary)
+                        .lineLimit(2)
+                }
+                
+                Spacer()
                 
                 DatePicker(
-                    L("sleepEntry.selectDate", table: "AddSleepEntrySheet"),
+                    "",
                     selection: $selectedDate,
                     in: ...Date(),
                     displayedComponents: [.date]
                 )
                 .datePickerStyle(.compact)
+                .labelsHidden()
                 .tint(Color.appPrimary)
-                
-                HStack(spacing: PSSpacing.sm) {
-                    Image(systemName: "info.circle.fill")
-                        .font(.caption)
-                        .foregroundColor(.blue.opacity(0.7))
-                    
-                    Text(L("sleepEntry.dateInfo", table: "AddSleepEntrySheet"))
-                        .font(.caption)
-                        .foregroundColor(.appTextSecondary)
-                }
             }
         }
     }
     
     private var blockSelectionCard: some View {
         PSCard {
-            VStack(alignment: .leading, spacing: PSSpacing.lg) {
-                PSSectionHeader(
-                    L("sleepEntry.selectBlock", table: "AddSleepEntrySheet"),
-                    icon: "clock.circle.fill"
-                )
+            VStack(alignment: .leading, spacing: PSSpacing.md) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(L("sleepEntry.whichBlock", table: "AddSleepEntrySheet"))
+                        .font(.headline.weight(.semibold))
+                        .foregroundColor(.appText)
+                    
+                    Text(L("sleepEntry.whichBlock.hint", table: "AddSleepEntrySheet"))
+                        .font(.caption)
+                        .foregroundColor(.appTextSecondary)
+                }
                 
                 if availableBlocks.isEmpty {
                     EmptyBlocksView()
                 } else {
-                    VStack(spacing: PSSpacing.sm) {
+                    VStack(spacing: PSSpacing.xs) {
                         ForEach(availableBlocks, id: \.id) { block in
                             let alreadyAdded = isBlockAlreadyAdded(block)
                             ModernBlockSelectionButton(
@@ -353,18 +372,10 @@ struct AddSleepEntrySheet: View {
     
     private var durationAdjustmentCard: some View {
         PSCard {
-            VStack(alignment: .leading, spacing: PSSpacing.lg) {
-                PSSectionHeader(
-                    L("sleepModification.durationTitle", table: "AddSleepEntrySheet"),
-                    icon: "clock.arrow.circlepath"
-                )
-                
-                // Duration Status Display
-                DurationStatusView(
-                    scheduledDuration: scheduledDuration,
-                    actualDuration: actualDuration,
-                    adjustment: durationAdjustment
-                )
+            VStack(alignment: .leading, spacing: PSSpacing.md) {
+                Text(L("sleepEntry.howWasYourSleep", table: "AddSleepEntrySheet"))
+                    .font(.headline.weight(.semibold))
+                    .foregroundColor(.appText)
                 
                 // Primary Adjustment Options
                 primaryAdjustmentOptions
@@ -373,88 +384,147 @@ struct AddSleepEntrySheet: View {
                 if case .differentTime = durationAdjustment {
                     FlexibleDurationAdjustment()
                         .transition(.asymmetric(
-                            insertion: .opacity.combined(with: .scale(scale: 0.95, anchor: .top)),
-                            removal: .opacity.combined(with: .scale(scale: 0.95, anchor: .top))
+                            insertion: .opacity.combined(with: .scale(scale: 0.97, anchor: .top)),
+                            removal: .opacity.combined(with: .scale(scale: 0.97, anchor: .top))
                         ))
                 }
-                
-                
             }
+        }
+    }
+    
+    private var qualityCardBackground: Color {
+        switch Int(sliderValue.rounded()) {
+        case 0: return Color.appError.opacity(0.10)
+        case 1: return Color.metricAmber.opacity(0.08)
+        case 2: return Color.appCardBackground
+        case 3: return Color.appPrimary.opacity(0.07)
+        case 4: return Color.appSuccess.opacity(0.10)
+        default: return Color.appCardBackground
         }
     }
     
     private var qualityCard: some View {
-        PSCard {
-            VStack(alignment: .leading, spacing: PSSpacing.lg) {
-                PSSectionHeader(
-                    L("sleepEntry.quality", table: "AddSleepEntrySheet"),
-                    icon: "star.circle.fill"
-                )
-                
-                SleepQualitySlider(sliderValue: $sliderValue)
-            }
+        VStack(alignment: .leading, spacing: PSSpacing.md) {
+            Text(L("sleepEntry.yourFeeling", table: "AddSleepEntrySheet"))
+                .font(.headline.weight(.semibold))
+                .foregroundColor(.appText)
+            
+            SleepQualitySlider(sliderValue: $sliderValue)
         }
+        .padding(PSSpacing.lg)
+        .background(
+            RoundedRectangle(cornerRadius: PSCornerRadius.large)
+                .fill(qualityCardBackground)
+        )
+        .animation(.easeInOut(duration: 0.3), value: sliderValue)
     }
     
     // MARK: - Supporting Views
     private var primaryAdjustmentOptions: some View {
-        VStack(spacing: PSSpacing.md) {
-            // Primary Options
-            HStack(spacing: PSSpacing.sm) {
-                primaryOptionButton(
-                    title: L("sleepModification.asScheduled", table: "AddSleepEntrySheet"),
-                    icon: "checkmark.circle.fill",
-                    color: .green,
-                    isSelected: durationAdjustment == .none && !showCustomAdjustment
-                ) {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        durationAdjustment = .none
-                        showCustomAdjustment = false
-                        adjustmentMinutes = 0
-                    }
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        VStack(spacing: PSSpacing.xs) {
+            sleepStatusOptionRow(
+                title: L("sleepModification.asScheduled.subtitle", table: "AddSleepEntrySheet"),
+                description: scheduledDuration > 0 ? formatDuration(scheduledDuration) : L("sleepModification.fullDuration", table: "AddSleepEntrySheet"),
+                icon: "checkmark.circle.fill",
+                color: .appSuccess,
+                isSelected: durationAdjustment == .none && !showCustomAdjustment
+            ) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    durationAdjustment = .none
+                    showCustomAdjustment = false
+                    adjustmentMinutes = 0
                 }
-                
-                primaryOptionButton(
-                    title: L("sleepModification.differentTime", table: "AddSleepEntrySheet"),
-                    icon: "clock.arrow.circlepath",
-                    color: .blue,
-                    isSelected: {
-                        if case .differentTime = durationAdjustment, !showCustomAdjustment {
-                            return true
-                        }
-                        return false
-                    }()
-                ) {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        if adjustmentMinutes == 0 {
-                            adjustmentMinutes = 5 // Default to +5m
-                        }
-                        durationAdjustment = .differentTime(minutes: Int(adjustmentMinutes))
-                        showCustomAdjustment = false
-                    }
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                }
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
             }
             
-            HStack(spacing: PSSpacing.sm) {
-                primaryOptionButton(
-                    title: L("sleepModification.skipped", table: "AddSleepEntrySheet"),
-                    icon: "xmark.circle.fill",
-                    color: .red,
-                    isSelected: durationAdjustment == .skipped && !showCustomAdjustment
-                ) {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                        durationAdjustment = .skipped
-                        showCustomAdjustment = false
-                        adjustmentMinutes = 0
-                    }
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            sleepStatusOptionRow(
+                title: L("sleepModification.differentTime.subtitle", table: "AddSleepEntrySheet"),
+                description: L("sleepModification.differentTime.hint", table: "AddSleepEntrySheet"),
+                icon: "clock.arrow.circlepath",
+                color: .appPrimary,
+                isSelected: {
+                    if case .differentTime = durationAdjustment, !showCustomAdjustment { return true }
+                    return false
+                }()
+            ) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    if adjustmentMinutes == 0 { adjustmentMinutes = 5 }
+                    durationAdjustment = .differentTime(minutes: Int(adjustmentMinutes))
+                    showCustomAdjustment = false
+                }
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            }
+            
+            sleepStatusOptionRow(
+                title: L("sleepModification.skipped.subtitle", table: "AddSleepEntrySheet"),
+                description: L("sleepModification.skipped.hint", table: "AddSleepEntrySheet"),
+                icon: "xmark.circle.fill",
+                color: .appError,
+                isSelected: durationAdjustment == .skipped && !showCustomAdjustment
+            ) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    durationAdjustment = .skipped
+                    showCustomAdjustment = false
+                    adjustmentMinutes = 0
+                }
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            }
+        }
+    }
+    
+    private func sleepStatusOptionRow(
+        title: String,
+        description: String,
+        icon: String,
+        color: Color,
+        isSelected: Bool,
+        action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            HStack(spacing: PSSpacing.md) {
+                Image(systemName: icon)
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundColor(isSelected ? .white : color)
+                    .frame(width: 36, height: 36)
+                    .background(
+                        Circle()
+                            .fill(isSelected ? color : color.opacity(0.12))
+                    )
+                
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(.appText)
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.85)
+                    
+                    Text(description)
+                        .font(.caption)
+                        .foregroundColor(.appTextSecondary)
+                        .lineLimit(1)
                 }
                 
                 Spacer()
+                
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.title3)
+                    .foregroundColor(isSelected ? color : .appBorder)
             }
+            .padding(.horizontal, PSSpacing.md)
+            .padding(.vertical, 10)
+            .frame(minHeight: 52)
+            .background(
+                RoundedRectangle(cornerRadius: PSCornerRadius.medium)
+                    .fill(isSelected ? color.opacity(0.06) : Color.appCardBackground)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: PSCornerRadius.medium)
+                            .stroke(isSelected ? color.opacity(0.5) : Color.appBorder.opacity(0.25), lineWidth: isSelected ? 1.5 : 1)
+                    )
+            )
         }
+        .buttonStyle(.plain)
+        .scaleEffect(isSelected ? 1.01 : 1.0)
+        .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isSelected)
     }
     
     private func DurationStatusView(scheduledDuration: Int, actualDuration: Int, adjustment: DurationAdjustment) -> some View {
@@ -554,7 +624,7 @@ struct AddSleepEntrySheet: View {
                     title: L("sleepModification.asScheduled", table: "AddSleepEntrySheet"),
                     subtitle: L("sleepModification.fullDuration", table: "AddSleepEntrySheet"),
                     icon: "checkmark.circle.fill",
-                    color: .green,
+                    color: .appSuccess,
                     isSelected: durationAdjustment == .none
                 ) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -568,7 +638,7 @@ struct AddSleepEntrySheet: View {
                     title: L("sleepModification.skipped", table: "AddSleepEntrySheet"),
                     subtitle: L("sleepModification.didntSleep", table: "AddSleepEntrySheet"),
                     icon: "xmark.circle.fill",
-                    color: .red,
+                    color: .appError,
                     isSelected: durationAdjustment == .skipped
                 ) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -585,7 +655,7 @@ struct AddSleepEntrySheet: View {
                     title: L("sleepModification.early5", table: "AddSleepEntrySheet"),
                     subtitle: L("sleepModification.wokeEarly", table: "AddSleepEntrySheet"),
                     icon: "arrow.up.circle.fill",
-                    color: .orange,
+                    color: .metricAmber,
                     isSelected: durationAdjustment == .differentTime(minutes: -5)
                 ) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -599,7 +669,7 @@ struct AddSleepEntrySheet: View {
                     title: L("sleepModification.late10", table: "AddSleepEntrySheet"),
                     subtitle: L("sleepModification.sleptLonger", table: "AddSleepEntrySheet"),
                     icon: "arrow.down.circle.fill",
-                    color: .blue,
+                    color: .appPrimary,
                     isSelected: durationAdjustment == .differentTime(minutes: 10)
                 ) {
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
@@ -737,50 +807,77 @@ struct AddSleepEntrySheet: View {
     }
     
     private func CustomAdjustmentView() -> some View {
-        VStack(spacing: PSSpacing.lg) {
+        VStack(spacing: PSSpacing.md) {
             HStack {
-                Text(L("sleepModification.customTimes", table: "AddSleepEntrySheet"))
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundColor(.appText)
-                
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(L("sleepModification.customTimes", table: "AddSleepEntrySheet"))
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundColor(.appText)
+                    
+                    Text(L("sleepModification.customTimesHint", table: "AddSleepEntrySheet"))
+                        .font(.caption)
+                        .foregroundColor(.appTextSecondary)
+                }
                 Spacer()
             }
             
-            VStack(spacing: PSSpacing.md) {
-                HStack(spacing: PSSpacing.lg) {
-                    VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                        Text(L("sleepModification.startTime", table: "AddSleepEntrySheet"))
-                            .font(.caption)
-                            .foregroundColor(.appTextSecondary)
-                        
-                        DatePicker("", selection: $customStartTime, displayedComponents: .hourAndMinute)
-                            .labelsHidden()
-                            .tint(Color.appPrimary)
-                            .onChange(of: customStartTime) { _ in
-                                // Automatically update when time changes
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    durationAdjustment = .custom(startTime: customStartTime, endTime: customEndTime)
-                                }
-                            }
-                    }
+            HStack(alignment: .center, spacing: PSSpacing.sm) {
+                VStack(alignment: .center, spacing: PSSpacing.xs) {
+                    Text(L("sleepModification.startTime", table: "AddSleepEntrySheet"))
+                        .font(.caption.weight(.medium))
+                        .foregroundColor(.appTextSecondary)
                     
-                    VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                        Text(L("sleepModification.endTime", table: "AddSleepEntrySheet"))
-                            .font(.caption)
-                            .foregroundColor(.appTextSecondary)
-                        
-                        DatePicker("", selection: $customEndTime, displayedComponents: .hourAndMinute)
-                            .labelsHidden()
-                            .tint(Color.appPrimary)
-                            .onChange(of: customEndTime) { _ in
-                                // Automatically update when time changes
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                    durationAdjustment = .custom(startTime: customStartTime, endTime: customEndTime)
-                                }
+                    DatePicker("", selection: $customStartTime, displayedComponents: .hourAndMinute)
+                        .labelsHidden()
+                        .tint(Color.appPrimary)
+                        .onChange(of: customStartTime) { _ in
+                            // Automatically update when time changes
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                durationAdjustment = .custom(startTime: customStartTime, endTime: customEndTime)
                             }
-                    }
+                        }
                 }
+                .frame(maxWidth: .infinity)
+                
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.appTextTertiary)
+                
+                VStack(alignment: .center, spacing: PSSpacing.xs) {
+                    Text(L("sleepModification.endTime", table: "AddSleepEntrySheet"))
+                        .font(.caption.weight(.medium))
+                        .foregroundColor(.appTextSecondary)
+                    
+                    DatePicker("", selection: $customEndTime, displayedComponents: .hourAndMinute)
+                        .labelsHidden()
+                        .tint(Color.appPrimary)
+                        .onChange(of: customEndTime) { _ in
+                            // Automatically update when time changes
+                            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                durationAdjustment = .custom(startTime: customStartTime, endTime: customEndTime)
+                            }
+                        }
+                }
+                .frame(maxWidth: .infinity)
+            }
+            
+            // Duration preview
+            if case .custom(let start, let end) = durationAdjustment {
+                let mins = Int(max(0, end.timeIntervalSince(start)) / 60)
+                HStack(spacing: PSSpacing.xs) {
+                    Image(systemName: "clock.fill")
+                        .font(.caption)
+                        .foregroundColor(.appPrimary)
+                    Text(formatDuration(mins))
+                        .font(.caption.weight(.semibold))
+                        .foregroundColor(.appPrimary)
+                }
+                .padding(.horizontal, PSSpacing.sm)
+                .padding(.vertical, PSSpacing.xs)
+                .background(
+                    Capsule()
+                        .fill(Color.appPrimary.opacity(0.1))
+                )
             }
         }
         .padding(PSSpacing.md)
@@ -789,7 +886,7 @@ struct AddSleepEntrySheet: View {
                 .fill(Color.appBackground)
                 .overlay(
                     RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                        .stroke(Color.appPrimary.opacity(0.3), lineWidth: 1)
+                        .stroke(Color.appSecondary.opacity(0.3), lineWidth: 1)
                 )
         )
     }
@@ -804,28 +901,32 @@ struct AddSleepEntrySheet: View {
             HStack(spacing: PSSpacing.md) {
                 // Block Type Icon
                 Text(block.isCore ? getUserCoreEmoji() : getUserNapEmoji())
-                    .font(.title2)
-                    .frame(width: PSIconSize.extraLarge, height: PSIconSize.extraLarge)
+                    .font(.title3)
+                    .frame(width: 36, height: 36)
                     .background(
                         Circle()
-                            .fill((block.isCore ? Color.appPrimary : Color.appSecondary).opacity(isSelected ? 1.0 : 0.2))
+                            .fill((block.isCore ? Color.appPrimary : Color.appSecondary).opacity(isSelected ? 1.0 : 0.15))
                     )
                 
                 // Block Info
-                VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                    Text("\(block.startTime) - \(block.endTime)")
-                        .font(.subheadline)
-                        .foregroundColor(isAlreadyAdded ? .appTextSecondary.opacity(0.7) : .appTextSecondary)
-                    
+                VStack(alignment: .leading, spacing: 2) {
                     Text(block.isCore ? L("sleep.type.core", table: "DayDetail") : L("sleep.type.nap", table: "DayDetail"))
-                        .font(.body)
-                        .fontWeight(.semibold)
+                        .font(.subheadline.weight(.semibold))
                         .foregroundColor(isAlreadyAdded ? .appTextSecondary : .appText)
                     
-                    if let duration = calculateBlockDuration(block) {
-                        Text(formatDuration(duration))
+                    HStack(spacing: PSSpacing.xs) {
+                        Text("\(block.startTime) – \(block.endTime)")
                             .font(.caption)
-                            .foregroundColor(.appAccent)
+                            .foregroundColor(isAlreadyAdded ? .appTextSecondary.opacity(0.7) : .appTextSecondary)
+                        
+                        if let duration = calculateBlockDuration(block) {
+                            Text("·")
+                                .font(.caption)
+                                .foregroundColor(.appTextTertiary)
+                            Text(formatDuration(duration))
+                                .font(.caption.weight(.medium))
+                                .foregroundColor(.appAccent)
+                        }
                     }
                 }
                 
@@ -835,44 +936,46 @@ struct AddSleepEntrySheet: View {
                 Group {
                     if isSelected {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.title)
+                            .font(.title3)
                             .foregroundColor(.appPrimary)
                             .scaleEffect(animateSelection ? 1.2 : 1.0)
                     } else if isAlreadyAdded {
                         Image(systemName: "checkmark.circle.fill")
-                            .font(.title)
-                            .foregroundColor(.gray.opacity(0.6))
+                            .font(.title3)
+                            .foregroundColor(.gray.opacity(0.5))
                     } else {
                         Image(systemName: "circle")
-                            .font(.title)
+                            .font(.title3)
                             .foregroundColor(.appBorder)
                     }
                 }
             }
-            .padding(PSSpacing.lg)
+            .padding(.horizontal, PSSpacing.md)
+            .padding(.vertical, PSSpacing.sm + 2)
+            .frame(minHeight: 52)
             .background(
-                RoundedRectangle(cornerRadius: PSCornerRadius.large)
+                RoundedRectangle(cornerRadius: PSCornerRadius.medium)
                     .fill(
-                        isSelected ? Color.appPrimary.opacity(0.1) :
-                        isAlreadyAdded ? Color.gray.opacity(0.05) : Color.appCardBackground
+                        isSelected ? Color.appPrimary.opacity(0.08) :
+                        isAlreadyAdded ? Color.gray.opacity(0.04) : Color.appCardBackground
                     )
                     .overlay(
-                        RoundedRectangle(cornerRadius: PSCornerRadius.large)
+                        RoundedRectangle(cornerRadius: PSCornerRadius.medium)
                             .stroke(
                                 isSelected ? Color.appPrimary :
-                                isAlreadyAdded ? Color.gray.opacity(0.3) : Color.appBorder.opacity(0.2),
-                                lineWidth: isSelected ? 2 : 1
+                                isAlreadyAdded ? Color.gray.opacity(0.2) : Color.appBorder.opacity(0.2),
+                                lineWidth: isSelected ? 1.5 : 1
                             )
                     )
                     .shadow(
-                        color: isSelected ? Color.appPrimary.opacity(0.1) : Color.clear,
+                        color: isSelected ? Color.appPrimary.opacity(0.08) : Color.clear,
                         radius: isSelected ? 4 : 0,
                         x: 0,
                         y: isSelected ? 2 : 0
                     )
             )
-            .scaleEffect(isSelected ? 1.02 : 1.0)
-            .opacity(isAlreadyAdded ? 0.6 : 1.0)
+            .scaleEffect(isSelected ? 1.01 : 1.0)
+            .opacity(isAlreadyAdded ? 0.55 : 1.0)
         }
         .disabled(isAlreadyAdded)
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
@@ -886,19 +989,18 @@ struct AddSleepEntrySheet: View {
             HStack(spacing: PSSpacing.md) {
                 // Custom Icon
                 Image(systemName: "slider.horizontal.3")
-                    .font(.title2)
-                    .foregroundColor(isSelected ? .white : .purple)
-                    .frame(width: PSIconSize.extraLarge, height: PSIconSize.extraLarge)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(isSelected ? .white : .appSecondary)
+                    .frame(width: 36, height: 36)
                     .background(
                         Circle()
-                            .fill(Color.purple.opacity(isSelected ? 1.0 : 0.2))
+                            .fill(Color.appSecondary.opacity(isSelected ? 1.0 : 0.15))
                     )
                 
                 // Custom Info
-                VStack(alignment: .leading, spacing: PSSpacing.xs) {
+                VStack(alignment: .leading, spacing: 2) {
                     Text(L("sleepModification.customTime", table: "AddSleepEntrySheet"))
-                        .font(.body)
-                        .fontWeight(.semibold)
+                        .font(.subheadline.weight(.semibold))
                         .foregroundColor(.appText)
                     
                     Text(L("sleepModification.customTimeDescription", table: "AddSleepEntrySheet"))
@@ -910,36 +1012,37 @@ struct AddSleepEntrySheet: View {
                 
                 // Selection Indicator
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                    .font(.title)
-                    .foregroundColor(isSelected ? .purple : .appBorder)
+                    .font(.title3)
+                    .foregroundColor(isSelected ? .appSecondary : .appBorder)
             }
-            .padding(PSSpacing.lg)
+            .padding(.horizontal, PSSpacing.md)
+            .padding(.vertical, PSSpacing.sm + 2)
+            .frame(minHeight: 52)
             .background(
-                RoundedRectangle(cornerRadius: PSCornerRadius.large)
-                    .fill(isSelected ? Color.purple.opacity(0.1) : Color.appCardBackground)
+                RoundedRectangle(cornerRadius: PSCornerRadius.medium)
+                    .fill(isSelected ? Color.appSecondary.opacity(0.08) : Color.appCardBackground)
                     .overlay(
-                        RoundedRectangle(cornerRadius: PSCornerRadius.large)
-                            .stroke(isSelected ? Color.purple : Color.appBorder.opacity(0.2), lineWidth: isSelected ? 2 : 1)
-                    )
-                    .shadow(
-                        color: isSelected ? Color.purple.opacity(0.1) : Color.clear,
-                        radius: isSelected ? 4 : 0,
-                        x: 0,
-                        y: isSelected ? 2 : 0
+                        RoundedRectangle(cornerRadius: PSCornerRadius.medium)
+                            .stroke(isSelected ? Color.appSecondary.opacity(0.5) : Color.appBorder.opacity(0.2), lineWidth: isSelected ? 1.5 : 1)
                     )
             )
-            .scaleEffect(isSelected ? 1.02 : 1.0)
+            .scaleEffect(isSelected ? 1.01 : 1.0)
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
     }
     
     private var customOnlyCard: some View {
         PSCard {
-            VStack(alignment: .leading, spacing: PSSpacing.lg) {
-                PSSectionHeader(
-                    L("sleepModification.customTimes", table: "AddSleepEntrySheet"),
-                    icon: "slider.horizontal.3"
-                )
+            VStack(alignment: .leading, spacing: PSSpacing.md) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(L("sleepModification.customTimes", table: "AddSleepEntrySheet"))
+                        .font(.headline.weight(.semibold))
+                        .foregroundColor(.appText)
+                    
+                    Text(L("sleepModification.customTimesHint", table: "AddSleepEntrySheet"))
+                        .font(.caption)
+                        .foregroundColor(.appTextSecondary)
+                }
                 
                 CustomAdjustmentView()
             }
@@ -1284,7 +1387,7 @@ private struct SleepQualitySlider: View {
                     let isHalfFilled = !isFilled && sliderValue >= starValue - 0.5
                     
                     Image(systemName: isFilled ? "star.fill" : (isHalfFilled ? "star.leadinghalf.filled" : "star"))
-                        .foregroundColor(isFilled || isHalfFilled ? getSliderColor() : Color("SecondaryTextColor").opacity(0.3))
+                        .foregroundColor(isFilled || isHalfFilled ? Color.appPrimary : Color.appTextSecondary.opacity(0.25))
                         .font(.title3)
                 }
             }
@@ -1292,7 +1395,7 @@ private struct SleepQualitySlider: View {
             // Slider (0.5 increment'li)
             VStack(spacing: 6) {
                 Slider(value: $sliderValue, in: 0...4, step: 0.5)
-                    .tint(getSliderColor())
+                    .tint(Color.appPrimary)
                     .onChange(of: sliderValue) { newValue in
                         let generator = UIImpactFeedbackGenerator(style: .light)
                         generator.impactOccurred()
@@ -1302,13 +1405,13 @@ private struct SleepQualitySlider: View {
                 HStack {
                     Text(L("sleepQuality.rating.bad", table: "SleepQuality"))
                         .font(.caption2)
-                        .foregroundColor(Color("SecondaryTextColor"))
+                        .foregroundColor(.appTextSecondary)
                     
                     Spacer()
                     
                     Text(L("sleepQuality.rating.excellent", table: "SleepQuality"))
                         .font(.caption2)
-                        .foregroundColor(Color("SecondaryTextColor"))
+                        .foregroundColor(.appTextSecondary)
                 }
             }
         }
@@ -1318,17 +1421,17 @@ private struct SleepQualitySlider: View {
         let index = Int(sliderValue.rounded())
         switch index {
         case 0:
-            return Color.red
+            return Color.appError
         case 1:
-            return Color.orange
+            return Color.metricAmber
         case 2:
-            return Color.yellow
+            return Color.appTextSecondary
         case 3:
-            return Color.blue
+            return Color.appPrimary
         case 4:
-            return Color.green
+            return Color.appSuccess
         default:
-            return Color.yellow
+            return Color.appPrimary
         }
     }
 }

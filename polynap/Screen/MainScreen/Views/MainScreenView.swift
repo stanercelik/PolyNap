@@ -508,7 +508,7 @@ struct MetricsGridSection: View {
         .scaleEffect(appeared || reduceMotion ? 1 : 0.97)
         .animation(.spring(response: 0.4, dampingFraction: 0.85).delay(0.15), value: appeared)
         .onAppear {
-            withAnimation(.easeOut(duration: 0.35).delay(0.2)) { appeared = true }
+            appeared = true
         }
     }
 }
@@ -1215,21 +1215,20 @@ struct TrashAreaView: View {
     let radius: CGFloat
     
     var body: some View {
-        let trashRadius: CGFloat = viewModel.isInTrashZone ? 45 : 40
-        
         ZStack {
             Circle()
                 .fill(viewModel.isInTrashZone ? Color.appError.opacity(0.3) : Color.appTextSecondary.opacity(0.1))
-                .frame(width: trashRadius * 2, height: trashRadius * 2)
-                .animation(.spring(response: 0.3, dampingFraction: 0.5), value: viewModel.isInTrashZone)
+                .frame(width: 80, height: 80)
+                .scaleEffect(viewModel.isInTrashZone ? 1.125 : 1.0)
                 .allowsHitTesting(false)
             
             Image(systemName: "trash.fill")
-                .font(.system(size: viewModel.isInTrashZone ? 28 : 24))
+                .font(.system(size: 24))
+                .scaleEffect(viewModel.isInTrashZone ? 28.0 / 24.0 : 1.0)
                 .foregroundColor(viewModel.isInTrashZone ? .white : .appTextSecondary)
-                .animation(.spring(response: 0.3, dampingFraction: 0.5), value: viewModel.isInTrashZone)
                 .allowsHitTesting(false)
         }
+        .animation(.spring(response: 0.3, dampingFraction: 0.5), value: viewModel.isInTrashZone)
         .position(x: center.x - radius - 40, y: center.y + radius + 40)
         .transition(.scale.combined(with: .opacity))
         .allowsHitTesting(false)

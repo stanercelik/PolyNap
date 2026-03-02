@@ -55,11 +55,11 @@ struct DayDetailView: View {
                     VStack(spacing: 4) {
                         Text(formattedDate)
                             .font(.system(size: 22, weight: .bold))
-                            .foregroundColor(Color("TextColor"))
+                            .foregroundColor(.appText)
                         
                         Text(dayOfWeek)
                             .font(.system(size: 16))
-                            .foregroundColor(Color("SecondaryTextColor"))
+                            .foregroundColor(.appTextSecondary)
                     }
                     .padding(.top, 8)
                     
@@ -90,7 +90,7 @@ struct DayDetailView: View {
                         dismiss()
                     }) {
                         Image(systemName: "chevron.left")
-                            .foregroundColor(Color("PrimaryColor"))
+                            .foregroundColor(.appPrimary)
                     }
                 }
                 
@@ -106,7 +106,7 @@ struct DayDetailView: View {
                     }) {
                         Text(L("general.add", table: "DayDetail"))
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(Color("PrimaryColor"))
+                            .foregroundColor(.appPrimary)
                     }
                 }
             }
@@ -162,18 +162,7 @@ struct SleepEntryDetailCard: View {
     }
     
     private var ratingColor: Color {
-        switch entry.rating {
-        case 5:
-            return Color.green
-        case 4:
-            return Color("SecondaryColor")
-        case 3:
-            return Color.yellow
-        case 2:
-            return Color.orange
-        default:
-            return Color.red
-        }
+        .appAccent
     }
     
     var body: some View {
@@ -185,14 +174,14 @@ struct SleepEntryDetailCard: View {
                     .padding(8)
                     .background(
                         Circle()
-                            .fill(entry.isCore ? Color("PrimaryColor").opacity(0.2) : Color("AccentColor").opacity(0.2))
+                            .fill(entry.isCore ? Color.appPrimary.opacity(0.12) : Color.appSecondary.opacity(0.12))
                     )
                 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
                         Text(entry.isCore ? L("sleep.type.core", table: "DayDetail") : L("sleep.type.nap", table: "DayDetail"))
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(Color("TextColor"))
+                            .foregroundColor(.appText)
                         
                         if entry.hasAdjustment {
                             entry.adjustmentBadge
@@ -201,7 +190,7 @@ struct SleepEntryDetailCard: View {
                     
                     Text(timeText)
                         .font(.caption)
-                        .foregroundColor(Color("SecondaryTextColor"))
+                        .foregroundColor(.appTextSecondary)
                 }
                 
                 Spacer()
@@ -255,19 +244,19 @@ struct SleepEntryDetailCard: View {
                         
                         Text("Scheduled: \(scheduledText)")
                             .font(.caption)
-                            .foregroundColor(Color("SecondaryTextColor"))
+                            .foregroundColor(Color.appTextSecondary)
                     }
                 }
             } else {
                 HStack {
                     Text(durationText)
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color("PrimaryColor"))
+                        .foregroundColor(Color.appPrimary)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 4)
                         .background(
                             RoundedRectangle(cornerRadius: 8)
-                                .fill(Color("PrimaryColor").opacity(0.1))
+                                .fill(Color.appPrimary.opacity(0.1))
                         )
                     
                     Spacer()
@@ -282,7 +271,7 @@ struct SleepEntryDetailCard: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color("CardBackground"))
+                .fill(Color.appCardBackground)
                 .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
         )
         .alert(isPresented: $showDeleteAlert) {
@@ -316,23 +305,23 @@ struct SummarySectionCard: View {
         VStack(alignment: .leading, spacing: 16) {
             Text(L("dayDetail.summary.title", table: "DayDetail"))
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(Color.appText)
             
             HStack(spacing: 20) {
                 // Toplam uyku süresi
                 VStack(spacing: 8) {
                     HStack(spacing: 4) {
                         Image(systemName: "clock.fill")
-                            .foregroundColor(Color("PrimaryColor"))
+                            .foregroundColor(Color.appPrimary)
                         
                         Text(L("dayDetail.summary.totalSleep", table: "DayDetail"))
                             .font(.system(size: 14))
-                            .foregroundColor(Color("SecondaryTextColor"))
+                            .foregroundColor(Color.appTextSecondary)
                     }
                     
                     Text("\(totalSleepDuration.0) s \(totalSleepDuration.1) dk")
                         .font(.system(size: 16, weight: .bold))
-                        .foregroundColor(Color("TextColor"))
+                        .foregroundColor(Color.appText)
                 }
                 .frame(maxWidth: .infinity)
                 
@@ -340,11 +329,11 @@ struct SummarySectionCard: View {
                 VStack(spacing: 8) {
                     HStack(spacing: 4) {
                         Image(systemName: "star.fill")
-                            .foregroundColor(Color("SecondaryColor"))
+                            .foregroundColor(Color.appSecondary)
                         
                         Text(L("dayDetail.summary.averageQuality", table: "DayDetail"))
                             .font(.system(size: 14))
-                            .foregroundColor(Color("SecondaryTextColor"))
+                            .foregroundColor(Color.appTextSecondary)
                     }
                     
                     // Yarım yıldız desteği ile yıldız gösterimi
@@ -352,7 +341,7 @@ struct SummarySectionCard: View {
                     
                     Text(String(format: "%.1f/5", averageRating))
                         .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color("TextColor"))
+                        .foregroundColor(Color.appText)
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -360,7 +349,7 @@ struct SummarySectionCard: View {
         .padding()
         .background(
             RoundedRectangle(cornerRadius: 16)
-                .fill(Color("CardBackground"))
+                .fill(Color.appCardBackground)
                 .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
         )
     }
@@ -372,15 +361,15 @@ struct NoDataView: View {
         VStack(spacing: 20) {
             Image(systemName: "moon.zzz")
                 .font(.system(size: 60))
-                .foregroundColor(Color("SecondaryTextColor").opacity(0.7))
+                .foregroundColor(Color.appTextSecondary.opacity(0.7))
             
             Text(L("dayDetail.noData.title", table: "DayDetail"))
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(Color.appText)
             
             Text(L("dayDetail.noData.message", table: "DayDetail"))
                 .font(.system(size: 16))
-                .foregroundColor(Color("SecondaryTextColor"))
+                .foregroundColor(Color.appTextSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 20)
         }

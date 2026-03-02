@@ -124,22 +124,19 @@ struct ProfileHeaderCard: View {
                     }
                 }
                 
-                // Premium Durumu
-                HStack(spacing: PSSpacing.xs) {
-                    Text(revenueCatManager.userState == .premium ? 
-                         L("profile.premium.status.active", table: "Profile") : 
-                         L("profile.premium.status.free", table: "Profile"))
-                        .font(PSTypography.caption)
-                        .foregroundColor(revenueCatManager.userState == .premium ? .appAccent : .appTextSecondary)
-                        .padding(.vertical, PSSpacing.xs)
-                        .padding(.horizontal, PSSpacing.sm)
-                        .background(
-                            Capsule().fill(
-                                revenueCatManager.userState == .premium ? 
-                                Color.appAccent.opacity(0.15) : 
-                                Color.appSecondary.opacity(0.15)
-                            )
-                        )
+                // Only show badge for premium users
+                if revenueCatManager.userState == .premium {
+                    HStack(spacing: PSSpacing.xs) {
+                        Image(systemName: "crown.fill")
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundColor(.appAccent)
+                        Text(L("profile.premium.status.active", table: "Profile"))
+                            .font(.system(size: 11, weight: .semibold, design: .rounded))
+                            .foregroundColor(.appAccent)
+                    }
+                    .padding(.vertical, PSSpacing.xs)
+                    .padding(.horizontal, PSSpacing.sm)
+                    .background(Capsule().fill(Color.appAccent.opacity(0.15)))
                 }
             }
         }

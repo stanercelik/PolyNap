@@ -64,6 +64,9 @@ struct ProfileScreenView: View {
                             
 
                             
+                            // Badges Card
+                            ProfileBadgesCard(viewModel: viewModel)
+                            
                             // Customization Card
                             CustomizationCard(
                                 viewModel: viewModel, 

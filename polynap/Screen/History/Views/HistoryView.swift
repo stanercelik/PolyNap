@@ -19,25 +19,28 @@ struct HistoryView: View {
                     .ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: PSSpacing.xl) {
-                        // Stats Overview Card
-                        SleepStatsOverviewCard(viewModel: viewModel)
+                    VStack(spacing: 0) {
+                        // Hero Header
+                        HistoryHeroHeader(viewModel: viewModel)
                         
-                        // Filter Section
-                        FilterSectionCard(viewModel: viewModel)
-                        
-                        // Unified Sleep Timeline - includes both manual and HealthKit data
-                        let healthKitDataToUse = viewModel.filteredHealthKitData.isEmpty ? viewModel.healthKitData : viewModel.filteredHealthKitData
-                        if viewModel.historyItems.isEmpty && healthKitDataToUse.isEmpty {
-                            EmptyStateCard()
-                        } else {
-                            HistoryTimelineSection(viewModel: viewModel, profileViewModel: profileViewModel)
+                        VStack(spacing: PSSpacing.xl) {
+                            // Filter Section
+                            FilterSectionCard(viewModel: viewModel)
+                            
+                            // Unified Sleep Timeline - includes both manual and HealthKit data
+                            let healthKitDataToUse = viewModel.filteredHealthKitData.isEmpty ? viewModel.healthKitData : viewModel.filteredHealthKitData
+                            if viewModel.historyItems.isEmpty && healthKitDataToUse.isEmpty {
+                                EmptyStateCard()
+                            } else {
+                                HistoryTimelineSection(viewModel: viewModel, profileViewModel: profileViewModel)
+                            }
                         }
+                        .padding(.horizontal, PSSpacing.lg)
+                        .padding(.top, PSSpacing.xl)
+                        .padding(.bottom, 100)
                     }
-                    .padding(.horizontal, PSSpacing.lg)
-                    .padding(.vertical, PSSpacing.sm)
-                    .padding(.bottom, 100)
                 }
+                .ignoresSafeArea(.container, edges: .top)
                 
                 // Floating Action Button
                 ModernFloatingActionButton(action: {
@@ -57,8 +60,7 @@ struct HistoryView: View {
                     }
                 })
             }
-            .navigationTitle(L("Sleep History", table: "History"))
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarHidden(true)
             .sheet(isPresented: $viewModel.isDayDetailPresented) {
                 viewModel.selectedDay = nil
             } content: {
@@ -119,134 +121,57 @@ struct HistoryView: View {
     }
 }
 
-// MARK: - Sleep Stats Overview Card
-struct SleepStatsOverviewCard: View {
+// MARK: - History Hero Header
+struct HistoryHeroHeader: View {
     @ObservedObject var viewModel: HistoryViewModel
-    
-    var body: some View {
-        PSCard {
-            VStack(alignment: .leading, spacing: PSSpacing.lg) {
-                // Header
-                PSSectionHeader(
-                    L("history.stats.title", table: "History"),
-                    icon: "chart.bar.fill"
-                )
-                
-                // Stats Grid
-                LazyVGrid(columns: [
-                    GridItem(.flexible(), spacing: PSSpacing.md),
-                    GridItem(.flexible(), spacing: PSSpacing.md)
-                ], spacing: PSSpacing.md) {
-                    QuickStatCard(
-                        icon: "bed.double.fill",
-                        title: L("history.stats.totalSessions", table: "History"),
-                        value: "\(calculateTotalSessions())",
-                        gradientColors: [.appPrimary, .blue]
-                    )
-                    
-                    QuickStatCard(
-                        icon: "clock.fill",
-                        title: L("history.stats.avgDuration", table: "History"),
-                        value: calculateAverageDuration(),
-                        gradientColors: [.appSecondary, .green]
-                    )
-                    
-                    QuickStatCard(
-                        icon: "star.fill",
-                        title: L("history.stats.avgRating", table: "History"),
-                        value: String(format: "%.1f", calculateAverageRating()),
-                        gradientColors: [.orange, .yellow]
-                    )
-                    
-                    QuickStatCard(
-                        icon: "calendar.badge.clock",
-                        title: L("history.stats.streak", table: "History"),
-                        value: "\(calculateCurrentStreak())",
-                        gradientColors: [.purple, .pink]
-                    )
-                }
-            }
-        }
-    }
-    
-    private func calculateTotalSessions() -> Int {
-        return viewModel.historyItems.compactMap { $0.sleepEntries?.count }.reduce(0, +)
-    }
-    
-    private func calculateAverageDuration() -> String {
-        let totalDuration = viewModel.historyItems.compactMap { $0.totalSleepDuration }.reduce(0, +)
-        let avgDuration = viewModel.historyItems.isEmpty ? 0 : totalDuration / Double(viewModel.historyItems.count)
-        let avgMinutes = Int(avgDuration / 60)
-        return formatDuration(avgMinutes)
-    }
-    
-    private func calculateAverageRating() -> Double {
-        let ratings = viewModel.historyItems.map { $0.averageRating }
-        return ratings.isEmpty ? 0.0 : ratings.reduce(0, +) / Double(ratings.count)
-    }
-    
-    private func calculateCurrentStreak() -> Int {
-        return viewModel.historyItems.count > 0 ? 7 : 0
-    }
-}
+    @EnvironmentObject private var languageManager: LanguageManager
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var appeared = false
 
-// MARK: - Quick Stat Card
-struct QuickStatCard: View {
-    let icon: String
-    let title: String
-    let value: String
-    let gradientColors: [Color]
-    
+    private var statusBarHeight: CGFloat {
+        UIApplication.shared.connectedScenes
+            .compactMap { $0 as? UIWindowScene }
+            .first?.statusBarManager?.statusBarFrame.height ?? 54
+    }
+
     var body: some View {
-        VStack(spacing: PSSpacing.sm) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.system(size: PSIconSize.medium * 0.8))
-                    .foregroundColor(.white)
-                    .frame(width: PSIconSize.medium + PSSpacing.sm, height: PSIconSize.medium + PSSpacing.sm)
-                    .background(
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    gradient: Gradient(colors: gradientColors),
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                    )
-                
-                Spacer()
+        VStack(alignment: .leading, spacing: PSSpacing.sm) {
+            Text(L("Sleep History", table: "History"))
+                .font(.system(.title3, design: .rounded).weight(.bold))
+                .foregroundColor(.white)
+
+            HStack(spacing: PSSpacing.xs) {
+                Image(systemName: "clock.fill")
+                    .font(.system(size: 11, weight: .medium))
+                    .foregroundColor(.white.opacity(0.5))
+                let count = viewModel.historyItems.count
+                Text(languageManager.currentLanguage == "tr"
+                     ? "\(count) kayıt"
+                     : "\(count) records")
+                    .font(.system(.caption, design: .rounded).weight(.medium))
+                    .foregroundColor(.white.opacity(0.6))
             }
-            
-            VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                Text(value)
-                    .font(PSTypography.headline)
-                    .foregroundColor(.appText)
-                
-                Text(title)
-                    .font(PSTypography.caption)
-                    .foregroundColor(.appTextSecondary)
-                    .multilineTextAlignment(.leading)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(PSSpacing.md)
+        .opacity(appeared ? 1 : 0)
+        .offset(y: appeared || reduceMotion ? 0 : 8)
+        .padding(.horizontal, 20)
+        .padding(.top, statusBarHeight + PSSpacing.lg)
+        .padding(.bottom, 28)
+        .frame(maxWidth: .infinity, alignment: .leading)
         .background(
-            RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                .fill(Color.appCardBackground)
-                .overlay(
-                    RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                        .stroke(
-                            LinearGradient(
-                                gradient: Gradient(colors: gradientColors.map { $0.opacity(0.2) }),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1
-                        )
-                )
+            LinearGradient(
+                colors: [Color.heroTop, Color.heroBottom],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
         )
+        .clipShape(HeroShape())
+        .shadow(color: Color.heroTop.opacity(0.35), radius: 20, x: 0, y: 12)
+        .onAppear {
+            withAnimation(.easeOut(duration: 0.4).delay(0.1)) {
+                appeared = true
+            }
+        }
     }
 }
 
@@ -455,53 +380,26 @@ struct FilterChip: View {
     
     var body: some View {
         Button(action: action) {
-            HStack(spacing: PSSpacing.xs) {
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 12))
-                        .foregroundColor(.appTextOnPrimary)
-                        .transition(.scale.combined(with: .opacity))
-                }
-                
-                Text(title)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(isSelected ? .appTextOnPrimary : .appText)
-                    .lineLimit(1)
-            }
+            Text(title)
+                .font(.system(size: 13, weight: isSelected ? .semibold : .medium, design: .rounded))
+                .foregroundColor(isSelected ? .appTextOnPrimary : .appTextSecondary)
+                .lineLimit(1)
             .padding(.horizontal, PSSpacing.md)
             .padding(.vertical, PSSpacing.sm)
             .background(
                 RoundedRectangle(cornerRadius: PSCornerRadius.small)
-                    .fill(
-                        isSelected ? 
-                        LinearGradient(
-                            gradient: Gradient(colors: [.appPrimary, .appSecondary]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ) :
-                        LinearGradient(
-                            gradient: Gradient(colors: [Color.appCardBackground, Color.appCardBackground]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+                    .fill(isSelected ? Color.appPrimary : Color.appCardBackground)
                     .overlay(
                         RoundedRectangle(cornerRadius: PSCornerRadius.small)
                             .stroke(
-                                isSelected ? Color.clear : Color.appBorder.opacity(0.5),
+                                isSelected ? Color.clear : Color.appBorder.opacity(0.3),
                                 lineWidth: 1
                             )
-                    )
-                    .shadow(
-                        color: isSelected ? Color.appPrimary.opacity(0.2) : Color.clear,
-                        radius: isSelected ? 4 : 0,
-                        x: 0,
-                        y: isSelected ? 2 : 0
                     )
             )
         }
         .buttonStyle(.plain)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
+        .animation(.spring(response: 0.25, dampingFraction: 0.85), value: isSelected)
     }
 }
 
@@ -805,47 +703,22 @@ struct TimelineConnector: View {
     let isLast: Bool
     let hasData: Bool
     
-    private let lineWidth: CGFloat = 2
-    private let nodeSize: CGFloat = 10 // Slightly larger for better visibility
+    private let lineWidth: CGFloat = 1.5
     
     var body: some View {
         VStack(spacing: 0) {
             // Top line (hidden for first item)
             Rectangle()
-                .fill(isFirst ? Color.clear : lineColor)
-                .frame(width: lineWidth, height: PSSpacing.xl)
+                .fill(isFirst ? Color.clear : Color.appBorder.opacity(0.25))
+                .frame(width: lineWidth, height: PSSpacing.lg)
             
-            // Timeline node with enhanced styling
-            Circle()
-                .fill(nodeColor)
-                .frame(width: nodeSize, height: nodeSize)
-                .overlay(
-                    Circle()
-                        .stroke(Color.appCardBackground, lineWidth: 2)
-                )
-                .overlay(
-                    // Inner dot for data indicators
-                    Circle()
-                        .fill(hasData ? Color.white : Color.clear)
-                        .frame(width: nodeSize * 0.4, height: nodeSize * 0.4)
-                )
-                .shadow(color: nodeColor.opacity(0.4), radius: 3, x: 0, y: 1)
-            
-            // Bottom line (hidden for last item) - Height adjusted for PSSpacing.sm
+            // Bottom line (hidden for last item)
             Rectangle()
-                .fill(isLast ? Color.clear : lineColor)
+                .fill(isLast ? Color.clear : Color.appBorder.opacity(0.25))
                 .frame(width: lineWidth)
-                .frame(minHeight: PSSpacing.xl + PSSpacing.sm) // Reduced from PSSpacing.lg to PSSpacing.sm
+                .frame(minHeight: PSSpacing.lg)
         }
-        .frame(width: max(nodeSize, lineWidth))
-    }
-    
-    private var nodeColor: Color {
-        hasData ? Color.appPrimary : Color.appBorder.opacity(0.6)
-    }
-    
-    private var lineColor: Color {
-        hasData ? Color.appPrimary.opacity(0.3) : Color.appBorder.opacity(0.3)
+        .frame(width: lineWidth + 4)
     }
 }
 
@@ -907,8 +780,7 @@ struct DailySleepCard: View {
                 }
             }
         }
-        .shadow(color: Color.appPrimary.opacity(0.08), radius: 8, x: 0, y: 2)
-        .shadow(color: Color.black.opacity(0.04), radius: 1, x: 0, y: 1)
+        .shadow(color: .black.opacity(0.18), radius: 8, x: 0, y: 3)
         .alert(L("history.alert.delete.title", table: "History"), isPresented: $showingDeleteAlert) {
             Button(L("history.alert.delete.cancel", table: "History"), role: .cancel) {}
             Button(L("history.alert.delete.confirm", table: "History"), role: .destructive) {
@@ -928,7 +800,7 @@ struct DailySleepCard: View {
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
                         Text("\(Calendar.current.component(.day, from: dayData.date))")
                             .font(.system(size: 28, weight: .bold, design: .rounded))
-                            .foregroundColor(.appPrimary)
+                            .foregroundColor(.appText)
                         
                         Text(monthString(from: dayData.date, format: "MMM"))
                             .font(.system(size: 15, weight: .semibold, design: .rounded))
@@ -953,7 +825,7 @@ struct DailySleepCard: View {
                 // MARK: - Sleep Details Section
                 VStack(alignment: .leading, spacing: 0) {
                     // Top part: Total duration and block counts
-                    VStack(alignment: .leading, spacing: PSSpacing.sm) {
+                    VStack(alignment: .leading, spacing: PSSpacing.xs) {
                         Text("\(L("history.card.total", table: "History")): \(formatDuration(Int(dayData.totalSleepDuration / 60)))")
                             .font(PSTypography.subheadline)
                             .fontWeight(.medium)
@@ -972,30 +844,19 @@ struct DailySleepCard: View {
                             }
                         }
                     }
-                    .padding(.top, PSSpacing.md)
+                    .padding(.top, PSSpacing.sm)
                     
                     
-                    // Bottom part: Star rating and adjustment indicators
+                    // Bottom part: Star rating
                     HStack(spacing: PSSpacing.sm) {
                         StarsView(rating: displayRating, size: PSIconSize.small, primaryColor: .appAccent, emptyColor: .appTextSecondary.opacity(0.2))
                         Text(String(format: "%.1f", displayRating))
                             .font(PSTypography.caption.weight(.semibold))
                             .foregroundColor(.appTextSecondary)
                             .lineLimit(1)
-                        
-                        // Compact adjustment indicators
-                        if hasAdjustments {
-                            HStack(spacing: 2) {
-                                ForEach(getCompactAdjustmentIndicators(), id: \.self) { indicator in
-                                    Circle()
-                                        .fill(indicator.color)
-                                        .frame(width: 4, height: 4)
-                                }
-                            }
-                        }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.top, PSSpacing.md)
+                    .padding(.top, PSSpacing.xs)
                 }
                 
                 
@@ -1030,7 +891,7 @@ struct DailySleepCard: View {
                 .padding(.horizontal, PSSpacing.lg)
                 .padding(.vertical, PSSpacing.sm)
             
-            LazyVStack(spacing: PSSpacing.sm) {
+            LazyVStack(spacing: PSSpacing.xs) {
                 ForEach(dayData.manualEntries) { entry in
                     SleepEntryDetailRow(
                         entry: .manual(entry), 
@@ -1053,7 +914,7 @@ struct DailySleepCard: View {
                         .drawingGroup() // GPU acceleration for complex views
                 }
             }
-            .padding(.vertical, PSSpacing.lg)
+            .padding(.vertical, PSSpacing.sm)
         }
         .frame(maxWidth: .infinity, alignment: .center)
         .clipped() // Prevents layout issues during animation
@@ -1085,9 +946,9 @@ struct DailySleepCard: View {
     
     private func relativeTimeColor(from date: Date) -> Color {
         let calendar = Calendar.current
-        if calendar.isDateInToday(date) { return .appPrimary.opacity(0.9) }
-        if calendar.isDateInYesterday(date) { return .appSecondary.opacity(0.8) }
-        return .appAccent.opacity(0.7)
+        if calendar.isDateInToday(date) { return .appPrimary }
+        if calendar.isDateInYesterday(date) { return .appTextSecondary }
+        return .appTextTertiary
     }
 }
 
@@ -1115,7 +976,7 @@ struct SleepEntryDetailRow: View {
                 HStack(spacing: PSSpacing.xs) {
                     Text(emojiIcon)
                         .font(.system(size: 18))
-                        .frame(width: 20, height: 20)
+                        .frame(width: 24, height: 24)
                     
                     // Type indicator dot
                     Circle()
@@ -1171,11 +1032,11 @@ struct SleepEntryDetailRow: View {
                         HStack(spacing: PSSpacing.xs) {
                             Image(systemName: "star.fill")
                                 .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.orange)
+                                .foregroundColor(.appAccent)
                             
                             Text(String(format: "%.1f", rating))
                                 .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.orange)
+                                .foregroundColor(.appAccent)
                                 .lineLimit(1)
                         }
                     } else if !isFromHealthKit {
@@ -1221,24 +1082,25 @@ struct SleepEntryDetailRow: View {
                     HStack(spacing: 4) {
                         Image(systemName: isFromHealthKit ? "heart.fill" : "pencil")
                             .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(isFromHealthKit ? .green : .appSecondary)
+                            .foregroundColor(isFromHealthKit ? .appSuccess : .appSecondary)
                         
                         Text(isFromHealthKit ? L("history.source.health", table: "History") : L("history.source.manual", table: "History"))
                             .font(.system(size: 10, weight: .medium))
-                            .foregroundColor(isFromHealthKit ? .green : .appSecondary)
+                            .foregroundColor(isFromHealthKit ? .appSuccess : .appSecondary)
                             .lineLimit(1)
                     }
                     .padding(.horizontal, PSSpacing.xs)
                     .padding(.vertical, 2)
                     .background(
                         RoundedRectangle(cornerRadius: 6)
-                            .fill((isFromHealthKit ? Color.green : Color.appSecondary).opacity(0.1))
+                            .fill((isFromHealthKit ? Color.appSuccess : Color.appSecondary).opacity(0.1))
                     )
                 }
             }
         }
-        .padding(.vertical, PSSpacing.md)
+        .padding(.vertical, PSSpacing.sm)
         .padding(.horizontal, PSSpacing.md)
+        .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: PSCornerRadius.medium)
                 .fill(Color.appCardBackground)
@@ -1676,14 +1538,8 @@ struct ModernFloatingActionButton: View {
                         .frame(width: PSIconSize.extraLarge + PSSpacing.sm, height: PSIconSize.extraLarge + PSSpacing.sm)
                         .background(
                             Circle()
-                                .fill(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [.appPrimary, .appSecondary]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .shadow(color: Color.appPrimary.opacity(0.4), radius: PSSpacing.md, x: 0, y: PSSpacing.sm)
+                                .fill(Color.appAccent)
+                                .shadow(color: Color.appAccent.opacity(0.3), radius: 8, x: 0, y: 3)
                         )
                 }
                 .buttonStyle(FloatingButtonStyle())

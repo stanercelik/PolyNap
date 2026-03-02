@@ -2180,6 +2180,125 @@
         }
       }
     },
+    "analytics.premium.feature1" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleep component breakdown (core + naps)"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uyku bileşeni dağılımı (core + şekerlemeler)"
+          }
+        }
+      }
+    },
+    "analytics.premium.feature2" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HRV & heart rate trends (Apple Watch)"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "HRV ve kalp ritmi trendi (Apple Watch)"
+          }
+        }
+      }
+    },
+    "analytics.premium.feature3" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Consistency score & variability analysis"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutarlılık skoru ve değişkenlik analizi"
+          }
+        }
+      }
+    },
+    "analytics.premium.feature4" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sleep debt & efficiency tracking"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uyku borcu ve verimlilik takibi"
+          }
+        }
+      }
+    },
+    "analytics.premium.upsell.cta" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Upgrade to Premium"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium'a Geç"
+          }
+        }
+      }
+    },
+    "analytics.premium.upsell.subtitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Advanced charts and insights to better understand your sleep quality"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uyku kaliteni daha iyi anlamak için gelişmiş grafikler ve içgörüler"
+          }
+        }
+      }
+    },
+    "analytics.premium.upsell.title" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium Analytics"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium Analizler"
+          }
+        }
+      }
+    },
     "analytics.premium.unlockMessage" : {
       "extractionState" : "manual",
       "localizations" : {

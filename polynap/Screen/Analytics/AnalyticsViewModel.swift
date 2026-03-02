@@ -50,11 +50,11 @@ enum SleepQualityCategory: String, CaseIterable {
     
     var color: Color {
         switch self {
-        case .excellent: return Color("SecondaryColor")
-        case .good: return Color("PrimaryColor")
-        case .average: return Color("AccentColor")
-        case .poor: return Color.orange
-        case .bad: return Color.red
+        case .excellent: return .appSecondary
+        case .good: return .appPrimary
+        case .average: return .appAccent
+        case .poor: return .metricAmber
+        case .bad: return .appError
         }
     }
     

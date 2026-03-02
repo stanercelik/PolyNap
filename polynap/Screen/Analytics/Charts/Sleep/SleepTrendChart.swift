@@ -93,19 +93,26 @@ struct SleepTrendChart: View {
                     .fill(Color.clear)
                     .contentShape(Rectangle())
                     .gesture(
-                        DragGesture(minimumDistance: 0)
+                        DragGesture(minimumDistance: 10)
                             .onChanged { value in
+                                // Yalnızca yatay sürükleme tooltip açsın; dikey scroll ile çakışmasın
+                                let dx = abs(value.translation.width)
+                                let dy = abs(value.translation.height)
+                                guard dx > dy else {
+                                    selectedTrendDataPoint = nil
+                                    return
+                                }
+
                                 let location = value.location
                                 let xPosition = location.x - geometry[proxy.plotAreaFrame].origin.x
-                                
+
                                 guard xPosition >= 0, xPosition < proxy.plotAreaSize.width else {
                                     selectedTrendDataPoint = nil
                                     return
                                 }
-                                
+
                                 if let date = proxy.value(atX: xPosition, as: Date.self),
                                    let matchingDay = viewModel.sleepTrendData.min(by: { abs($0.date.timeIntervalSince(date)) < abs($1.date.timeIntervalSince(date)) }) {
-                                    
                                     if selectedTrendDataPoint?.id != matchingDay.id {
                                         withAnimation(.easeInOut(duration: 0.1)) {
                                             selectedTrendDataPoint = matchingDay

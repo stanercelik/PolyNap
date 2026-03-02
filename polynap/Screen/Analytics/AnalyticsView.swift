@@ -71,41 +71,8 @@ public struct AnalyticsView: View {
                                     // - Uyku Borcu (yanlış hedef: 8 saat)  
                                     // - Kalite-Tutarlılık Korelasyonu (yetersiz veri)
                                 } else {
-                                    PremiumLockedAnalytics(
-                                        title: L("analytics.sleepComponentsTrend.title", table: "Analytics"),
-                                        description: L("analytics.premium.breakdownDescription", table: "Analytics")
-                                    ) {
-                                        AnalyticsSleepComponentsPreview()
-                                    }
-                                    
-                                    PremiumLockedAnalytics(
-                                        title: L("analytics.qualityDistribution.title", table: "Analytics"),
-                                        description: L("analytics.premium.qualityDescription", table: "Analytics")
-                                    ) {
-                                        AnalyticsQualityDistributionPreview()
-                                    }
-                                    
-                                    PremiumLockedAnalytics(
-                                        title: L("analytics.sleepBreakdown.title", table: "Analytics"),
-                                        description: L("analytics.premium.breakdownDescription", table: "Analytics")
-                                    ) {
-                                        AnalyticsSleepBreakdownPreview()
-                                    }
-                                    
-                                    PremiumLockedAnalytics(
-                                        title: L("analytics.timeGained.title", table: "Analytics"),
-                                        description: L("analytics.premium.timeGainedDescription", table: "Analytics")
-                                    ) {
-                                        AnalyticsTimeGainedPreview()
-                                    }
-                                    
-                                    // ⚠️ UYARI: Aşağıdaki özellikler mevcut verilerle doğru sonuç vermez
-                                    PSInfoBox(
-                                        title: "Gelişmiş Analizler Geliştiriliyor",
-                                        message: "Uyku ısı haritası, tutarlılık analizi ve uyku borcu hesaplamaları için daha detaylı veri toplama özellikleri geliştiriliyor. Bu özellikler gelecek güncellemelerde eklenecek.",
-                                        icon: "wrench.and.screwdriver.fill"
-                                    )
-                                    .padding(.horizontal, PSSpacing.lg)
+                                    AnalyticsPremiumUpsell()
+                                        .padding(.horizontal, PSSpacing.lg)
                                 }
                             }
                             .transition(.opacity.combined(with: .scale(scale: 0.95)))
@@ -130,47 +97,42 @@ public struct AnalyticsView: View {
     // MARK: - UI Components
     
     private var timeRangePicker: some View {
-        PSCard {
-            VStack(alignment: .leading, spacing: PSSpacing.lg) {
-                PSSectionHeader(
-                    L("analytics.timeRange.title", table: "Analytics"),
-                    icon: "calendar.badge.clock"
-                )
-                
-                ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: PSSpacing.md) {
-                        ForEach(TimeRange.allCases) { range in
-                            ModernTimeRangeChip(
-                                title: range.displayName,
-                                isSelected: viewModel.selectedTimeRange == range,
-                                action: {
-                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                                        viewModel.changeTimeRange(to: range)
-                                    }
-                                }
-                            )
-                            // Loading sırasında etkileşimi devre dışı bırak
-                            .disabled(viewModel.isLoading)
-                            .opacity(viewModel.isLoading ? 0.6 : 1.0)
+        HStack(spacing: PSSpacing.sm) {
+            ForEach(TimeRange.allCases) { range in
+                Button(action: {
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        viewModel.changeTimeRange(to: range)
+                    }
+                }) {
+                    Group {
+                        if viewModel.isLoading && viewModel.selectedTimeRange == range {
+                            ProgressView()
+                                .scaleEffect(0.7)
+                                .progressViewStyle(CircularProgressViewStyle(tint: .appTextOnPrimary))
+                                .frame(width: 14, height: 14)
+                        } else {
+                            Text(range.displayName)
+                                .font(.system(.subheadline, design: .rounded, weight: viewModel.selectedTimeRange == range ? .semibold : .medium))
+                                .foregroundColor(viewModel.selectedTimeRange == range ? .appTextOnPrimary : .appText)
                         }
                     }
-                    .padding(.horizontal, PSSpacing.xs)
+                    .padding(.horizontal, PSSpacing.lg)
+                    .padding(.vertical, PSSpacing.sm + PSSpacing.xs)
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: PSCornerRadius.button)
+                            .fill(viewModel.selectedTimeRange == range ? Color.appPrimary : Color.appCardBackground)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: PSCornerRadius.button)
+                                    .stroke(viewModel.selectedTimeRange == range ? Color.clear : Color.appBorder.opacity(0.5), lineWidth: 1)
+                            )
+                    )
                 }
-                
-                // Loading indicator ekle
-                if viewModel.isLoading {
-                    HStack {
-                        ProgressView()
-                            .scaleEffect(0.8)
-                            .progressViewStyle(CircularProgressViewStyle(tint: .appPrimary))
-                        
-                        Text(L("analytics.updating", table: "Analytics"))
-                            .font(PSTypography.caption)
-                            .foregroundColor(.appTextSecondary)
-                    }
-                    .padding(.top, PSSpacing.xs)
-                    .transition(.opacity)
-                }
+                .buttonStyle(.plain)
+                .disabled(viewModel.isLoading)
+                .opacity(viewModel.isLoading && viewModel.selectedTimeRange != range ? 0.5 : 1.0)
+                .animation(.easeInOut(duration: 0.2), value: viewModel.selectedTimeRange)
             }
         }
         .padding(.horizontal, PSSpacing.lg)
@@ -216,69 +178,3 @@ public struct AnalyticsView: View {
     AnalyticsView()
 }
 
-// MARK: - Modern Time Range Chip
-struct ModernTimeRangeChip: View {
-    let title: String
-    let isSelected: Bool
-    let action: () -> Void
-    
-    var body: some View {
-        Button(action: {
-            // Haptic feedback ekle
-            let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-            impactFeedback.prepare()
-            impactFeedback.impactOccurred()
-            
-            print("🎯 Filter seçildi: \(title)")
-            action()
-        }) {
-            HStack(spacing: PSSpacing.xs) {
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(PSTypography.caption)
-                        .foregroundColor(.appTextOnPrimary)
-                        .transition(.scale.combined(with: .opacity))
-                }
-                
-                Text(title)
-                    .font(PSTypography.button)
-                    .foregroundColor(isSelected ? .appTextOnPrimary : .appText)
-                    .fontWeight(isSelected ? .semibold : .medium)
-            }
-            .padding(.horizontal, PSSpacing.lg)
-            .padding(.vertical, PSSpacing.sm + PSSpacing.xs)
-            .background(
-                RoundedRectangle(cornerRadius: PSCornerRadius.button)
-                    .fill(
-                        isSelected ? 
-                        LinearGradient(
-                            gradient: Gradient(colors: [.appPrimary, .appSecondary]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        ) :
-                        LinearGradient(
-                            gradient: Gradient(colors: [Color.appCardBackground, Color.appCardBackground]),
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .overlay(
-                        RoundedRectangle(cornerRadius: PSCornerRadius.button)
-                            .stroke(
-                                isSelected ? Color.clear : Color.appBorder.opacity(0.5),
-                                lineWidth: 1
-                            )
-                    )
-                    .shadow(
-                        color: isSelected ? Color.appPrimary.opacity(0.3) : Color.clear,
-                        radius: isSelected ? PSSpacing.sm : 0,
-                        x: 0,
-                        y: isSelected ? PSSpacing.xs : 0
-                    )
-            )
-        }
-        .buttonStyle(ScaleButtonStyle())
-        .scaleEffect(isSelected ? 1.02 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
-    }
-}

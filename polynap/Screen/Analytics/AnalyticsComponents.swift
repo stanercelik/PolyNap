@@ -4,112 +4,127 @@ import Charts
 // MARK: - Summary Card
 struct AnalyticsSummaryCard: View {
     @ObservedObject var viewModel: AnalyticsViewModel
-    
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(L("analytics.summary.title", table: "Analytics"))
-                .font(.system(size: 22, weight: .semibold, design: .rounded))
-                .foregroundColor(Color("TextColor"))
-            
-            // Mevcut ve önceki dönem karşılaştırması
-            if viewModel.previousPeriodComparison.hours != 0 || viewModel.previousPeriodComparison.score != 0 {
-                HStack {
-                    Text(L("analytics.previousPeriodComparison.title", table: "Analytics"))
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color("SecondaryTextColor"))
-                    
+        PSCard {
+            VStack(alignment: .leading, spacing: PSSpacing.lg) {
+                // Header row: title + period comparison badge
+                HStack(alignment: .center) {
+                    Text(L("analytics.summary.title", table: "Analytics"))
+                        .font(.system(.title3, design: .rounded, weight: .bold))
+                        .foregroundColor(.appText)
+
                     Spacer()
-                    
-                    HStack(spacing: 12) {
-                        // Uyku saati değişimi
-                        HStack(spacing: 4) {
-                            Image(systemName: viewModel.previousPeriodComparison.hours >= 0 ? "arrow.up.circle.fill" : "arrow.down.circle.fill")
-                                .foregroundColor(viewModel.previousPeriodComparison.hours >= 0 ? Color("SecondaryColor") : Color.red)
-                            
-                            Text(String(format: L("analytics.comparison.hours", table: "Analytics"), abs(viewModel.previousPeriodComparison.hours)))
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(Color("TextColor"))
+
+                    if viewModel.previousPeriodComparison.hours != 0 || viewModel.previousPeriodComparison.score != 0 {
+                        HStack(spacing: PSSpacing.xs) {
+                            if viewModel.previousPeriodComparison.hours != 0 {
+                                HStack(spacing: 3) {
+                                    Image(systemName: viewModel.previousPeriodComparison.hours >= 0 ? "arrow.up" : "arrow.down")
+                                        .font(.system(size: 10, weight: .bold))
+                                    Text(String(format: "%.1fh", abs(viewModel.previousPeriodComparison.hours)))
+                                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                }
+                                .foregroundColor(viewModel.previousPeriodComparison.hours >= 0 ? .appSuccess : .appError)
+                            }
+                            if viewModel.previousPeriodComparison.score != 0 {
+                                HStack(spacing: 3) {
+                                    Image(systemName: viewModel.previousPeriodComparison.score >= 0 ? "arrow.up" : "arrow.down")
+                                        .font(.system(size: 10, weight: .bold))
+                                    Text(String(format: "%.1f★", abs(viewModel.previousPeriodComparison.score)))
+                                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                }
+                                .foregroundColor(viewModel.previousPeriodComparison.score >= 0 ? .appSuccess : .appError)
+                            }
                         }
-                        
-                        // Uyku skoru değişimi
-                        HStack(spacing: 4) {
-                            Image(systemName: viewModel.previousPeriodComparison.score >= 0 ? "arrow.up.circle.fill" : "arrow.down.circle.fill")
-                                .foregroundColor(viewModel.previousPeriodComparison.score >= 0 ? Color("SecondaryColor") : Color.red)
-                            
-                            Text(String(format: L("analytics.comparison.score", table: "Analytics"), abs(viewModel.previousPeriodComparison.score)))
-                                .font(.system(size: 14, weight: .semibold))
-                                .foregroundColor(Color("TextColor"))
-                        }
+                        .padding(.horizontal, PSSpacing.sm)
+                        .padding(.vertical, PSSpacing.xs)
+                        .background(Capsule().fill(Color.appCardBackground).overlay(Capsule().stroke(Color.appBorder.opacity(0.4), lineWidth: 1)))
                     }
                 }
-                .padding(.vertical, 4)
-                .padding(.horizontal, 10)
-                .background(Color("CardBackground").opacity(0.5))
-                .cornerRadius(8)
-            }
-            
-            // Ana metrikler
-            HStack(spacing: 15) {
-                MetricCard(
-                    title: L("analytics.totalSleep", table: "Analytics"),
-                    value: String(format: L("analytics.value.hours", table: "Analytics"), viewModel.totalSleepHours),
-                    icon: "bed.double.fill",
-                    color: Color("AccentColor")
-                )
-                
-                MetricCard(
-                    title: L("analytics.dailyAverage", table: "Analytics"),
-                    value: String(format: L("analytics.value.hours", table: "Analytics"), viewModel.averageDailyHours),
-                    icon: "clock.fill",
-                    color: Color("PrimaryColor")
-                )
-                
-                MetricCard(
-                    title: L("analytics.averageScore", table: "Analytics"),
-                    value: String(format: L("analytics.value.scoreOf5", table: "Analytics"), viewModel.averageSleepScore),
-                    icon: "star.fill",
-                    color: Color("SecondaryColor")
-                )
-            }
-            
-            // Uyku Skoru Değerlendirmesi
-            HStack {
-                Text(L("analytics.sleepQuality.title", table: "Analytics"))
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(Color("SecondaryTextColor"))
-                
-                let category = SleepQualityCategory.fromRating(viewModel.averageSleepScore)
-                Text(category.localizedName)
-                    .font(.system(size: 16, weight: .bold))
-                    .foregroundColor(category.color)
-                
-                Spacer()
-                
-                // Uyku Hedefi İlerleme Çubuğu
-                VStack(alignment: .trailing, spacing: 4) {
-                    Text(L("analytics.sleepGoal.title", table: "Analytics"))
-                        .font(.system(size: 12))
-                        .foregroundColor(Color("SecondaryTextColor"))
-                    
-                    ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(width: 100, height: 8)
-                        
-                        let targetWidth = min(viewModel.averageDailyHours / 8.0 * 100, 100)
-                        RoundedRectangle(cornerRadius: 4)
-                            .fill(Color("PrimaryColor"))
-                            .frame(width: targetWidth, height: 8)
+
+                // 3 metrics in one row
+                HStack(spacing: 0) {
+                    CompactMetricItem(
+                        icon: "bed.double.fill",
+                        iconColor: .metricAmber,
+                        value: String(format: "%.1fh", viewModel.totalSleepHours),
+                        label: L("analytics.totalSleep", table: "Analytics")
+                    )
+
+                    Divider().frame(height: 36).opacity(0.3)
+
+                    CompactMetricItem(
+                        icon: "clock.fill",
+                        iconColor: .appPrimary,
+                        value: String(format: "%.1fh", viewModel.averageDailyHours),
+                        label: L("analytics.dailyAverage", table: "Analytics")
+                    )
+
+                    Divider().frame(height: 36).opacity(0.3)
+
+                    CompactMetricItem(
+                        icon: "star.fill",
+                        iconColor: .appAccent,
+                        value: String(format: "%.1f★", viewModel.averageSleepScore),
+                        label: L("analytics.averageScore", table: "Analytics")
+                    )
+                }
+                .padding(.vertical, PSSpacing.sm)
+                .background(RoundedRectangle(cornerRadius: PSCornerRadius.medium).fill(Color.appBackground.opacity(0.5)))
+
+                // Single insight line
+                if let bestDay = viewModel.bestSleepDay {
+                    HStack(spacing: PSSpacing.xs) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(.appPrimary)
+                        Text(bestDay.date, style: .date)
+                            .font(.system(size: 12, design: .rounded))
+                            .foregroundColor(.appTextSecondary)
+                        Text("·")
+                            .foregroundColor(.appTextTertiary)
+                        Text(String(format: "%.1f★", bestDay.score))
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundColor(.appPrimary)
+                        Spacer()
+                        let category = SleepQualityCategory.fromRating(viewModel.averageSleepScore)
+                        Text(category.localizedName)
+                            .font(.system(size: 12, weight: .semibold, design: .rounded))
+                            .foregroundColor(category.color)
                     }
                 }
             }
-            .padding(.top, 4)
         }
-        .padding()
-        .background(Color("CardBackground"))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
-        .padding(.horizontal)
+        .padding(.horizontal, PSSpacing.lg)
+    }
+}
+
+// MARK: - Compact Metric Item
+private struct CompactMetricItem: View {
+    let icon: String
+    let iconColor: Color
+    let value: String
+    let label: String
+
+    var body: some View {
+        VStack(spacing: PSSpacing.xs) {
+            Image(systemName: icon)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(iconColor)
+            Text(value)
+                .font(.system(.headline, design: .rounded, weight: .bold))
+                .foregroundColor(.appText)
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+            Text(label)
+                .font(.system(size: 10, design: .rounded))
+                .foregroundColor(.appTextSecondary)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, PSSpacing.sm)
     }
 }
 
@@ -128,13 +143,13 @@ struct MetricCard: View {
             
             Text(title)
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(Color("SecondaryTextColor"))
+                .foregroundColor(.appTextSecondary)
                 .multilineTextAlignment(.center)
                 .fixedSize(horizontal: false, vertical: true)
             
             Text(value)
                 .font(.system(size: 16, weight: .bold))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(.appText)
                 .multilineTextAlignment(.center)
         }
         .frame(maxWidth: .infinity)
@@ -147,84 +162,82 @@ struct AnalyticsQualityDistribution: View {
     @ObservedObject var viewModel: AnalyticsViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(L("analytics.qualityDistribution.title", table: "Analytics"))
-                .font(.system(size: 22, weight: .semibold, design: .rounded))
-                .foregroundColor(Color("TextColor"))
-            
-            VStack(spacing: 10) {
-                QualityDistributionRow(
-                    category: L("analytics.sleepQuality.excellent", table: "Analytics"),
-                    count: viewModel.sleepQualityStats.excellentDays,
-                    percentage: viewModel.sleepQualityStats.excellentPercentage,
-                    color: SleepQualityCategory.excellent.color
-                )
+        PSCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(L("analytics.qualityDistribution.title", table: "Analytics"))
+                    .font(.system(.title3, design: .rounded, weight: .bold))
+                    .foregroundColor(.appText)
                 
-                QualityDistributionRow(
-                    category: L("analytics.sleepQuality.good", table: "Analytics"),
-                    count: viewModel.sleepQualityStats.goodDays,
-                    percentage: viewModel.sleepQualityStats.goodPercentage,
-                    color: SleepQualityCategory.good.color
-                )
+                VStack(spacing: 10) {
+                    QualityDistributionRow(
+                        category: L("analytics.sleepQuality.excellent", table: "Analytics"),
+                        count: viewModel.sleepQualityStats.excellentDays,
+                        percentage: viewModel.sleepQualityStats.excellentPercentage,
+                        color: SleepQualityCategory.excellent.color
+                    )
+                    
+                    QualityDistributionRow(
+                        category: L("analytics.sleepQuality.good", table: "Analytics"),
+                        count: viewModel.sleepQualityStats.goodDays,
+                        percentage: viewModel.sleepQualityStats.goodPercentage,
+                        color: SleepQualityCategory.good.color
+                    )
+                    
+                    QualityDistributionRow(
+                        category: L("analytics.sleepQuality.average", table: "Analytics"),
+                        count: viewModel.sleepQualityStats.averageDays,
+                        percentage: viewModel.sleepQualityStats.averagePercentage,
+                        color: SleepQualityCategory.average.color
+                    )
+                    
+                    QualityDistributionRow(
+                        category: L("analytics.sleepQuality.poor", table: "Analytics"),
+                        count: viewModel.sleepQualityStats.poorDays,
+                        percentage: viewModel.sleepQualityStats.poorPercentage,
+                        color: SleepQualityCategory.poor.color
+                    )
+                    
+                    QualityDistributionRow(
+                        category: L("analytics.sleepQuality.bad", table: "Analytics"),
+                        count: viewModel.sleepQualityStats.badDays,
+                        percentage: viewModel.sleepQualityStats.badPercentage,
+                        color: SleepQualityCategory.bad.color
+                    )
+                }
                 
-                QualityDistributionRow(
-                    category: L("analytics.sleepQuality.average", table: "Analytics"),
-                    count: viewModel.sleepQualityStats.averageDays,
-                    percentage: viewModel.sleepQualityStats.averagePercentage,
-                    color: SleepQualityCategory.average.color
-                )
-                
-                QualityDistributionRow(
-                    category: L("analytics.sleepQuality.poor", table: "Analytics"),
-                    count: viewModel.sleepQualityStats.poorDays,
-                    percentage: viewModel.sleepQualityStats.poorPercentage,
-                    color: SleepQualityCategory.poor.color
-                )
-                
-                QualityDistributionRow(
-                    category: L("analytics.sleepQuality.bad", table: "Analytics"),
-                    count: viewModel.sleepQualityStats.badDays,
-                    percentage: viewModel.sleepQualityStats.badPercentage,
-                    color: SleepQualityCategory.bad.color
-                )
-            }
-            
-            // Trend göstergesi
-            HStack {
-                Text(L("analytics.sleepQualityTrend.title", table: "Analytics"))
-                    .font(.system(size: 14))
-                    .foregroundColor(Color("TextColor"))
-                
-                if abs(viewModel.sleepStatistics.trendDirection) < 0.1 {
-                    Text(L("analytics.sleepQualityTrend.stable", table: "Analytics"))
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color("TextColor"))
-                } else {
-                    HStack(spacing: 4) {
-                        Text(viewModel.sleepStatistics.trendDirection > 0 ? L("analytics.sleepQualityTrend.improving", table: "Analytics") : L("analytics.sleepQualityTrend.deteriorating", table: "Analytics"))
+                // Trend göstergesi
+                HStack {
+                    Text(L("analytics.sleepQualityTrend.title", table: "Analytics"))
+                        .font(.system(size: 14))
+                        .foregroundColor(.appText)
+                    
+                    if abs(viewModel.sleepStatistics.trendDirection) < 0.1 {
+                        Text(L("analytics.sleepQualityTrend.stable", table: "Analytics"))
                             .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(viewModel.sleepStatistics.trendDirection > 0 ? Color("SecondaryColor") : Color.red)
-                        
-                        Image(systemName: viewModel.sleepStatistics.trendDirection > 0 ? "arrow.up.circle.fill" : "arrow.down.circle.fill")
-                            .foregroundColor(viewModel.sleepStatistics.trendDirection > 0 ? Color("SecondaryColor") : Color.red)
+                            .foregroundColor(.appText)
+                    } else {
+                        HStack(spacing: 4) {
+                            Text(viewModel.sleepStatistics.trendDirection > 0 ? L("analytics.sleepQualityTrend.improving", table: "Analytics") : L("analytics.sleepQualityTrend.deteriorating", table: "Analytics"))
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(viewModel.sleepStatistics.trendDirection > 0 ? .appSecondary : .appError)
+                            
+                            Image(systemName: viewModel.sleepStatistics.trendDirection > 0 ? "arrow.up.circle.fill" : "arrow.down.circle.fill")
+                                .foregroundColor(viewModel.sleepStatistics.trendDirection > 0 ? .appSecondary : .appError)
+                        }
                     }
+                    
+                    if abs(viewModel.sleepStatistics.improvementRate) > 1 {
+                        Text(String(format: L("analytics.sleepQualityTrend.improvementRate", table: "Analytics"), abs(viewModel.sleepStatistics.improvementRate)))
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.appTextSecondary)
+                    }
+                    
+                    Spacer()
                 }
-                
-                if abs(viewModel.sleepStatistics.improvementRate) > 1 {
-                    Text(String(format: L("analytics.sleepQualityTrend.improvementRate", table: "Analytics"), abs(viewModel.sleepStatistics.improvementRate)))
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color("SecondaryTextColor"))
-                }
-                
-                Spacer()
+                .padding(.top, 8)
             }
-            .padding(.top, 8)
         }
-        .padding()
-        .background(Color("CardBackground"))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
-        .padding(.horizontal)
+        .padding(.horizontal, PSSpacing.lg)
     }
 }
 
@@ -243,11 +256,11 @@ struct QualityDistributionRow: View {
             
             Text(category)
                 .font(.system(size: 14))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(.appText)
             
             Text(String(format: L("analytics.qualityDistribution.daysCount", table: "Analytics"), count))
                 .font(.system(size: 12))
-                .foregroundColor(Color("SecondaryTextColor"))
+                .foregroundColor(.appTextSecondary)
             
             Spacer()
             
@@ -265,7 +278,7 @@ struct QualityDistributionRow: View {
             
             Text(String(format: L("analytics.qualityDistribution.percentage", table: "Analytics"), percentage))
                 .font(.system(size: 14, weight: .medium))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(.appText)
                 .frame(width: 40, alignment: .trailing)
         }
     }
@@ -276,101 +289,99 @@ struct AnalyticsConsistencySection: View {
     @ObservedObject var viewModel: AnalyticsViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(L("analytics.consistency.title", table: "Analytics"))
-                .font(.system(size: 22, weight: .semibold, design: .rounded))
-                .foregroundColor(Color("TextColor"))
-            
-            HStack(spacing: 20) {
-                // Tutarlılık göstergesi
-                VStack {
-                    ZStack {
-                        // Arkaplan daire
-                        Circle()
-                            .stroke(Color.gray.opacity(0.2), lineWidth: 10)
-                            .frame(width: 130, height: 130)
-                        
-                        // Değer dairesi
-                        Circle()
-                            .trim(from: 0, to: CGFloat(viewModel.sleepStatistics.consistencyScore / 100))
-                            .stroke(
-                                viewModel.sleepStatistics.consistencyScore > 70 ? Color("SecondaryColor") :
-                                    viewModel.sleepStatistics.consistencyScore > 40 ? Color("PrimaryColor") : Color.orange,
-                                style: StrokeStyle(lineWidth: 10, lineCap: .round)
-                            )
-                            .rotationEffect(.degrees(-90))
-                            .frame(width: 130, height: 130)
-                        
-                        // Değer metni
-                        VStack(spacing: 0) {
-                            Text(String(format: "%.0f", viewModel.sleepStatistics.consistencyScore))
-                                .font(.system(size: 34, weight: .bold))
-                                .foregroundColor(Color("TextColor"))
-                            
-                            Text(L("analytics.consistency.scoreUnit", table: "Analytics"))
-                                .font(.system(size: 14))
-                                .foregroundColor(Color("SecondaryTextColor"))
-                        }
-                    }
-                    
-                    Text(L("analytics.consistency.description", table: "Analytics"))
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundColor(Color("TextColor"))
-                        .padding(.top, 8)
-                }
+        PSCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(L("analytics.consistency.title", table: "Analytics"))
+                    .font(.system(.title3, design: .rounded, weight: .bold))
+                    .foregroundColor(.appText)
                 
-                VStack(alignment: .leading, spacing: 12) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(L("analytics.variability.title", table: "Analytics"))
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundColor(Color("SecondaryTextColor"))
-                        
-                        HStack {
-                            Text(String(format: "%.0f", viewModel.sleepStatistics.variabilityScore))
-                                .font(.system(size: 20, weight: .bold))
-                                .foregroundColor(Color("TextColor"))
+                HStack(spacing: 20) {
+                    // Tutarlılık göstergesi
+                    VStack {
+                        ZStack {
+                            // Arkaplan daire
+                            Circle()
+                                .stroke(Color.gray.opacity(0.2), lineWidth: 10)
+                                .frame(width: 130, height: 130)
                             
-                            Text(L("analytics.consistency.scoreUnit", table: "Analytics"))
-                                .font(.system(size: 14))
-                                .foregroundColor(Color("SecondaryTextColor"))
+                            // Değer dairesi
+                            Circle()
+                                .trim(from: 0, to: CGFloat(viewModel.sleepStatistics.consistencyScore / 100))
+                                .stroke(
+                                    viewModel.sleepStatistics.consistencyScore > 70 ? Color.appSecondary :
+                                        viewModel.sleepStatistics.consistencyScore > 40 ? Color.appPrimary : Color.orange,
+                                    style: StrokeStyle(lineWidth: 10, lineCap: .round)
+                                )
+                                .rotationEffect(.degrees(-90))
+                                .frame(width: 130, height: 130)
+                            
+                            // Değer metni
+                            VStack(spacing: 0) {
+                                Text(String(format: "%.0f", viewModel.sleepStatistics.consistencyScore))
+                                    .font(.system(size: 34, weight: .bold))
+                                    .foregroundColor(.appText)
+                                
+                                Text(L("analytics.consistency.scoreUnit", table: "Analytics"))
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.appTextSecondary)
+                            }
                         }
                         
-                        Text(viewModel.sleepStatistics.variabilityScore < 30 ? L("analytics.variability.stable", table: "Analytics") :
-                             viewModel.sleepStatistics.variabilityScore < 60 ? L("analytics.variability.moderate", table: "Analytics") : L("analytics.variability.high", table: "Analytics"))
-                            .font(.system(size: 12))
-                            .foregroundColor(Color("SecondaryTextColor"))
+                        Text(L("analytics.consistency.description", table: "Analytics"))
+                            .font(.system(size: 14, weight: .medium))
+                            .foregroundColor(.appText)
+                            .padding(.top, 8)
                     }
                     
-                    Divider()
-                    
-                    // Başarı rozeti veya tavsiye
-                    HStack {
-                        if viewModel.sleepStatistics.consistencyScore > 70 {
-                            Image(systemName: "checkmark.seal.fill")
-                                .font(.system(size: 24))
-                                .foregroundColor(Color("SecondaryColor"))
-                        } else {
-                            Image(systemName: "exclamationmark.triangle.fill")
-                                .font(.system(size: 24))
-                                .foregroundColor(Color.orange)
+                    VStack(alignment: .leading, spacing: 12) {
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(L("analytics.variability.title", table: "Analytics"))
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.appTextSecondary)
+                            
+                            HStack {
+                                Text(String(format: "%.0f", viewModel.sleepStatistics.variabilityScore))
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(.appText)
+                                
+                                Text(L("analytics.consistency.scoreUnit", table: "Analytics"))
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.appTextSecondary)
+                            }
+                            
+                            Text(viewModel.sleepStatistics.variabilityScore < 30 ? L("analytics.variability.stable", table: "Analytics") :
+                                 viewModel.sleepStatistics.variabilityScore < 60 ? L("analytics.variability.moderate", table: "Analytics") : L("analytics.variability.high", table: "Analytics"))
+                                .font(.system(size: 12))
+                                .foregroundColor(.appTextSecondary)
                         }
                         
-                        Text(viewModel.sleepStatistics.consistencyScore > 70 ?
-                             L("analytics.consistency.greatRoutine", table: "Analytics") :
-                                L("analytics.consistency.improveRoutine", table: "Analytics"))
-                            .font(.system(size: 12))
-                            .foregroundColor(Color("TextColor"))
-                            .fixedSize(horizontal: false, vertical: true)
+                        Divider()
+                        
+                        // Başarı rozeti veya tavsiye
+                        HStack {
+                            if viewModel.sleepStatistics.consistencyScore > 70 {
+                                Image(systemName: "checkmark.seal.fill")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(.appSecondary)
+                            } else {
+                                Image(systemName: "exclamationmark.triangle.fill")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(Color.orange)
+                            }
+                            
+                            Text(viewModel.sleepStatistics.consistencyScore > 70 ?
+                                 L("analytics.consistency.greatRoutine", table: "Analytics") :
+                                    L("analytics.consistency.improveRoutine", table: "Analytics"))
+                                .font(.system(size: 12))
+                                .foregroundColor(.appText)
+                                .fixedSize(horizontal: false, vertical: true)
+                        }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
-        .padding()
-        .background(Color("CardBackground"))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
-        .padding(.horizontal)
+        .padding(.horizontal, PSSpacing.lg)
     }
 }
 
@@ -379,112 +390,110 @@ struct AnalyticsBestWorstDays: View {
     @ObservedObject var viewModel: AnalyticsViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(L("analytics.bestWorstDays.title", table: "Analytics"))
-                .font(.system(size: 22, weight: .semibold, design: .rounded))
-                .foregroundColor(Color("TextColor"))
-            
-            HStack(spacing: 15) {
-                // En iyi gün
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Image(systemName: "medal.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(Color("SecondaryColor"))
-                        
-                        Text(L("analytics.bestWorstDays.bestDay", table: "Analytics"))
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(Color("TextColor"))
-                    }
-                    
-                    if let bestDay = viewModel.bestSleepDay {
-                        Text(bestDay.date, style: .date)
-                            .font(.system(size: 14))
-                            .foregroundColor(Color("TextColor"))
-                        
-                        HStack {
-                            Image(systemName: "star.fill")
-                                .font(.system(size: 14))
-                                .foregroundColor(Color("SecondaryColor"))
-                            
-                            Text(String(format: "%.1f/5", bestDay.score))
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(Color("TextColor"))
-                        }
-                        
-                        HStack {
-                            Image(systemName: "bed.double.fill")
-                                .font(.system(size: 14))
-                                .foregroundColor(Color("PrimaryColor"))
-                            
-                            Text(String(format: L("analytics.bestWorstDays.hours", table: "Analytics"), bestDay.hours))
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(Color("TextColor"))
-                        }
-                    } else {
-                        Text(L("analytics.bestWorstDays.noData", table: "Analytics"))
-                            .font(.system(size: 14))
-                            .foregroundColor(Color("SecondaryTextColor"))
-                    }
-                }
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color("SecondaryColor").opacity(0.1))
-                .cornerRadius(8)
+        PSCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(L("analytics.bestWorstDays.title", table: "Analytics"))
+                    .font(.system(.title3, design: .rounded, weight: .bold))
+                    .foregroundColor(.appText)
                 
-                // En kötü gün
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Image(systemName: "exclamationmark.circle.fill")
-                            .font(.system(size: 20))
-                            .foregroundColor(Color.red)
+                HStack(spacing: 15) {
+                    // En iyi gün
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack {
+                            Image(systemName: "medal.fill")
+                                .font(.system(size: 20))
+                                .foregroundColor(.appSecondary)
+                            
+                            Text(L("analytics.bestWorstDays.bestDay", table: "Analytics"))
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.appText)
+                        }
                         
-                        Text(L("analytics.bestWorstDays.worstDay", table: "Analytics"))
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(Color("TextColor"))
+                        if let bestDay = viewModel.bestSleepDay {
+                            Text(bestDay.date, style: .date)
+                                .font(.system(size: 14))
+                                .foregroundColor(.appText)
+                            
+                            HStack {
+                                Image(systemName: "star.fill")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.appSecondary)
+                                
+                                Text(String(format: "%.1f/5", bestDay.score))
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.appText)
+                            }
+                            
+                            HStack {
+                                Image(systemName: "bed.double.fill")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.appPrimary)
+                                
+                                Text(String(format: L("analytics.bestWorstDays.hours", table: "Analytics"), bestDay.hours))
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.appText)
+                            }
+                        } else {
+                            Text(L("analytics.bestWorstDays.noData", table: "Analytics"))
+                                .font(.system(size: 14))
+                                .foregroundColor(.appTextSecondary)
+                        }
                     }
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.appSecondary.opacity(0.1))
+                    .cornerRadius(8)
                     
-                    if let worstDay = viewModel.worstSleepDay {
-                        Text(worstDay.date, style: .date)
-                            .font(.system(size: 14))
-                            .foregroundColor(Color("TextColor"))
-                        
+                    // En kötü gün
+                    VStack(alignment: .leading, spacing: 8) {
                         HStack {
-                            Image(systemName: "star.fill")
-                                .font(.system(size: 14))
-                                .foregroundColor(Color.red)
+                            Image(systemName: "exclamationmark.circle.fill")
+                                .font(.system(size: 20))
+                                .foregroundColor(.appError)
                             
-                            Text(String(format: "%.1f/5", worstDay.score))
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(Color("TextColor"))
+                            Text(L("analytics.bestWorstDays.worstDay", table: "Analytics"))
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundColor(.appText)
                         }
                         
-                        HStack {
-                            Image(systemName: "bed.double.fill")
+                        if let worstDay = viewModel.worstSleepDay {
+                            Text(worstDay.date, style: .date)
                                 .font(.system(size: 14))
-                                .foregroundColor(Color("PrimaryColor"))
+                                .foregroundColor(.appText)
                             
-                            Text(String(format: L("analytics.bestWorstDays.hours", table: "Analytics"), worstDay.hours))
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(Color("TextColor"))
+                            HStack {
+                                Image(systemName: "star.fill")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.appError)
+                                
+                                Text(String(format: "%.1f/5", worstDay.score))
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.appText)
+                            }
+                            
+                            HStack {
+                                Image(systemName: "bed.double.fill")
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.appPrimary)
+                                
+                                Text(String(format: L("analytics.bestWorstDays.hours", table: "Analytics"), worstDay.hours))
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.appText)
+                            }
+                        } else {
+                            Text(L("analytics.bestWorstDays.noData", table: "Analytics"))
+                                .font(.system(size: 14))
+                                .foregroundColor(.appTextSecondary)
                         }
-                    } else {
-                        Text(L("analytics.bestWorstDays.noData", table: "Analytics"))
-                            .font(.system(size: 14))
-                            .foregroundColor(Color("SecondaryTextColor"))
                     }
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(Color.appError.opacity(0.1))
+                    .cornerRadius(8)
                 }
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(Color.red.opacity(0.1))
-                .cornerRadius(8)
             }
         }
-        .padding()
-        .background(Color("CardBackground"))
-        .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
-        .padding(.horizontal)
+        .padding(.horizontal, PSSpacing.lg)
     }
 }
 
@@ -493,97 +502,95 @@ struct AnalyticsTimeGained: View {
     @ObservedObject var viewModel: AnalyticsViewModel
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Text(L("analytics.timeGained.title", table: "Analytics"))
-                .font(.system(size: 22, weight: .semibold, design: .rounded))
-                .foregroundColor(Color("TextColor"))
-            
-            VStack(spacing: 20) {
-                HStack(spacing: 15) {
-                    // Kazanılan zaman
-                    ZStack {
-                        Circle()
-                            .fill(Color("SecondaryColor").opacity(0.1))
-                            .frame(width: 80, height: 80)
-                        
-                        VStack(spacing: 0) {
-                            Text("\(Int(viewModel.timeGained))")
-                                .font(.system(size: 28, weight: .bold))
-                                .foregroundColor(Color("SecondaryColor"))
-                            
-                            Text(L("analytics.timeGained.hoursUnit", table: "Analytics"))
-                                .font(.system(size: 14))
-                                .foregroundColor(Color("SecondaryColor"))
-                        }
-                    }
-                    
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(L("analytics.timeGained.subtitle", table: "Analytics"))
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(Color("TextColor"))
-                        
-                        Text(L("analytics.timeGained.description", table: "Analytics"))
-                            .font(.system(size: 14))
-                            .foregroundColor(Color("SecondaryTextColor"))
-                            .fixedSize(horizontal: false, vertical: true)
-                        
-                        // Verimlilik yüzdesi
-                        HStack {
-                            Text(L("analytics.timeGained.efficiency", table: "Analytics"))
-                                .font(.system(size: 14))
-                                .foregroundColor(Color("SecondaryTextColor"))
-                            
-                            Text(String(format: L("analytics.timeGained.efficiencyValue", table: "Analytics"), viewModel.sleepStatistics.efficiencyPercentage))
-                                .font(.system(size: 16, weight: .bold))
-                                .foregroundColor(Color("SecondaryColor"))
-                        }
-                    }
-                    
-                    Spacer()
-                    
-                    Text("🎉")
-                        .font(.system(size: 36))
-                }
+        PSCard {
+            VStack(alignment: .leading, spacing: 12) {
+                Text(L("analytics.timeGained.title", table: "Analytics"))
+                    .font(.system(.title3, design: .rounded, weight: .bold))
+                    .foregroundColor(.appText)
                 
-                // Kazanılan zamanla yapılabilecekler
-                VStack(alignment: .leading, spacing: 12) {
-                    Text(L("analytics.timeGained.actionsTitle", table: "Analytics"))
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(Color("TextColor"))
+                VStack(spacing: 20) {
+                    HStack(spacing: 15) {
+                        // Kazanılan zaman
+                        ZStack {
+                            Circle()
+                                .fill(Color.appSecondary.opacity(0.1))
+                                .frame(width: 80, height: 80)
+                            
+                            VStack(spacing: 0) {
+                                Text("\(Int(viewModel.timeGained))")
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.appSecondary)
+                                
+                                Text(L("analytics.timeGained.hoursUnit", table: "Analytics"))
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.appSecondary)
+                            }
+                        }
+                        
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(L("analytics.timeGained.subtitle", table: "Analytics"))
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(.appText)
+                            
+                            Text(L("analytics.timeGained.description", table: "Analytics"))
+                                .font(.system(size: 14))
+                                .foregroundColor(.appTextSecondary)
+                                .fixedSize(horizontal: false, vertical: true)
+                            
+                            // Verimlilik yüzdesi
+                            HStack {
+                                Text(L("analytics.timeGained.efficiency", table: "Analytics"))
+                                    .font(.system(size: 14))
+                                    .foregroundColor(.appTextSecondary)
+                                
+                                Text(String(format: L("analytics.timeGained.efficiencyValue", table: "Analytics"), viewModel.sleepStatistics.efficiencyPercentage))
+                                    .font(.system(size: 16, weight: .bold))
+                                    .foregroundColor(.appSecondary)
+                            }
+                        }
+                        
+                        Spacer()
+                        
+                        Text("🎉")
+                            .font(.system(size: 36))
+                    }
                     
-                    VStack(spacing: 10) {
-                        ActivityRow(
-                            icon: "book.fill",
-                            color: .blue,
-                            activity: String(format: L("analytics.timeGained.activity.reading", table: "Analytics"), Int(viewModel.timeGained * 30)),
-                            note: L("analytics.timeGained.note1", table: "Analytics"))
+                    // Kazanılan zamanla yapılabilecekler
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(L("analytics.timeGained.actionsTitle", table: "Analytics"))
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.appText)
                         
-                        ActivityRow(
-                            icon: "figure.walk",
-                            color: .green,
-                            activity: String(format: L("analytics.timeGained.activity.walking", table: "Analytics"), Int(viewModel.timeGained * 5)),
-                            note: L("analytics.timeGained.note2", table: "Analytics"))
-                        
-                        ActivityRow(
-                            icon: "person.crop.rectangle.stack",
-                            color: .purple,
-                            activity: String(format: L("analytics.timeGained.activity.movies", table: "Analytics"), Int(viewModel.timeGained / 2)),
-                            note: L("analytics.timeGained.note3", table: "Analytics"))
-                        
-                        ActivityRow(
-                            icon: "laptopcomputer",
-                            color: .orange,
-                            activity: String(format: L("analytics.timeGained.activity.projects", table: "Analytics"), Int(viewModel.timeGained * 0.5)),
-                            note: L("analytics.timeGained.note4", table: "Analytics"))
+                        VStack(spacing: 10) {
+                            ActivityRow(
+                                icon: "book.fill",
+                                color: .blue,
+                                activity: String(format: L("analytics.timeGained.activity.reading", table: "Analytics"), Int(viewModel.timeGained * 30)),
+                                note: L("analytics.timeGained.note1", table: "Analytics"))
+                            
+                            ActivityRow(
+                                icon: "figure.walk",
+                                color: .green,
+                                activity: String(format: L("analytics.timeGained.activity.walking", table: "Analytics"), Int(viewModel.timeGained * 5)),
+                                note: L("analytics.timeGained.note2", table: "Analytics"))
+                            
+                            ActivityRow(
+                                icon: "person.crop.rectangle.stack",
+                                color: .purple,
+                                activity: String(format: L("analytics.timeGained.activity.movies", table: "Analytics"), Int(viewModel.timeGained / 2)),
+                                note: L("analytics.timeGained.note3", table: "Analytics"))
+                            
+                            ActivityRow(
+                                icon: "laptopcomputer",
+                                color: .orange,
+                                activity: String(format: L("analytics.timeGained.activity.projects", table: "Analytics"), Int(viewModel.timeGained * 0.5)),
+                                note: L("analytics.timeGained.note4", table: "Analytics"))
+                        }
                     }
                 }
             }
-            .padding()
-            .background(Color("CardBackground"))
-            .cornerRadius(12)
-            .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
         }
-        .padding(.horizontal)
+        .padding(.horizontal, PSSpacing.lg)
     }
 }
 
@@ -605,15 +612,216 @@ struct ActivityRow: View {
             
             Text(activity)
                 .font(.system(size: 14))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(.appText)
             
             Spacer()
             
             Text(note)
                 .font(.system(size: 12))
-                .foregroundColor(Color("SecondaryTextColor"))
+                .foregroundColor(.appTextSecondary)
                 .italic()
         }
+    }
+}
+
+// MARK: - Premium Upsell Section (replaces 4 separate locked cards)
+struct AnalyticsPremiumUpsell: View {
+    @State private var animateGlow = false
+
+    var body: some View {
+        Button(action: {
+            PaywallManager.shared.presentPaywall(trigger: .premiumFeatureAccess)
+        }) {
+            ZStack {
+                // Background: hero gradient matching app header
+                RoundedRectangle(cornerRadius: PSCornerRadius.extraLarge)
+                    .fill(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.heroTop, Color.heroBottom]),
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+
+                // 2x2 blurred chart grid visible through bottom half
+                VStack(spacing: 0) {
+                    Spacer()
+                    // Mini chart grid — blurred, fades to gradient
+                    LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: PSSpacing.sm) {
+                        BlurredMiniChart(content: AnyView(MiniBarChartPreview(colors: [.appPrimary, .appPrimary.opacity(0.6)])))
+                        BlurredMiniChart(content: AnyView(MiniLineChartPreview()))
+                        BlurredMiniChart(content: AnyView(MiniDonutPreview()))
+                        BlurredMiniChart(content: AnyView(MiniBarChartPreview(colors: [.appSecondary, .appSecondary.opacity(0.5)])))
+                    }
+                    .padding(.horizontal, PSSpacing.md)
+                    .padding(.bottom, PSSpacing.md)
+                    .mask(
+                        LinearGradient(
+                            gradient: Gradient(stops: [
+                                .init(color: .clear, location: 0),
+                                .init(color: .black.opacity(0.5), location: 0.4),
+                                .init(color: .black, location: 1)
+                            ]),
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+                }
+
+                // Content overlay (top portion)
+                VStack(spacing: PSSpacing.xl) {
+                    // Crown icon with glow
+                    ZStack {
+                        Circle()
+                            .fill(Color.white.opacity(0.12))
+                            .frame(width: 56, height: 56)
+                            .scaleEffect(animateGlow ? 1.08 : 1.0)
+                            .opacity(animateGlow ? 0.6 : 0.3)
+                            .animation(.easeInOut(duration: 1.8).repeatForever(autoreverses: true), value: animateGlow)
+
+                        Image(systemName: "crown.fill")
+                            .font(.system(size: 26, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+
+                    VStack(spacing: PSSpacing.sm) {
+                        Text(L("analytics.premium.upsell.title", table: "Analytics"))
+                            .font(.system(.title3, design: .rounded, weight: .bold))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+
+                        Text(L("analytics.premium.upsell.subtitle", table: "Analytics"))
+                            .font(.system(.subheadline, design: .rounded))
+                            .foregroundColor(.white.opacity(0.75))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, PSSpacing.lg)
+                    }
+
+                    // Feature bullets
+                    VStack(alignment: .leading, spacing: PSSpacing.sm) {
+                        PremiumFeatureBullet(icon: "chart.bar.fill", text: L("analytics.premium.feature1", table: "Analytics"))
+                        PremiumFeatureBullet(icon: "waveform.path.ecg", text: L("analytics.premium.feature2", table: "Analytics"))
+                        PremiumFeatureBullet(icon: "clock.arrow.2.circlepath", text: L("analytics.premium.feature3", table: "Analytics"))
+                        PremiumFeatureBullet(icon: "heart.fill", text: L("analytics.premium.feature4", table: "Analytics"))
+                    }
+                    .padding(.horizontal, PSSpacing.lg)
+
+                    // CTA Button
+                    HStack(spacing: PSSpacing.sm) {
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 14, weight: .semibold))
+                        Text(L("analytics.premium.upsell.cta", table: "Analytics"))
+                            .font(.system(.headline, design: .rounded, weight: .bold))
+                        Image(systemName: "sparkles")
+                            .font(.system(size: 14, weight: .semibold))
+                    }
+                    .foregroundColor(Color.heroTop)
+                    .padding(.horizontal, PSSpacing.xxl)
+                    .padding(.vertical, PSSpacing.md)
+                    .background(
+                        Capsule()
+                            .fill(Color.white)
+                            .shadow(color: Color.white.opacity(0.3), radius: 8, x: 0, y: 0)
+                    )
+                }
+                .padding(.top, PSSpacing.xl)
+                .padding(.bottom, 160)
+                .padding(.horizontal, PSSpacing.lg)
+                .frame(maxWidth: .infinity)
+            }
+        }
+        .buttonStyle(.plain)
+        .onAppear { animateGlow = true }
+    }
+}
+
+// MARK: - Premium Feature Bullet
+private struct PremiumFeatureBullet: View {
+    let icon: String
+    let text: String
+
+    var body: some View {
+        HStack(spacing: PSSpacing.md) {
+            Image(systemName: icon)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundColor(.white)
+                .frame(width: 24, height: 24)
+                .background(Circle().fill(Color.white.opacity(0.2)))
+            Text(text)
+                .font(.system(.subheadline, design: .rounded))
+                .foregroundColor(.white.opacity(0.9))
+            Spacer()
+        }
+    }
+}
+
+// MARK: - Mini Chart Previews for Upsell Grid
+private struct BlurredMiniChart: View {
+    let content: AnyView
+
+    var body: some View {
+        content
+            .blur(radius: 4)
+            .frame(height: 80)
+            .frame(maxWidth: .infinity)
+            .background(RoundedRectangle(cornerRadius: PSCornerRadius.medium).fill(Color.white.opacity(0.08)))
+            .clipped()
+    }
+}
+
+private struct MiniBarChartPreview: View {
+    let colors: [Color]
+    let heights: [CGFloat] = [0.4, 0.7, 0.55, 0.9, 0.65, 0.5, 0.8]
+
+    var body: some View {
+        HStack(alignment: .bottom, spacing: 3) {
+            ForEach(heights.indices, id: \.self) { i in
+                RoundedRectangle(cornerRadius: 3)
+                    .fill(i < colors.count ? colors[i % colors.count] : colors[0])
+                    .frame(maxWidth: .infinity)
+                    .frame(height: heights[i] * 50)
+            }
+        }
+        .padding(PSSpacing.sm)
+    }
+}
+
+private struct MiniLineChartPreview: View {
+    var body: some View {
+        Canvas { ctx, size in
+            let points: [CGFloat] = [0.6, 0.4, 0.7, 0.5, 0.8, 0.6, 0.75]
+            var path = Path()
+            for (i, y) in points.enumerated() {
+                let x = size.width * CGFloat(i) / CGFloat(points.count - 1)
+                let pt = CGPoint(x: x, y: size.height * (1 - y))
+                if i == 0 { path.move(to: pt) } else { path.addLine(to: pt) }
+            }
+            ctx.stroke(path, with: .color(.white.opacity(0.8)), lineWidth: 2)
+            for (i, y) in points.enumerated() {
+                let x = size.width * CGFloat(i) / CGFloat(points.count - 1)
+                let pt = CGPoint(x: x, y: size.height * (1 - y))
+                ctx.fill(Path(ellipseIn: CGRect(x: pt.x-3, y: pt.y-3, width: 6, height: 6)), with: .color(.white))
+            }
+        }
+        .padding(PSSpacing.sm)
+    }
+}
+
+private struct MiniDonutPreview: View {
+    var body: some View {
+        ZStack {
+            Circle()
+                .stroke(Color.white.opacity(0.15), lineWidth: 10)
+            Circle()
+                .trim(from: 0, to: 0.65)
+                .stroke(Color.white.opacity(0.7), style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+            Circle()
+                .trim(from: 0.68, to: 0.93)
+                .stroke(Color.white.opacity(0.4), style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+        }
+        .padding(PSSpacing.lg)
     }
 }
 
