@@ -656,41 +656,41 @@ struct ChartBlockEditSheet: View {
                     .padding(.top, PSSpacing.md)
                 }
 
-                // Side-by-side time pickers
-                HStack(alignment: .top, spacing: 0) {
-                    VStack(spacing: PSSpacing.xs) {
-                        Text(isTR ? "Başlangıç" : "Start")
-                            .font(.system(.caption, design: .rounded).weight(.semibold))
-                            .foregroundColor(.appTextSecondary)
-                        DatePicker("",
-                                   selection: $viewModel.chartEditStartDate,
-                                   displayedComponents: .hourAndMinute)
-                            .datePickerStyle(.wheel)
-                            .labelsHidden()
-                            .frame(maxWidth: .infinity)
-                    }
-                    .frame(maxWidth: .infinity)
+                // Stacked time pickers
+                VStack(spacing: 0) {
+                    Text(isTR ? "Başlangıç" : "Start Time")
+                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .foregroundColor(.appTextSecondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, PSSpacing.lg)
+                        .padding(.top, PSSpacing.md)
 
-                    Rectangle()
-                        .fill(Color.appTextSecondary.opacity(0.15))
-                        .frame(width: 1)
-                        .padding(.top, 26)
+                    DatePicker("",
+                               selection: $viewModel.chartEditStartDate,
+                               displayedComponents: .hourAndMinute)
+                        .datePickerStyle(.wheel)
+                        .labelsHidden()
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, PSSpacing.sm)
 
-                    VStack(spacing: PSSpacing.xs) {
-                        Text(isTR ? "Bitiş" : "End")
-                            .font(.system(.caption, design: .rounded).weight(.semibold))
-                            .foregroundColor(.appTextSecondary)
-                        DatePicker("",
-                                   selection: $viewModel.chartEditEndDate,
-                                   displayedComponents: .hourAndMinute)
-                            .datePickerStyle(.wheel)
-                            .labelsHidden()
-                            .frame(maxWidth: .infinity)
-                    }
-                    .frame(maxWidth: .infinity)
+                    Divider()
+                        .padding(.horizontal, PSSpacing.lg)
+
+                    Text(isTR ? "Bitiş" : "End Time")
+                        .font(.system(.caption, design: .rounded).weight(.semibold))
+                        .foregroundColor(.appTextSecondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, PSSpacing.lg)
+                        .padding(.top, PSSpacing.sm)
+
+                    DatePicker("",
+                               selection: $viewModel.chartEditEndDate,
+                               displayedComponents: .hourAndMinute)
+                        .datePickerStyle(.wheel)
+                        .labelsHidden()
+                        .frame(maxWidth: .infinity)
+                        .padding(.horizontal, PSSpacing.sm)
                 }
-                .padding(.horizontal, PSSpacing.md)
-                .padding(.top, PSSpacing.sm)
 
                 Divider()
                     .padding(.top, PSSpacing.sm)
@@ -737,7 +737,7 @@ struct ChartBlockEditSheet: View {
                 }
             }
         }
-        .presentationDetents([.medium])
+        .presentationDetents([.large])
         .presentationDragIndicator(.visible)
     }
 }
