@@ -8,7 +8,7 @@ struct NotificationPromptScreen: View {
             Spacer()
             ProgressView()
                 .tint(OBColors.accentBlue)
-            Text("izin isteniyor...")
+            Text(L("newOnboarding.notificationPrompt.loading", table: "Onboarding"))
                 .font(OBFont.caption)
                 .foregroundColor(OBColors.textMuted)
                 .padding(.top, OBSpacing.sm)

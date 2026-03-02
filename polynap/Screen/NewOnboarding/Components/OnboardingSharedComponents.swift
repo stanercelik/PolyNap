@@ -95,7 +95,7 @@ struct TapToContinue: View {
     let action: () -> Void
     @State private var isVisible = false
     
-    init(_ text: String = "tap to continue →", color: Color = OBColors.textMuted, action: @escaping () -> Void = {}) {
+    init(_ text: String = L("newOnboarding.common.tapToContinue", table: "Onboarding"), color: Color = OBColors.textMuted, action: @escaping () -> Void = {}) {
         self.text = text
         self.color = color
         self.action = action
@@ -341,7 +341,7 @@ struct AgeSlider: View {
                         .font(OBFont.small)
                         .foregroundColor(OBColors.textMuted)
                     Spacer()
-                    Text("65+")
+                    Text(L("newOnboarding.ageRange.agePlus65", table: "Onboarding"))
                         .font(OBFont.small)
                         .foregroundColor(OBColors.textMuted)
                 }

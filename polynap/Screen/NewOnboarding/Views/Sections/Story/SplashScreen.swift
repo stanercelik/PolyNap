@@ -17,7 +17,7 @@ struct SplashScreen: View {
             VStack {
                 Spacer()
                 
-                FadeInText("selam",
+                FadeInText(L("newOnboarding.splash.greeting", table: "Onboarding"),
                            font: OBFont.heroTitle,
                            color: .white,
                            delay: 1)
@@ -26,7 +26,7 @@ struct SplashScreen: View {
                 
                 HStack {
                     Spacer()
-                    TapToContinue("tap to continue →", color: .white) {
+                    TapToContinue(L("newOnboarding.common.tapToContinue", table: "Onboarding"), color: .white) {
                         viewModel.goToNext()
                     }
                     .opacity(showTap ? 1 : 0)

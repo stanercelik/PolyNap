@@ -17,14 +17,14 @@ struct SafetyNoteScreen: View {
             
             AutoScrollView {
                 VStack(alignment: .leading, spacing: OBSpacing.xxl) {
-                    FadeInText("küçük ama önemli bir not:", font: OBFont.title, delay: 0.5)
+                    FadeInText(L("newOnboarding.safetyNote.title", table: "Onboarding"), font: OBFont.title, delay: 0.5)
                     
                     VStack(alignment: .leading, spacing: OBSpacing.lg) {
-                        FadeInText("polifazik uyku bazı durumlarda doktor gözetiminde denenmelidir.", delay: 2.0)
+                        FadeInText(L("newOnboarding.safetyNote.line1", table: "Onboarding"), delay: 2.0)
                         
-                        FadeInText("aktif bir sağlık durumun varsa başlamadan önce bir profesyonele danışmanı öneririm.", delay: 3.5)
+                        FadeInText(L("newOnboarding.safetyNote.line2", table: "Onboarding"), delay: 3.5)
                         
-                        FadeInText("adaptasyon sürecinde (özellikle ilk 3–5 gün) araç kullanmana dikkat et. uyku basabilir.", delay: 5.0)
+                        FadeInText(L("newOnboarding.safetyNote.line3", table: "Onboarding"), delay: 5.0)
                     }
                 }
                 .padding(.horizontal, OBSpacing.lg)
@@ -34,7 +34,7 @@ struct SafetyNoteScreen: View {
             Spacer()
             
             FadeIn(delay: 6.5) {
-                OBButton("anladım, devam et →") { viewModel.goToNext() }
+                OBButton(L("newOnboarding.safetyNote.cta", table: "Onboarding")) { viewModel.goToNext() }
             }
             .padding(.horizontal, OBSpacing.lg)
             .padding(.bottom, OBSpacing.xl)

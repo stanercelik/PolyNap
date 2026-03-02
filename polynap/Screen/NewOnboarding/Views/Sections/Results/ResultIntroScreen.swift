@@ -11,15 +11,15 @@ struct ResultIntroScreen: View {
     @State private var heartbeatTimer: Timer?
     @State private var animationTask: Task<Void, Never>?
     
-    private let stages: [(text: String, target: CGFloat, wait: Double)] = [
-        ("uyku profilini analiz ediyorum...", 0.12, 0.6),
-        ("tercihlerini kaydediyorum...", 0.26, 0.5),
-        ("sana uygun ritmi hesaplıyorum...", 0.50, 0.8),
-        ("planını kişiselleştiriyorum...", 0.70, 0.5),
-        ("bilimsel verileri inceliyorum...", 0.87, 0.5),
-        ("programını kaydediyorum...", 0.97, 0.4),
-        ("hazır!", 1.0, 0.3)
-    ]
+    private var stages: [(text: String, target: CGFloat, wait: Double)] {[
+        (L("newOnboarding.resultIntro.stage1", table: "Onboarding"), 0.12, 0.6),
+        (L("newOnboarding.resultIntro.stage2", table: "Onboarding"), 0.26, 0.5),
+        (L("newOnboarding.resultIntro.stage3", table: "Onboarding"), 0.50, 0.8),
+        (L("newOnboarding.resultIntro.stage4", table: "Onboarding"), 0.70, 0.5),
+        (L("newOnboarding.resultIntro.stage5", table: "Onboarding"), 0.87, 0.5),
+        (L("newOnboarding.resultIntro.stage6", table: "Onboarding"), 0.97, 0.4),
+        (L("newOnboarding.resultIntro.stage7", table: "Onboarding"), 1.0, 0.3)
+    ]}
     
     var body: some View {
         ZStack {
@@ -30,7 +30,7 @@ struct ResultIntroScreen: View {
                     .frame(height: OBSpacing.xxxl)
                 
                 FadeInText(
-                    "tamam \(viewModel.displayName), planını oluşturuyorum",
+                    String(format: L("newOnboarding.resultIntro.buildingPlan", table: "Onboarding"), viewModel.displayName),
                     font: OBFont.largeTitle,
                     color: .white,
                     delay: 0.5
@@ -67,7 +67,7 @@ struct ResultIntroScreen: View {
                 
                 if ringComplete {
                     FadeInText(
-                        "tamamlandı!",
+                        L("newOnboarding.resultIntro.completed", table: "Onboarding"),
                         font: OBFont.title,
                         color: .white,
                         delay: 0.2
@@ -79,7 +79,7 @@ struct ResultIntroScreen: View {
                 
                 if showButton {
                     FadeIn(delay: 0.2) {
-                        OBButton("planımı gör →", style: .primaryWhite) {
+                        OBButton(L("newOnboarding.resultIntro.cta", table: "Onboarding"), style: .primaryWhite) {
                             viewModel.goToNext()
                         }
                     }

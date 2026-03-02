@@ -11,7 +11,7 @@ struct ComparisonScreen: View {
             ScrollView(.vertical, showsIndicators: false) {
                 VStack(spacing: OBSpacing.lg) {
                     FadeInText(
-                        "polifazik uyku zor olmak zorunda değil.",
+                        L("newOnboarding.comparison.title", table: "Onboarding"),
                         font: OBFont.title,
                         delay: 1
                     )
@@ -20,15 +20,15 @@ struct ComparisonScreen: View {
                     
                     HStack(alignment: .top, spacing: OBSpacing.sm) {
                         VStack(alignment: .leading, spacing: OBSpacing.md) {
-                            Text("diğer uygulamalar")
+                            Text(L("newOnboarding.comparison.otherApps", table: "Onboarding"))
                                 .font(OBFont.captionBold)
                                 .foregroundColor(OBColors.textPrimary)
                             
                             VStack(alignment: .leading, spacing: OBSpacing.sm) {
-                                comparisonRow("✗", "saatler her gün kayar", isNegative: true)
-                                comparisonRow("✗", "bir kaçırınca bırakırsın", isNegative: true)
-                                comparisonRow("✗", "tek tip plan, gerçek hayata uymaz", isNegative: true)
-                                comparisonRow("✗", "motivasyonun düşünce yalnız kalırsın", isNegative: true)
+                                comparisonRow("✗", L("newOnboarding.comparison.con1", table: "Onboarding"), isNegative: true)
+                                comparisonRow("✗", L("newOnboarding.comparison.con2", table: "Onboarding"), isNegative: true)
+                                comparisonRow("✗", L("newOnboarding.comparison.con3", table: "Onboarding"), isNegative: true)
+                                comparisonRow("✗", L("newOnboarding.comparison.con4", table: "Onboarding"), isNegative: true)
                             }
                             
                             NimmyImage(.tired, size: 100)
@@ -44,15 +44,15 @@ struct ComparisonScreen: View {
                         .animation(.easeOut(duration: 0.75), value: showLeft)
                         
                         VStack(alignment: .leading, spacing: OBSpacing.md) {
-                            Text("nimmy ile")
+                            Text(L("newOnboarding.comparison.withNimmy", table: "Onboarding"))
                                 .font(OBFont.captionBold)
                                 .foregroundColor(.white)
                             
                             VStack(alignment: .leading, spacing: OBSpacing.sm) {
-                                comparisonRow("✓", "gününe göre kişisel öneri", isNegative: false)
-                                comparisonRow("✓", "kaçırınca toparlama planı", isNegative: false)
-                                comparisonRow("✓", "hayatına uyan esnek ritim", isNegative: false)
-                                comparisonRow("✓", "neden çalıştığını anlarsın", isNegative: false)
+                                comparisonRow("✓", L("newOnboarding.comparison.pro1", table: "Onboarding"), isNegative: false)
+                                comparisonRow("✓", L("newOnboarding.comparison.pro2", table: "Onboarding"), isNegative: false)
+                                comparisonRow("✓", L("newOnboarding.comparison.pro3", table: "Onboarding"), isNegative: false)
+                                comparisonRow("✓", L("newOnboarding.comparison.pro4", table: "Onboarding"), isNegative: false)
                             }
                             
                             NimmyImage(.dance, size: 100)
@@ -69,7 +69,7 @@ struct ComparisonScreen: View {
                     }
                     
                     if showBottom {
-                        Text("planı hayatına uydurursan, devam etmek kolaylaşıyor.")
+                        Text(L("newOnboarding.comparison.footer", table: "Onboarding"))
                             .font(OBFont.caption)
                             .foregroundColor(OBColors.textMuted)
                             .frame(maxWidth: .infinity, alignment: .leading)
@@ -82,7 +82,7 @@ struct ComparisonScreen: View {
             
             VStack(spacing: 0) {
                 if showBottom {
-                    OBButton("devam") { viewModel.goToNext() }
+                    OBButton(L("newOnboarding.common.continue", table: "Onboarding")) { viewModel.goToNext() }
                         .padding(.horizontal, OBSpacing.lg)
                         .padding(.vertical, OBSpacing.md)
                         .transition(.opacity)

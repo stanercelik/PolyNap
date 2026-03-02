@@ -14,23 +14,23 @@ struct NotificationPrimerScreen: View {
                 
                 VStack(spacing: OBSpacing.md) {
                     VStack(alignment: .leading){
-                        FadeInText("uygulama nasıl çalışıyor?", font: OBFont.title, delay: 1.5)
+                        FadeInText(L("newOnboarding.notificationPrimer.title", table: "Onboarding"), font: OBFont.title, delay: 1.5)
                     }
                     
                     FadeIn(delay: 3) {
-                        stepCard("📋", "planla", "her gün bloklarını görürsün")
+                        stepCard("📋", L("newOnboarding.notificationPrimer.step1Title", table: "Onboarding"), L("newOnboarding.notificationPrimer.step1Desc", table: "Onboarding"))
                     }
                     FadeIn(delay: 4.5) {
-                        stepCard("⏰", "hatırlatma", "nap vakti gelince nazikçe uyarırım.\nspam yok.")
+                        stepCard("⏰", L("newOnboarding.notificationPrimer.step2Title", table: "Onboarding"), L("newOnboarding.notificationPrimer.step2Desc", table: "Onboarding"))
                     }
                     FadeIn(delay: 6) {
-                        stepCard("✅", "işaretle", "\"yaptım / yapmadım\" ile nimmy seni tanıyor ve planı ayarlıyor")
+                        stepCard("✅", L("newOnboarding.notificationPrimer.step3Title", table: "Onboarding"), L("newOnboarding.notificationPrimer.step3Desc", table: "Onboarding"))
                     }
                     
                     Spacer()
                     
                     FadeIn(delay: 7.5) {
-                        Text("bildirimleri kapatmak istersen her zaman ayarlardan yapabilirsin.")
+                        Text(L("newOnboarding.notificationPrimer.dismissHint", table: "Onboarding"))
                             .font(OBFont.small)
                             .foregroundColor(OBColors.textMuted)
                             .multilineTextAlignment(.center)
@@ -38,7 +38,7 @@ struct NotificationPrimerScreen: View {
                     }
                     
                     FadeIn(delay: 7.5) {
-                        OBButton("bildirimlere izin ver") {
+                        OBButton(L("newOnboarding.notificationPrimer.cta", table: "Onboarding")) {
                             viewModel.requestNotificationPermission()
                         }
                     }

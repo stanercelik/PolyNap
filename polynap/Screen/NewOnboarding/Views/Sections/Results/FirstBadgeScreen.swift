@@ -13,7 +13,7 @@ struct FirstBadgeScreen: View {
                 Spacer()
                     .frame(height: OBSpacing.xxxl)
                 
-                FadeInText("ilk rozetin açıldı!", font: OBFont.largeTitle, color: .white, delay: 0.5)
+                FadeInText(L("newOnboarding.firstBadge.title", table: "Onboarding"), font: OBFont.largeTitle, color: .white, delay: 0.5)
                 
                 VStack(spacing: -OBSpacing.md){
                     FadeIn(delay: 1.5) {
@@ -21,15 +21,15 @@ struct FirstBadgeScreen: View {
                             .glowEffect(color: .white.opacity(0.75), radius: 30)
                     }
                     
-                    FadeInText("starter nimmy", font: OBFont.title, color: .white, delay: 2.5)
+                    FadeInText(L("newOnboarding.firstBadge.badgeName", table: "Onboarding"), font: OBFont.title, color: .white, delay: 2.5)
                 }
                 
                 Spacer()
                     .frame(height: OBSpacing.xl)
                 
                 VStack(alignment: .leading, spacing: OBSpacing.md) {
-                        FadeInText("onboarding'i bitirdin. bu küçük ama gerçek bir adım.", font: OBFont.body, color: .white.opacity(0.8), delay: 4.5)
-                        FadeInText("3 gün düzeni korursan bir sonraki nimmy seni bekliyor.", font: OBFont.body, color: .white.opacity(0.8), delay: 6)
+                        FadeInText(L("newOnboarding.firstBadge.line1", table: "Onboarding"), font: OBFont.body, color: .white.opacity(0.8), delay: 4.5)
+                        FadeInText(L("newOnboarding.firstBadge.line2", table: "Onboarding"), font: OBFont.body, color: .white.opacity(0.8), delay: 6)
                 }
                 
                 
@@ -37,7 +37,7 @@ struct FirstBadgeScreen: View {
                 Spacer()
                 
                 FadeIn(delay: 7.5) {
-                    OBButton("harika →", style: .primaryWhite) {
+                    OBButton(L("newOnboarding.firstBadge.cta", table: "Onboarding"), style: .primaryWhite) {
                         requestNativeRating()
                         viewModel.goToNext()
                     }

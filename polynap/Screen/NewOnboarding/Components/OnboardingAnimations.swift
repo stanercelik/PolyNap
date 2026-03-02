@@ -401,7 +401,7 @@ struct AnimatedLineChart: View {
     
     var body: some View {
         VStack(alignment: .leading, spacing: OBSpacing.sm) {
-            Text("gün içi enerji stabilitesi")
+            Text(L("newOnboarding.chartReview.energyStability", table: "Onboarding"))
                 .font(OBFont.captionBold)
                 .foregroundColor(OBColors.textPrimary)
             

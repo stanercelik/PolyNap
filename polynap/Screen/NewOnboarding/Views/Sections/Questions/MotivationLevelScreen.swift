@@ -7,16 +7,16 @@ struct MotivationLevelScreen: View {
         QuestionScreenLayout(
             viewModel: viewModel,
             nimmy: .alarm,
-            question: "bu süreç için ne kadar hazırsın?",
-            microcopy: "geçiş temposunu buna göre seçiyorum"
+            question: L("newOnboarding.motivationLevel.question", table: "Onboarding"),
+            microcopy: L("newOnboarding.motivationLevel.microcopy", table: "Onboarding")
         ) {
-            OBSelectionCard(emoji: "🔥", text: "kararlıyım — zorlanmayı kabul ediyorum", isSelected: viewModel.motivationLevel == .high) {
+            OBSelectionCard(emoji: "🔥", text: L("newOnboarding.motivationLevel.option.high", table: "Onboarding"), isSelected: viewModel.motivationLevel == .high) {
                 viewModel.motivationLevel = .high
             }
-            OBSelectionCard(emoji: "🌤", text: "orta — denemek istiyorum ama rahat olsun", isSelected: viewModel.motivationLevel == .moderate) {
+            OBSelectionCard(emoji: "🌤", text: L("newOnboarding.motivationLevel.option.moderate", table: "Onboarding"), isSelected: viewModel.motivationLevel == .moderate) {
                 viewModel.motivationLevel = .moderate
             }
-            OBSelectionCard(emoji: "🐢", text: "yavaş — en az değişimle, nazikçe başlayalım", isSelected: viewModel.motivationLevel == .low) {
+            OBSelectionCard(emoji: "🐢", text: L("newOnboarding.motivationLevel.option.low", table: "Onboarding"), isSelected: viewModel.motivationLevel == .low) {
                 viewModel.motivationLevel = .low
             }
         }

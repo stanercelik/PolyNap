@@ -10,8 +10,8 @@ struct AgeRangeScreen: View {
                 VStack(alignment: .leading, spacing: OBSpacing.lg) {
                     NimmyQuestionHeader(
                         nimmy: .sleepingNormal,
-                        question: "kaç yaşındasın?",
-                        microcopy: "adaptasyon hızı ve önerilen tempo yaşa göre değişiyor"
+                        question: L("newOnboarding.ageRange.question", table: "Onboarding"),
+                        microcopy: L("newOnboarding.ageRange.microcopy", table: "Onboarding")
                     )
                     
                     AgeSlider(value: $sliderValue, range: 18...65, step: 1) { newValue in
@@ -40,7 +40,7 @@ struct AgeRangeScreen: View {
             VStack(spacing: 0) {
                 Divider().opacity(0.3)
                 
-                OBButton("devam") { viewModel.goToNext() }
+                OBButton(L("newOnboarding.common.continue", table: "Onboarding")) { viewModel.goToNext() }
                     .padding(.horizontal, OBSpacing.lg)
                     .padding(.vertical, OBSpacing.md)
             }

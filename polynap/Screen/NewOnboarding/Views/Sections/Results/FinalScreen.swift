@@ -27,7 +27,7 @@ struct FinalScreen: View {
                 }
 
                     FadeInText(
-                        "hazırsan başlayalım",
+                        L("newOnboarding.final.title", table: "Onboarding"),
                         font: OBFont.largeTitle,
                         color: .white,
                         delay: 1.5
@@ -37,7 +37,7 @@ struct FinalScreen: View {
                 Spacer()
                 
                 FadeIn(delay: 2.0) {
-                    OBButton("polynap'i başlat →", style: .primaryWhite) {
+                    OBButton(L("newOnboarding.final.cta", table: "Onboarding"), style: .primaryWhite) {
                         viewModel.goToNext()
                     }
                 }

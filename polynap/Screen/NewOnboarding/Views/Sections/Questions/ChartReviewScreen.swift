@@ -13,7 +13,7 @@ struct ChartReviewScreen: View {
                     .frame(height: OBSpacing.xxxl)
                 
                 FadeInText(
-                    "düzen kuranlar genelde şunu fark ediyor:",
+                    L("newOnboarding.chartReview.title", table: "Onboarding"),
                     font: OBFont.title,
                     color: .white,
                     delay: 0.5
@@ -27,7 +27,7 @@ struct ChartReviewScreen: View {
                 .padding(.horizontal, OBSpacing.lg)
                 
                 FadeIn(delay: 4.0) {
-                    Text("temsili grafik — adaptasyon kişiden kişiye değişir")
+                    Text(L("newOnboarding.chartReview.disclaimer", table: "Onboarding"))
                         .font(OBFont.small)
                         .foregroundColor(.white.opacity(0.4))
                 }
@@ -35,7 +35,7 @@ struct ChartReviewScreen: View {
                 Spacer()
                 
                 FadeIn(delay: 5.0) {
-                    OBButton("ben de hazırım", style: .primaryWhite) { viewModel.goToNext() }
+                    OBButton(L("newOnboarding.chartReview.cta", table: "Onboarding"), style: .primaryWhite) { viewModel.goToNext() }
                 }
                 .padding(.horizontal, OBSpacing.lg)
                 .padding(.bottom, OBSpacing.xl)
@@ -59,7 +59,7 @@ private struct EnergyStabilityCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(alignment: .top, spacing: 12) {
-                Text("gün içi enerji stabilitesi")
+                Text(L("newOnboarding.chartReview.energyStability", table: "Onboarding"))
                     .font(.system(size: 20, weight: .bold, design: .rounded))
                     .foregroundColor(OBColors.textPrimary)
                 
@@ -71,7 +71,7 @@ private struct EnergyStabilityCard: View {
             HStack(spacing: 12) {
                 HStack(spacing: 4) {
                     Circle().fill(OBColors.accentBlue).frame(width: 8, height: 8)
-                    Text("planlı ritim")
+                    Text(L("newOnboarding.chartReview.plannedRhythm", table: "Onboarding"))
                         .font(.system(size: 12, weight: .semibold, design: .rounded))
                         .foregroundColor(OBColors.accentBlue)
                 }
@@ -80,7 +80,7 @@ private struct EnergyStabilityCard: View {
                     Image(systemName: "xmark")
                         .font(.system(size: 9, weight: .heavy))
                         .foregroundColor(OBColors.warningRed)
-                    Text("plansız uyku")
+                    Text(L("newOnboarding.chartReview.unplannedSleep", table: "Onboarding"))
                         .font(.system(size: 12, weight: .semibold, design: .rounded))
                         .foregroundColor(OBColors.warningRed)
                 }
@@ -91,15 +91,15 @@ private struct EnergyStabilityCard: View {
                 .frame(height: 200)
             
             HStack {
-                Text("bugün")
+                Text(L("newOnboarding.chartReview.today", table: "Onboarding"))
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
                     .foregroundColor(OBColors.textSecondary)
                 Spacer()
-                Text("1 hafta")
+                Text(L("newOnboarding.chartReview.week1", table: "Onboarding"))
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
                     .foregroundColor(OBColors.textSecondary)
                 Spacer()
-                Text("2 hafta")
+                Text(L("newOnboarding.chartReview.week2", table: "Onboarding"))
                     .font(.system(size: 12, weight: .semibold, design: .rounded))
                     .foregroundColor(OBColors.textSecondary)
             }

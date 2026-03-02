@@ -15,13 +15,13 @@ struct PersonalizedGreetingScreen: View {
             
             VStack(spacing: OBSpacing.md) {
                 FadeInText(
-                    "merhaba \(viewModel.displayName)",
+                    String(format: L("newOnboarding.personalizedGreeting.greeting", table: "Onboarding"), viewModel.displayName),
                     font: OBFont.largeTitle,
                     delay: 2
                 )
                 
                 FadeInText(
-                    "nimmy artık seninle",
+                    L("newOnboarding.personalizedGreeting.subtitle", table: "Onboarding"),
                     font: OBFont.body,
                     color: OBColors.textSecondary,
                     delay: 3.5
@@ -31,7 +31,7 @@ struct PersonalizedGreetingScreen: View {
             Spacer()
             
             FadeIn(delay: 5.5) {
-                TapToContinue("tap to continue →") {
+                TapToContinue(L("newOnboarding.common.tapToContinue", table: "Onboarding")) {
                     viewModel.goToNext()
                 }
             }

@@ -28,12 +28,12 @@ struct GoalSocialProofScreen: View {
                 
                 if showBottom {
                     VStack(spacing: OBSpacing.sm) {
-                        Text("doğru yerdesin")
+                        Text(L("newOnboarding.goalSocialProof.title", table: "Onboarding"))
                             .font(OBFont.title)
                             .foregroundColor(.white)
                             .bold()
                         
-                        Text("binlerce kişi aynı hedeflerle başladı ve nimmy onlara yardım etti.")
+                        Text(L("newOnboarding.goalSocialProof.subtitle", table: "Onboarding"))
                             .font(OBFont.caption)
                             .foregroundColor(.white.opacity(0.6))
                             .multilineTextAlignment(.center)
@@ -47,7 +47,7 @@ struct GoalSocialProofScreen: View {
                 
                 if showBottom {
                     FadeIn(delay: 1.5) {
-                        OBButton("devam →", style: .primaryWhite) { viewModel.goToNext() }
+                        OBButton(L("newOnboarding.common.continueArrow", table: "Onboarding"), style: .primaryWhite) { viewModel.goToNext() }
                     }
                     .padding(.horizontal, OBSpacing.lg)
                     .padding(.bottom, OBSpacing.xl)

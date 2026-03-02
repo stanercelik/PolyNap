@@ -10,8 +10,8 @@ struct BeforeAfterScreen_: View {
                 .frame(height: OBSpacing.xxxl)
             
             VStack(alignment: .leading, spacing: OBSpacing.md) {
-                FadeInText("nimmy de bunu denedi.", font: OBFont.body, delay: 0.5)
-                FadeInText("birkaç gün sonra her şey değişmeye başladı.", font: OBFont.body, delay: 2.0)
+                FadeInText(L("newOnboarding.beforeAfter.line1", table: "Onboarding"), font: OBFont.body, delay: 0.5)
+                FadeInText(L("newOnboarding.beforeAfter.line2", table: "Onboarding"), font: OBFont.body, delay: 2.0)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             
@@ -19,7 +19,7 @@ struct BeforeAfterScreen_: View {
                 HStack(spacing: OBSpacing.md) {
                     VStack(spacing: OBSpacing.sm) {
                         NimmyImage(.tired, size: 130)
-                        Text("önce")
+                        Text(L("newOnboarding.beforeAfter.labelBefore", table: "Onboarding"))
                             .font(OBFont.captionBold)
                             .foregroundColor(OBColors.textSecondary)
                     }
@@ -33,7 +33,7 @@ struct BeforeAfterScreen_: View {
                     if showAfter {
                         VStack(spacing: OBSpacing.sm) {
                             NimmyImage(.meditation, size: 130)
-                            Text("sonra")
+                            Text(L("newOnboarding.beforeAfter.labelAfter", table: "Onboarding"))
                                 .font(OBFont.captionBold)
                                 .foregroundColor(OBColors.accentBlue)
                         }
@@ -49,12 +49,12 @@ struct BeforeAfterScreen_: View {
             }
             
             VStack(spacing: OBSpacing.sm) {
-                FadeInText("aynı nimmy.", font: OBFont.title, delay: 6.5)
+                FadeInText(L("newOnboarding.beforeAfter.same", table: "Onboarding"), font: OBFont.title, delay: 6.5)
                 FadeInAttributedText(
                     segments: [
-                        (text: "sadece ", isHighlight: false),
-                        (text: "ritim", isHighlight: true),
-                        (text: " değişti.", isHighlight: false)
+                        (text: L("newOnboarding.beforeAfter.justPrefix", table: "Onboarding"), isHighlight: false),
+                        (text: L("newOnboarding.beforeAfter.rhythm", table: "Onboarding"), isHighlight: true),
+                        (text: L("newOnboarding.beforeAfter.rhythmSuffix", table: "Onboarding"), isHighlight: false)
                     ],
                     font: OBFont.subtitle,
                     color: OBColors.textSecondary,
@@ -66,7 +66,7 @@ struct BeforeAfterScreen_: View {
             Spacer()
             
             FadeIn(delay: 9.5) {
-                OBButton("devam →") { viewModel.goToNext() }
+                OBButton(L("newOnboarding.common.continueArrow", table: "Onboarding")) { viewModel.goToNext() }
             }
             .padding(.bottom, OBSpacing.xl)
         }

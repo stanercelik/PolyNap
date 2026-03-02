@@ -8,15 +8,15 @@ struct QuestionHookScreen: View {
             AutoScrollView {
                 VStack(alignment: .leading, spacing: OBSpacing.lg) {
                     FadeInText(
-                        "uykunda sorun yok gibi görünüyor ama…",
+                        L("newOnboarding.questionHook.title", table: "Onboarding"),
                         font: OBFont.largeTitle,
                         color: OBColors.textPrimary,
                         delay: 0.5
                     )
                     
                     VStack(alignment: .leading, spacing: OBSpacing.md) {
-                        FadeInText("her sabah yine de yorgun uyanıyorsun.", delay: 2)
-                        FadeInText("5 dakika daha diyorsun ve bu döngü devam ediyor.", delay: 3.5)
+                        FadeInText(L("newOnboarding.questionHook.line1", table: "Onboarding"), delay: 2)
+                        FadeInText(L("newOnboarding.questionHook.line2", table: "Onboarding"), delay: 3.5)
                     }
                 }
                 .padding(.horizontal, OBSpacing.lg)
@@ -26,7 +26,7 @@ struct QuestionHookScreen: View {
             Spacer()
             
             FadeIn(delay: 5) {
-                TapToContinue("tap to continue →") {
+                TapToContinue(L("newOnboarding.common.tapToContinue", table: "Onboarding")) {
                     viewModel.goToNext()
                 }
             }

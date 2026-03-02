@@ -29,7 +29,7 @@ struct CommitmentScreen: View {
                         .frame(height: OBSpacing.xl)
                     
                     FadeInText(
-                        "son bir şey.",
+                        L("newOnboarding.commitment.title", table: "Onboarding"),
                         font: OBFont.title,
                         color: .white,
                         delay: 0.3
@@ -38,7 +38,7 @@ struct CommitmentScreen: View {
                     .padding(.horizontal, OBSpacing.lg)
                     
                     FadeInText(
-                        "kendine bir söz ver.\nbir imza, bir çizim, bir kelime.\nne istersen.",
+                        L("newOnboarding.commitment.subtitle", table: "Onboarding"),
                         font: OBFont.body,
                         color: .white.opacity(0.8),
                         delay: 1.2
@@ -134,7 +134,7 @@ struct CommitmentScreen: View {
                         Image(systemName: "hand.draw")
                             .font(.system(size: 28))
                             .foregroundColor(.white.opacity(0.3))
-                        Text("buraya çiz veya yaz")
+                        Text(L("newOnboarding.commitment.canvasHint", table: "Onboarding"))
                             .font(OBFont.caption)
                             .foregroundColor(.white.opacity(0.3))
                     }
@@ -192,7 +192,7 @@ struct CommitmentScreen: View {
     
     private var fingerprintSection: some View {
         VStack(spacing: 12) {
-            Text(isHolding ? "basılı tut..." : "başlamak için basılı tut")
+            Text(isHolding ? L("newOnboarding.commitment.holdingLabel", table: "Onboarding") : L("newOnboarding.commitment.holdLabel", table: "Onboarding"))
                 .font(OBFont.caption)
                 .foregroundColor(.white.opacity(0.5))
                 .animation(.easeInOut(duration: 0.2), value: isHolding)

@@ -47,7 +47,7 @@ struct QuestionScreenLayout<Content: View>: View {
             VStack(spacing: 0) {
                 Divider().opacity(0.3)
                 
-                OBButton("devam") { viewModel.goToNext() }
+                OBButton(L("newOnboarding.common.continue", table: "Onboarding")) { viewModel.goToNext() }
                     .padding(.horizontal, OBSpacing.lg)
                     .padding(.vertical, OBSpacing.md)
                     .opacity(viewModel.canProceed ? 1.0 : 0.4)

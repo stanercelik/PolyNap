@@ -22,7 +22,7 @@ struct ExperienceInfoScreen: View {
             Spacer()
             
             FadeIn(delay: 5.0) {
-                OBButton("devam →") { viewModel.goToNext() }
+                OBButton(L("newOnboarding.common.continueArrow", table: "Onboarding")) { viewModel.goToNext() }
             }
             .padding(.horizontal, OBSpacing.lg)
             .padding(.bottom, OBSpacing.xl)

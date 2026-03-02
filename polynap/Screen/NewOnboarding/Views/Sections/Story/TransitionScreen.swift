@@ -9,17 +9,17 @@ struct TransitionScreen: View {
                 .frame(height: OBSpacing.xxxl)
             AutoScrollView {
                 VStack(alignment: .leading, spacing: OBSpacing.lg) {
-                    FadeInText("tamam,", font: OBFont.largeTitle, delay: 0.5)
+                    FadeInText(L("newOnboarding.transition.title", table: "Onboarding"), font: OBFont.largeTitle, delay: 0.5)
                     
                     VStack(alignment: .leading, spacing: OBSpacing.md) {
-                        FadeInText("şimdi sana uyan ritmi birlikte bulalım.", delay: 2.0)
-                        FadeInText("bunun için birkaç soru soracağım.", delay: 3.5)
+                        FadeInText(L("newOnboarding.transition.line1", table: "Onboarding"), delay: 2.0)
+                        FadeInText(L("newOnboarding.transition.line2", table: "Onboarding"), delay: 3.5)
                         
                         FadeInAttributedText(
                             segments: [
-                                (text: "merak etme senin için ", isHighlight: false),
-                                (text: "en iyi", isHighlight: true),
-                                (text: " olanı bulacağız", isHighlight: false)
+                                (text: L("newOnboarding.transition.dontWorryPrefix", table: "Onboarding"), isHighlight: false),
+                                (text: L("newOnboarding.transition.best", table: "Onboarding"), isHighlight: true),
+                                (text: L("newOnboarding.transition.dontWorrySuffix", table: "Onboarding"), isHighlight: false)
                             ],
                             font: OBFont.body,
                             highlightColor: OBColors.primaryColor,
@@ -35,7 +35,7 @@ struct TransitionScreen: View {
             Spacer()
             
             FadeIn(delay: 6.5) {
-                OBButton("hadi başlayalım →") { viewModel.goToNext() }
+                OBButton(L("newOnboarding.transition.cta", table: "Onboarding")) { viewModel.goToNext() }
             }
             .padding(.horizontal, OBSpacing.lg)
             .padding(.bottom, OBSpacing.xl)

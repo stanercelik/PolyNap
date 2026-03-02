@@ -13,20 +13,20 @@ struct TurningPointScreen: View {
                 
                 VStack(alignment: .leading, spacing: OBSpacing.md) {
                     FadeInText(
-                        "uyku tek parça olmak zorunda değilmiş.",
+                        L("newOnboarding.turningPoint.line1", table: "Onboarding"),
                         font: OBFont.title,
                         color: .white,
                         delay: 1
                     )
                     
-                    FadeInText("bazı insanlar uykuyu gün içinde akıllıca dağıtarak bir ritim kuruyor.", font: OBFont.body, color: .white.opacity(0.8), delay: 3.5)
+                    FadeInText(L("newOnboarding.turningPoint.line2", table: "Onboarding"), font: OBFont.body, color: .white.opacity(0.8), delay: 3.5)
                     
                     FadeInAttributedText(
                         segments: [
-                            (text: "daha az", isHighlight: true),
-                            (text: " uyuyorlar ama ", isHighlight: false),
-                            (text: "daha dinlenmiş", isHighlight: true),
-                            (text: " uyanıyorlar.", isHighlight: false)
+                            (text: L("newOnboarding.turningPoint.lessPrefix", table: "Onboarding"), isHighlight: true),
+                            (text: L("newOnboarding.turningPoint.lessSuffix", table: "Onboarding"), isHighlight: false),
+                            (text: L("newOnboarding.turningPoint.moreRested", table: "Onboarding"), isHighlight: true),
+                            (text: L("newOnboarding.turningPoint.restedSuffix", table: "Onboarding"), isHighlight: false)
                         ],
                         font: OBFont.body,
                         color: .white.opacity(0.8),
@@ -36,8 +36,8 @@ struct TurningPointScreen: View {
                     
                     FadeInAttributedText(
                         segments: [
-                            (text: "bunun adı ", isHighlight: false),
-                            (text: "polifazik uyku", isHighlight: true)
+                            (text: L("newOnboarding.turningPoint.namePrefix", table: "Onboarding"), isHighlight: false),
+                            (text: L("newOnboarding.turningPoint.nameHighlight", table: "Onboarding"), isHighlight: true)
                         ],
                         font: OBFont.title,
                         color: .white,
@@ -50,7 +50,7 @@ struct TurningPointScreen: View {
                 Spacer()
                 
                 FadeIn(delay: 8) {
-                    OBButton("devam →", style: .primaryWhite) { viewModel.goToNext() }
+                    OBButton(L("newOnboarding.common.continueArrow", table: "Onboarding"), style: .primaryWhite) { viewModel.goToNext() }
                 }
                 .padding(.horizontal, OBSpacing.lg)
                 .padding(.bottom, OBSpacing.xl)

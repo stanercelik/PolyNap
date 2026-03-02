@@ -16,9 +16,9 @@ struct OutcomeTimeCalcScreen: View {
                 VStack(alignment: .leading, spacing: OBSpacing.lg) {
                     FadeInAttributedText(
                         segments: [
-                            (text: "günde 3 hatta ", isHighlight: false),
-                            (text: "4 saate kadar", isHighlight: true),
-                            (text: " kazanabilirsin.", isHighlight: false)
+                            (text: L("newOnboarding.outcomeTimeCalc.prefix", table: "Onboarding"), isHighlight: false),
+                            (text: L("newOnboarding.outcomeTimeCalc.highlight", table: "Onboarding"), isHighlight: true),
+                            (text: L("newOnboarding.outcomeTimeCalc.suffix", table: "Onboarding"), isHighlight: false)
                         ],
                         font: OBFont.subtitle,
                         highlightColor: OBColors.primaryColor,
@@ -28,10 +28,10 @@ struct OutcomeTimeCalcScreen: View {
                     VStack(alignment: .leading, spacing: OBSpacing.lg) {
                         FadeInAttributedText(
                             segments: [
-                                (text: "bu, yılda ", isHighlight: false),
-                                (text: "\(yearlyHours) saat", isHighlight: true),
-                                (text: " yani ", isHighlight: false),
-                                (text: "\(yearlyDays) gün", isHighlight: true)
+                                (text: L("newOnboarding.outcomeTimeCalc.yearlyPrefix", table: "Onboarding"), isHighlight: false),
+                                (text: "\(yearlyHours) \(L("newOnboarding.outcomeTimeCalc.yearlySuffix1", table: "Onboarding"))", isHighlight: true),
+                                (text: L("newOnboarding.outcomeTimeCalc.yearlyMidfix", table: "Onboarding"), isHighlight: false),
+                                (text: "\(yearlyDays) \(L("newOnboarding.outcomeTimeCalc.yearlySuffix2", table: "Onboarding"))", isHighlight: true)
                             ],
                             font: OBFont.subtitle,
                             highlightColor: OBColors.primaryColor,
@@ -41,9 +41,9 @@ struct OutcomeTimeCalcScreen: View {
                         
                         FadeInAttributedText(
                             segments: [
-                                (text: "ömrün boyunca ise ", isHighlight: false),
-                                (text: "\(lifetimeYears) yıl", isHighlight: true),
-                                (text: " eder.", isHighlight: false)
+                                (text: L("newOnboarding.outcomeTimeCalc.lifetimePrefix", table: "Onboarding"), isHighlight: false),
+                                (text: "\(lifetimeYears) \(L("newOnboarding.outcomeTimeCalc.lifetimeSuffix1", table: "Onboarding"))", isHighlight: true),
+                                (text: L("newOnboarding.outcomeTimeCalc.lifetimeSuffix2", table: "Onboarding"), isHighlight: false)
                             ],
                             font: OBFont.subtitle,
                             highlightColor: OBColors.primaryColor,
@@ -55,7 +55,7 @@ struct OutcomeTimeCalcScreen: View {
                         .frame(height: OBSpacing.lg)
                     
                     FadeInText(
-                        "peki sen bu kadar zamanın olsa ne yapardın?",
+                        L("newOnboarding.outcomeTimeCalc.question", table: "Onboarding"),
                         font: OBFont.subtitle,
                         color: OBColors.textSecondary,
                         delay: 6.0
@@ -68,7 +68,7 @@ struct OutcomeTimeCalcScreen: View {
             Spacer()
             
             FadeIn(delay: 7.5) {
-                OBButton("devam →") { viewModel.goToNext() }
+                OBButton(L("newOnboarding.common.continueArrow", table: "Onboarding")) { viewModel.goToNext() }
             }
             .padding(.horizontal, OBSpacing.lg)
             .padding(.bottom, OBSpacing.xl)

@@ -13,14 +13,14 @@ struct TrustScreen: View {
                 
                 VStack(spacing: OBSpacing.md) {
                     FadeInText(
-                        "bu plan nereden geliyor?",
+                        L("newOnboarding.trust.title", table: "Onboarding"),
                         font: OBFont.largeTitle,
                         color: .white,
                         delay: 0.5
                     )
                     
                     FadeInText(
-                        "yıllar içinde birikmiş uyku araştırmaları\nve davranış bilimi prensiplerinden.",
+                        L("newOnboarding.trust.subtitle", table: "Onboarding"),
                         font: OBFont.body,
                         color: .white.opacity(0.7),
                         delay: 2.0
@@ -30,16 +30,16 @@ struct TrustScreen: View {
                 
                 VStack(spacing: OBSpacing.sm) {
                     FadeIn(delay: 4) {
-                        OBIconRow(icon: "🔬", text: "uyku bilimi araştırmaları")
+                        OBIconRow(icon: "🔬", text: L("newOnboarding.trust.row1", table: "Onboarding"))
                     }
                     FadeIn(delay: 5.5) {
-                        OBIconRow(icon: "🧠", text: "davranış değişikliği & alışkanlık")
+                        OBIconRow(icon: "🧠", text: L("newOnboarding.trust.row2", table: "Onboarding"))
                     }
                     FadeIn(delay: 7) {
-                        OBIconRow(icon: "🛡️", text: "güvenlik sınırları & esneklik")
+                        OBIconRow(icon: "🛡️", text: L("newOnboarding.trust.row3", table: "Onboarding"))
                     }
                     FadeIn(delay: 8.5) {
-                        OBIconRow(icon: "📚", text: "kaynaklar uygulama içinde açık")
+                        OBIconRow(icon: "📚", text: L("newOnboarding.trust.row4", table: "Onboarding"))
                     }
                 }
                 .padding(.horizontal, OBSpacing.lg)
@@ -48,12 +48,12 @@ struct TrustScreen: View {
                 
                 FadeIn(delay: 10) {
                     VStack(spacing: OBSpacing.sm) {
-                        Text("mucize vaat etmiyoruz.\nsadece bilimle desteklenen, gerçek hayata uyan bir ritim.")
+                        Text(L("newOnboarding.trust.disclaimer", table: "Onboarding"))
                             .font(OBFont.caption)
                             .foregroundColor(.white.opacity(0.5))
                             .multilineTextAlignment(.center)
                         
-                        OBButton("anladım", style: .primaryWhite) { viewModel.goToNext() }
+                        OBButton(L("newOnboarding.common.understood", table: "Onboarding"), style: .primaryWhite) { viewModel.goToNext() }
                     }
                 }
                 .padding(.horizontal, OBSpacing.lg)

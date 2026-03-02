@@ -11,15 +11,15 @@ struct BadgeIntroScreen: View {
                         .frame(height: OBSpacing.xxxl)
                     
                     VStack(alignment: .leading, spacing: OBSpacing.sm) {
-                        FadeInText("onboarding'i bitirdin.", font: OBFont.title, delay: 0.5)
-                        FadeInText("sana bir şey göstereyim.", font: OBFont.body, color: OBColors.textSecondary, delay: 2)
+                        FadeInText(L("newOnboarding.badgeIntro.line1", table: "Onboarding"), font: OBFont.title, delay: 0.5)
+                        FadeInText(L("newOnboarding.badgeIntro.line2", table: "Onboarding"), font: OBFont.body, color: OBColors.textSecondary, delay: 2)
                         
                         Spacer()
                             .frame(height: OBSpacing.lg)
                         
-                        FadeInText("uygulama boyunca ilerledikçe\nnimmy'nin farklı versiyonlarını açıyorsun.", font: OBFont.body, delay: 3.5)
-                        FadeInText("bunlara rozet diyoruz.", font: OBFont.body, delay: 5)
-                        FadeInText("uyum sağladıkça, tutarlılık gösterdikçe,\nnimmy büyüyor ve değişiyor.", font: OBFont.body, delay: 6.5)
+                        FadeInText(L("newOnboarding.badgeIntro.line3", table: "Onboarding"), font: OBFont.body, delay: 3.5)
+                        FadeInText(L("newOnboarding.badgeIntro.line4", table: "Onboarding"), font: OBFont.body, delay: 5)
+                        FadeInText(L("newOnboarding.badgeIntro.line5", table: "Onboarding"), font: OBFont.body, delay: 6.5)
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     
@@ -34,7 +34,7 @@ struct BadgeIntroScreen: View {
             }
             
             FadeIn(delay: 9.5) {
-                OBButton("ilk rozetimi gör →") { viewModel.goToNext() }
+                OBButton(L("newOnboarding.badgeIntro.cta", table: "Onboarding")) { viewModel.goToNext() }
             }
             .padding(.horizontal, OBSpacing.lg)
             .padding(.bottom, OBSpacing.xl)
@@ -43,12 +43,12 @@ struct BadgeIntroScreen: View {
     
     private var badgeGrid: some View {
         let badges = [
-            ("Starter Nimmy", true),
-            ("3 Günlük Seri", false),
-            ("İlk Haftam", false),
-            ("Bounce Back", false),
-            ("Focus Nimmy", false),
-            ("30 Gün", false)
+            (L("newOnboarding.badgeIntro.badge.starterNimmy", table: "Onboarding"), true),
+            (L("newOnboarding.badgeIntro.badge.threeDayStreak", table: "Onboarding"), false),
+            (L("newOnboarding.badgeIntro.badge.firstWeek", table: "Onboarding"), false),
+            (L("newOnboarding.badgeIntro.badge.bounceBack", table: "Onboarding"), false),
+            (L("newOnboarding.badgeIntro.badge.focusNimmy", table: "Onboarding"), false),
+            (L("newOnboarding.badgeIntro.badge.thirtyDays", table: "Onboarding"), false)
         ]
         
         return LazyVGrid(columns: [
@@ -79,7 +79,7 @@ struct BadgeIntroScreen: View {
                         .multilineTextAlignment(.center)
                     
                     if badge.1 {
-                        Text("🎉 şimdi kazandın!")
+                        Text(L("newOnboarding.badgeIntro.badge.justEarned", table: "Onboarding"))
                             .font(.system(size: 10, design: .rounded))
                             .foregroundColor(OBColors.starGold)
                     }

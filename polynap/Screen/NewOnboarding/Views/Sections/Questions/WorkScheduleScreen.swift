@@ -7,19 +7,19 @@ struct WorkScheduleScreen: View {
         QuestionScreenLayout(
             viewModel: viewModel,
             nimmy: .alarm,
-            question: "günlük programın nasıl?",
-            microcopy: "planı takviminle kavga ettirmeyeceğim"
+            question: L("newOnboarding.workSchedule.question", table: "Onboarding"),
+            microcopy: L("newOnboarding.workSchedule.microcopy", table: "Onboarding")
         ) {
-            OBSelectionCard(emoji: "🔄", text: "esnek — saatlerimi ayarlayabilirim", isSelected: viewModel.workSchedule == .flexible) {
+            OBSelectionCard(emoji: "🔄", text: L("newOnboarding.workSchedule.option.flexible", table: "Onboarding"), isSelected: viewModel.workSchedule == .flexible) {
                 viewModel.workSchedule = .flexible
             }
-            OBSelectionCard(emoji: "📅", text: "düzenli — her gün sabit mesai", isSelected: viewModel.workSchedule == .regular) {
+            OBSelectionCard(emoji: "📅", text: L("newOnboarding.workSchedule.option.regular", table: "Onboarding"), isSelected: viewModel.workSchedule == .regular) {
                 viewModel.workSchedule = .regular
             }
-            OBSelectionCard(emoji: "🌙", text: "vardiyalı — gündüz/gece değişiyor", isSelected: viewModel.workSchedule == .shift) {
+            OBSelectionCard(emoji: "🌙", text: L("newOnboarding.workSchedule.option.shift", table: "Onboarding"), isSelected: viewModel.workSchedule == .shift) {
                 viewModel.workSchedule = .shift
             }
-            OBSelectionCard(emoji: "🎲", text: "düzensiz — sürekli farklı", isSelected: viewModel.workSchedule == .irregular) {
+            OBSelectionCard(emoji: "🎲", text: L("newOnboarding.workSchedule.option.irregular", table: "Onboarding"), isSelected: viewModel.workSchedule == .irregular) {
                 viewModel.workSchedule = .irregular
             }
         }

@@ -164,7 +164,7 @@ final class NewOnboardingViewModel: ObservableObject {
     @Published var userName: String = ""
     
     var displayName: String {
-        userName.isEmpty ? "arkadaş" : userName
+        userName.isEmpty ? L("newOnboarding.vm.defaultName", table: "Onboarding") : userName
     }
     
     // MARK: - Question Selections
@@ -200,15 +200,15 @@ final class NewOnboardingViewModel: ObservableObject {
     @Published var currentTipIndex: Int = 0
     private var tipTimer: Timer?
     
-    let tips: [String] = [
-        "NASA araştırmalarına göre 26 dakikalık bir şekerleme, pilotların performansını %34 artırıyor.",
-        "Leonardo da Vinci günde sadece 1.5-2 saat uyuyordu — polifazik uyku kullanarak.",
-        "Birçok kültürde öğleden sonra şekerlemesi (siesta) yüzyıllardır bir gelenek.",
-        "İnsan vücudu doğal olarak günde iki kez uyku hisseder: gece ve öğleden sonra.",
-        "20 dakikalık bir nap, 200mg kafeinden daha etkili olabilir.",
-        "Düzenli şekerlemeler kalp sağlığını iyileştirebilir.",
-        "Japon kültüründe 'inemuri' — toplum içinde kısa uyku — saygın bir pratik."
-    ]
+    var tips: [String] {[
+        L("newOnboarding.vm.tip1", table: "Onboarding"),
+        L("newOnboarding.vm.tip2", table: "Onboarding"),
+        L("newOnboarding.vm.tip3", table: "Onboarding"),
+        L("newOnboarding.vm.tip4", table: "Onboarding"),
+        L("newOnboarding.vm.tip5", table: "Onboarding"),
+        L("newOnboarding.vm.tip6", table: "Onboarding"),
+        L("newOnboarding.vm.tip7", table: "Onboarding"),
+    ]}
     
     func startTipsCarousel() {
         currentTipIndex = 0
@@ -235,13 +235,13 @@ final class NewOnboardingViewModel: ObservableObject {
     var experienceInfoText: String {
         switch previousSleepExperience {
         case .none:
-            return "başlamak için iyi bir an.\n\nnimmy da sıfırdan başladı.\n\nve şunu söyleyelim: planı tamamlayıp kullananların büyük çoğunluğu en zorlu günleri ilk 2–3 gün olarak tarif ediyor.\n\nbu geçiyor."
+            return L("newOnboarding.experienceInfo.none", table: "Onboarding")
         case .some:
-            return "bu çok yaygın.\n\nçoğu zaman kişi beceremediği için değil, plan hayatına uymadığı için bırakıyor.\n\nbu sefer planı hayatına göre kuruyoruz."
+            return L("newOnboarding.experienceInfo.some", table: "Onboarding")
         case .extensive:
-            return "harika. zaten ne beklediğini biliyorsun.\n\nbu sefer sadece tutarlılığı oturtmaya odaklanacağız."
+            return L("newOnboarding.experienceInfo.extensive", table: "Onboarding")
         default:
-            return "güzel. bir deneyimin var.\n\nşimdi sana özel bir plan oluşturacağız."
+            return L("newOnboarding.experienceInfo.moderate", table: "Onboarding")
         }
     }
     
@@ -249,27 +249,27 @@ final class NewOnboardingViewModel: ObservableObject {
         switch sleepGoal {
         case .moreProductivity:
             return [
-                ("öğlen nap'inden sonra sanki gün yeniden başlıyor. o 20 dakika, bana bütün öğleden sonrayı geri veriyor.", "yazılım geliştirici",-1.0),
-                ("toplantılardan sonra 15 dk nap alıyorum. odaklanma farkı inanılmaz.", "ürün müdürü",1.0),
-                ("gece 5 saat uyuyorum ama gündüz nap ile toplam 6.5 saat. hiç bu kadar verimli olmamıştım.", "girişimci",-1.0)
+                (L("newOnboarding.vm.testimonial.productivity.1.quote", table: "Onboarding"), L("newOnboarding.vm.testimonial.productivity.1.author", table: "Onboarding"), -1.0),
+                (L("newOnboarding.vm.testimonial.productivity.2.quote", table: "Onboarding"), L("newOnboarding.vm.testimonial.productivity.2.author", table: "Onboarding"), 1.0),
+                (L("newOnboarding.vm.testimonial.productivity.3.quote", table: "Onboarding"), L("newOnboarding.vm.testimonial.productivity.3.author", table: "Onboarding"), -1.0)
             ]
         case .balancedLifestyle:
             return [
-                ("plan mükemmel değil. ama esnek. bir gün kaçırdığımda 'her şey bitti' demiyorum artık.", "3 çocuk annesi",-1.0),
-                ("iş-yaşam dengesini uyku ile kurdum. artık akşamları kendime vakit kalıyor.", "öğretmen",1.0),
-                ("hafta sonları farklı plan kullanabiliyorum. bu esneklik beni tuttu.", "serbest çalışan",-1.0)
+                (L("newOnboarding.vm.testimonial.balance.1.quote", table: "Onboarding"), L("newOnboarding.vm.testimonial.balance.1.author", table: "Onboarding"), -1.0),
+                (L("newOnboarding.vm.testimonial.balance.2.quote", table: "Onboarding"), L("newOnboarding.vm.testimonial.balance.2.author", table: "Onboarding"), 1.0),
+                (L("newOnboarding.vm.testimonial.balance.3.quote", table: "Onboarding"), L("newOnboarding.vm.testimonial.balance.3.author", table: "Onboarding"), -1.0)
             ]
         case .curiosity:
             return [
-                ("deneyeyim dedim, iki haftada gerçekten alıştım. merak başladı, alışkanlık bitti.", "23 yaş",-1.0),
-                ("reddit'te okudum, denedim, tuttu. artık 7 aydır yapıyorum.", "üniversite öğrencisi",1.0),
-                ("da vinci de yapıyormuş dediler, merak ettim. şimdi günde 2 saat fazla vaktim var.", "tasarımcı",-1.0)
+                (L("newOnboarding.vm.testimonial.curiosity.1.quote", table: "Onboarding"), L("newOnboarding.vm.testimonial.curiosity.1.author", table: "Onboarding"), -1.0),
+                (L("newOnboarding.vm.testimonial.curiosity.2.quote", table: "Onboarding"), L("newOnboarding.vm.testimonial.curiosity.2.author", table: "Onboarding"), 1.0),
+                (L("newOnboarding.vm.testimonial.curiosity.3.quote", table: "Onboarding"), L("newOnboarding.vm.testimonial.curiosity.3.author", table: "Onboarding"), -1.0)
             ]
         default:
             return [
-                ("ilk 3 gün çok zorlandım. 4. günden sonra bir şeyler değişmeye başladı.", "28 yaş",-1.0),
-                ("öğleden sonra artık kahve içmiyorum. nap yeterli.", "mühendis",1.0),
-                ("alışması 1 hafta sürdü ama sonra harika hissettim.", "25 yaş",-1.0)
+                (L("newOnboarding.vm.testimonial.default.1.quote", table: "Onboarding"), L("newOnboarding.vm.testimonial.default.1.author", table: "Onboarding"), -1.0),
+                (L("newOnboarding.vm.testimonial.default.2.quote", table: "Onboarding"), L("newOnboarding.vm.testimonial.default.2.author", table: "Onboarding"), 1.0),
+                (L("newOnboarding.vm.testimonial.default.3.quote", table: "Onboarding"), L("newOnboarding.vm.testimonial.default.3.author", table: "Onboarding"), -1.0)
             ]
         }
     }
@@ -475,7 +475,7 @@ final class NewOnboardingViewModel: ObservableObject {
         isLoadingRecommendation = true
         showLoadingView = true
         recommendationProgress = 0.0
-        recommendationStatusMessage = "\(displayName), planını oluşturuyorum..."
+        recommendationStatusMessage = String(format: L("newOnboarding.vm.buildingPlan", table: "Onboarding"), displayName)
         recommendationComplete = false
         
         await saveUserPreferences()
@@ -505,7 +505,7 @@ final class NewOnboardingViewModel: ObservableObject {
             return
         }
         
-        updateProgress(0.15, "uyku profilini analiz ediyorum...")
+        updateProgress(0.15, L("newOnboarding.resultIntro.stage1", table: "Onboarding"))
         try? await Task.sleep(nanoseconds: 800_000_000)
         
         let answersTuples: [(String, String)] = [
@@ -523,7 +523,7 @@ final class NewOnboardingViewModel: ObservableObject {
             ("onboarding.chronotype", chronotype.rawValue)
         ]
         
-        updateProgress(0.30, "tercihlerini kaydediyorum...")
+        updateProgress(0.30, L("newOnboarding.resultIntro.stage2", table: "Onboarding"))
         try? await Task.sleep(nanoseconds: 800_000_000)
         
         do {
@@ -558,7 +558,7 @@ final class NewOnboardingViewModel: ObservableObject {
             
             try modelContext.save()
             
-            updateProgress(0.50, "sana uygun ritmi hesaplıyorum...")
+            updateProgress(0.50, L("newOnboarding.resultIntro.stage3", table: "Onboarding"))
             try? await Task.sleep(nanoseconds: 800_000_000)
             
             await getRecommendedSchedule()
@@ -569,16 +569,16 @@ final class NewOnboardingViewModel: ObservableObject {
     }
     
     func getRecommendedSchedule() async {
-        updateProgress(0.65, "planını kişiselleştiriyorum...")
+        updateProgress(0.65, L("newOnboarding.resultIntro.stage4", table: "Onboarding"))
         try? await Task.sleep(nanoseconds: 800_000_000)
         
-        updateProgress(0.80, "bilimsel verileri inceliyorum...")
+        updateProgress(0.80, L("newOnboarding.resultIntro.stage5", table: "Onboarding"))
         
         do {
             if let recommendation = try await recommender.recommendSchedule() {
                 try? await Task.sleep(nanoseconds: 600_000_000)
                 
-                updateProgress(0.95, "programını kaydediyorum...")
+                updateProgress(0.95, L("newOnboarding.resultIntro.stage6", table: "Onboarding"))
                 
                 let model = recommendation.schedule.toUserScheduleModel
                 _ = try await Repository.shared.saveSchedule(model)
@@ -586,7 +586,7 @@ final class NewOnboardingViewModel: ObservableObject {
                 
                 try? await Task.sleep(nanoseconds: 400_000_000)
                 
-                updateProgress(1.0, "hazır!")
+                updateProgress(1.0, L("newOnboarding.resultIntro.stage7", table: "Onboarding"))
                 isLoadingRecommendation = false
                 recommendationComplete = true
             } else {
@@ -609,7 +609,7 @@ final class NewOnboardingViewModel: ObservableObject {
         try? await Task.sleep(nanoseconds: 1_000_000_000)
         withAnimation {
             self.recommendationProgress = 1.0
-            self.recommendationStatusMessage = "hazır!"
+            self.recommendationStatusMessage = L("newOnboarding.resultIntro.stage7", table: "Onboarding")
             self.recommendationComplete = true
             self.isLoadingRecommendation = false
         }

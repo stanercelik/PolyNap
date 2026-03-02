@@ -15,7 +15,7 @@ struct RecommendedProgramScreen: View {
                             .glowEffect(color: .white.opacity(0.3), radius: 15)
                     }
                     
-                    FadeInText("önerilen planın:", font: OBFont.subtitle, color: .white.opacity(0.7), delay: 0.5)
+                    FadeInText(L("newOnboarding.recommended.subtitle", table: "Onboarding"), font: OBFont.subtitle, color: .white.opacity(0.7), delay: 0.5)
                     
                     FadeIn(delay: 0.8) {
                         Text(scheduleManager.activeSchedule?.name ?? "Biphasic Sleep")
@@ -28,7 +28,7 @@ struct RecommendedProgramScreen: View {
                     }
                     
                     FadeInText(
-                        "bu planı ilerleyen günlerde ayarlayabilirsin.\nsadece bir başlangıç noktası.",
+                        L("newOnboarding.recommended.disclaimer", table: "Onboarding"),
                         font: OBFont.caption,
                         color: .white.opacity(0.5),
                         delay: 2.0
@@ -36,7 +36,7 @@ struct RecommendedProgramScreen: View {
                     .multilineTextAlignment(.center)
                     
                     FadeIn(delay: 2.5) {
-                        OBButton("anladım →", style: .primaryWhite) { viewModel.goToNext() }
+                        OBButton(L("newOnboarding.common.understoodArrow", table: "Onboarding"), style: .primaryWhite) { viewModel.goToNext() }
                     }
                 }
                 .padding(.horizontal, OBSpacing.lg)
@@ -53,21 +53,19 @@ struct RecommendedProgramScreen: View {
             let napBlocks = blocks.filter { !$0.isCore }
             let totalHours = (schedule?.totalSleepHours ?? 6.5)
             
-            programRow("🌙", "core uyku", "\(coreBlocks.first.map { "\(Int($0.duration / 60)) saat" } ?? "6 saat")")
-            programRow("☀️", "nap sayısı", "\(napBlocks.count)")
-            programRow("⏱", "nap süresi", "\(napBlocks.first.map { "\(Int($0.duration)) dk" } ?? "30 dk")")
-            programRow("📅", "toplam uyku", String(format: "%.1f saat", totalHours))
+            programRow("🌙", L("newOnboarding.recommended.coreSleep", table: "Onboarding"), "\(coreBlocks.first.map { String(format: L("newOnboarding.recommended.unitHour", table: "Onboarding"), Int($0.duration / 60)) } ?? String(format: L("newOnboarding.recommended.unitHour", table: "Onboarding"), 6))")
+            programRow("☀️", L("newOnboarding.recommended.napCount", table: "Onboarding"), "\(napBlocks.count)")
+            programRow("⏱", L("newOnboarding.recommended.napDuration", table: "Onboarding"), "\(napBlocks.first.map { String(format: L("newOnboarding.recommended.unitMin", table: "Onboarding"), Int($0.duration)) } ?? String(format: L("newOnboarding.recommended.unitMin", table: "Onboarding"), 30))")
+            programRow("📅", L("newOnboarding.recommended.totalSleep", table: "Onboarding"), String(format: "%.1f saat", totalHours))
             
             Divider().background(Color.gray.opacity(0.2))
             
             VStack(alignment: .leading, spacing: OBSpacing.xs) {
-                Text("neden bu plan?")
-                    .font(OBFont.captionBold)
-                    .foregroundColor(OBColors.textPrimary)
+                Text(L("newOnboarding.recommended.whyThisPlan", table: "Onboarding")).font(OBFont.captionBold).foregroundColor(OBColors.textPrimary)
                 
-                bulletPoint("çalışma düzeninle uyumlu")
-                bulletPoint("ortamına göre gerçekçi")
-                bulletPoint("kronotipinle örtüşüyor")
+                bulletPoint(L("newOnboarding.recommended.reason1", table: "Onboarding"))
+                bulletPoint(L("newOnboarding.recommended.reason2", table: "Onboarding"))
+                bulletPoint(L("newOnboarding.recommended.reason3", table: "Onboarding"))
             }
         }
         .padding(OBSpacing.lg)

@@ -6,7 +6,7 @@ struct Timeline24hScreen: View {
     
     var body: some View {
         VStack(spacing: OBSpacing.lg) {
-            FadeInText("günün böyle akacak:", font: OBFont.title, delay: 0.3)
+            FadeInText(L("newOnboarding.timeline24h.title", table: "Onboarding"), font: OBFont.title, delay: 0.3)
                 .frame(maxWidth: .infinity, alignment: .leading)
             
             FadeIn(delay: 0.8) {
@@ -18,11 +18,11 @@ struct Timeline24hScreen: View {
             }
             
             VStack(alignment: .leading, spacing: OBSpacing.sm) {
-                FadeInText("ilk hafta hedefimiz:", delay: 2.0)
+                FadeInText(L("newOnboarding.timeline24h.firstWeekGoalPrefix", table: "Onboarding"), delay: 2.0)
                 FadeInAttributedText(
                     segments: [
-                        (text: "ritmi oturtmak.", isHighlight: true),
-                        (text: "\nmükemmel olmak değil.", isHighlight: false)
+                        (text: L("newOnboarding.timeline24h.firstWeekGoalHighlight", table: "Onboarding"), isHighlight: true),
+                        (text: L("newOnboarding.timeline24h.firstWeekGoalSuffix", table: "Onboarding"), isHighlight: false)
                     ],
                     font: OBFont.body,
                     delay: 2.5
@@ -33,7 +33,7 @@ struct Timeline24hScreen: View {
             Spacer()
             
             FadeIn(delay: 3.0) {
-                OBButton("devam →") { viewModel.goToNext() }
+                OBButton(L("newOnboarding.common.continueArrow", table: "Onboarding")) { viewModel.goToNext() }
             }
             .padding(.bottom, OBSpacing.xl)
         }
@@ -139,7 +139,7 @@ struct Timeline24hScreen: View {
                     Text(String(format: "%.1f", schedule?.displayTotalSleepHours ?? 6.5))
                         .font(OBFont.bigNumber)
                         .foregroundColor(OBColors.textPrimary)
-                    Text("saat")
+                    Text(L("newOnboarding.timeline24h.unitHour", table: "Onboarding"))
                         .font(OBFont.caption)
                         .foregroundColor(OBColors.textMuted)
                 }
@@ -148,11 +148,11 @@ struct Timeline24hScreen: View {
             HStack(spacing: OBSpacing.lg) {
                 HStack(spacing: 4) {
                     RoundedRectangle(cornerRadius: 2).fill(OBColors.darkNavy).frame(width: 12, height: 12)
-                    Text("core").font(OBFont.small).foregroundColor(OBColors.textMuted)
+                    Text(L("newOnboarding.timeline24h.labelCore", table: "Onboarding")).font(OBFont.small).foregroundColor(OBColors.textMuted)
                 }
                 HStack(spacing: 4) {
                     RoundedRectangle(cornerRadius: 2).fill(OBColors.accentBlue).frame(width: 12, height: 12)
-                    Text("nap").font(OBFont.small).foregroundColor(OBColors.textMuted)
+                    Text(L("newOnboarding.timeline24h.labelNap", table: "Onboarding")).font(OBFont.small).foregroundColor(OBColors.textMuted)
                 }
             }
         }
@@ -171,7 +171,7 @@ struct Timeline24hScreen: View {
                         .fill(block.isCore ? OBColors.darkNavy : OBColors.accentBlue)
                         .frame(width: 8, height: 8)
                     
-                    Text(block.isCore ? "core" : "nap")
+                    Text(block.isCore ? L("newOnboarding.timeline24h.blockCore", table: "Onboarding") : L("newOnboarding.timeline24h.blockNap", table: "Onboarding"))
                         .font(OBFont.caption)
                         .foregroundColor(OBColors.textSecondary)
                         .frame(width: 36, alignment: .leading)
@@ -182,7 +182,7 @@ struct Timeline24hScreen: View {
                         .font(OBFont.captionBold)
                         .foregroundColor(OBColors.textPrimary)
                     
-                    Text(block.isCore ? "\(block.duration / 60) saat" : "\(block.duration) dk")
+                    Text(block.isCore ? String(format: L("newOnboarding.timeline24h.durationHour", table: "Onboarding"), block.duration / 60) : String(format: L("newOnboarding.timeline24h.durationMin", table: "Onboarding"), block.duration))
                         .font(OBFont.small)
                         .foregroundColor(OBColors.textMuted)
                         .frame(width: 50, alignment: .trailing)

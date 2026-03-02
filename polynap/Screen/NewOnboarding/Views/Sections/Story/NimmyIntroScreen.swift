@@ -18,16 +18,16 @@ struct NimmyIntroScreen: View {
                 
                 
                 VStack(alignment: .leading, spacing: OBSpacing.md) {
-                    FadeInText("bu nimmy.", font: OBFont.title, color: .white, delay: 1.5)
+                    FadeInText(L("newOnboarding.nimmyIntro.title", table: "Onboarding"), font: OBFont.title, color: .white, delay: 1.5)
                     Spacer()
                         .frame(height: OBSpacing.sm)
-                    FadeInText("nimmy de böyleydi.", font: OBFont.subtitle, color: .accentColor, delay: 3.0)
-                    FadeInText("nimmy de seninle aynı şeyleri hissetti.", font: OBFont.body, color: .white.opacity(0.8), delay: 4.5)
-                    FadeInText("her gece yatıyor,", font: OBFont.body, color: .white.opacity(0.8), delay: 5.5)
-                    FadeInText("her sabah yorgun kalkıyordu.", font: OBFont.body, color: .white.opacity(0.8), delay: 6.5)
+                    FadeInText(L("newOnboarding.nimmyIntro.subtitle", table: "Onboarding"), font: OBFont.subtitle, color: .accentColor, delay: 3.0)
+                    FadeInText(L("newOnboarding.nimmyIntro.line1", table: "Onboarding"), font: OBFont.body, color: .white.opacity(0.8), delay: 4.5)
+                    FadeInText(L("newOnboarding.nimmyIntro.line2", table: "Onboarding"), font: OBFont.body, color: .white.opacity(0.8), delay: 5.5)
+                    FadeInText(L("newOnboarding.nimmyIntro.line3", table: "Onboarding"), font: OBFont.body, color: .white.opacity(0.8), delay: 6.5)
                     Spacer()
                         .frame(height: OBSpacing.sm)
-                    FadeInText("sonra bir şeyi fark etti.", font: OBFont.subtitle, color: .white, delay: 9)
+                    FadeInText(L("newOnboarding.nimmyIntro.turning", table: "Onboarding"), font: OBFont.subtitle, color: .white, delay: 9)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.horizontal, OBSpacing.lg)
@@ -35,7 +35,7 @@ struct NimmyIntroScreen: View {
                 Spacer()
                 
                 FadeIn(delay: 10.5) {
-                    TapToContinue("ne fark etti? →", color: .white) {
+                    TapToContinue(L("newOnboarding.nimmyIntro.cta", table: "Onboarding"), color: .white) {
                         viewModel.goToNext()
                     }
                 }

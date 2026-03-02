@@ -7,16 +7,16 @@ struct KnowledgeLevelScreen: View {
         QuestionScreenLayout(
             viewModel: viewModel,
             nimmy: .meditation,
-            question: "polifazik uyku hakkında ne kadar şey biliyorsun?",
-            microcopy: "rehberliği ve içerikleri buna göre ayarlıyorum"
+            question: L("newOnboarding.knowledgeLevel.question", table: "Onboarding"),
+            microcopy: L("newOnboarding.knowledgeLevel.microcopy", table: "Onboarding")
         ) {
-            OBSelectionCard(emoji: "🌱", text: "yeni başlıyorum — ne olduğunu az biliyorum", isSelected: viewModel.knowledgeLevel == .beginner) {
+            OBSelectionCard(emoji: "🌱", text: L("newOnboarding.knowledgeLevel.option.beginner", table: "Onboarding"), isSelected: viewModel.knowledgeLevel == .beginner) {
                 viewModel.knowledgeLevel = .beginner
             }
-            OBSelectionCard(emoji: "😊", text: "biraz okudum — mantığını anlıyorum", isSelected: viewModel.knowledgeLevel == .intermediate) {
+            OBSelectionCard(emoji: "😊", text: L("newOnboarding.knowledgeLevel.option.intermediate", table: "Onboarding"), isSelected: viewModel.knowledgeLevel == .intermediate) {
                 viewModel.knowledgeLevel = .intermediate
             }
-            OBSelectionCard(emoji: "🌟", text: "iyi biliyorum — detaya girmeyi seviyorum", isSelected: viewModel.knowledgeLevel == .advanced) {
+            OBSelectionCard(emoji: "🌟", text: L("newOnboarding.knowledgeLevel.option.advanced", table: "Onboarding"), isSelected: viewModel.knowledgeLevel == .advanced) {
                 viewModel.knowledgeLevel = .advanced
             }
         }

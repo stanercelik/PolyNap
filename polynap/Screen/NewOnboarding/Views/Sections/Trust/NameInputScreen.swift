@@ -17,13 +17,13 @@ struct NameInputScreen: View {
             .padding(.top, OBSpacing.md)
             
             VStack(alignment: .leading, spacing: OBSpacing.lg) {
-                FadeInText("önce şunu soralım", font: OBFont.caption, color: OBColors.textMuted, delay: 0.5)
+                FadeInText(L("newOnboarding.nameInput.topLabel", table: "Onboarding"), font: OBFont.caption, color: OBColors.textMuted, delay: 0.5)
                 
-                FadeInText("sana nasıl seslenelim?", font: OBFont.largeTitle, delay: 1.5)
+                FadeInText(L("newOnboarding.nameInput.title", table: "Onboarding"), font: OBFont.largeTitle, delay: 1.5)
                 
                 FadeIn(delay: 2.5) {
                     VStack(alignment: .leading, spacing: OBSpacing.sm) {
-                        TextField("adını yaz", text: $viewModel.userName)
+                        TextField(L("newOnboarding.nameInput.placeholder", table: "Onboarding"), text: $viewModel.userName)
                             .font(OBFont.body)
                             .foregroundColor(OBColors.darkNavy)
                             .padding(.horizontal, OBSpacing.md)
@@ -42,7 +42,7 @@ struct NameInputScreen: View {
                             .onSubmit { isNameFocused = false }
                             .tint(OBColors.primaryColor)
                         
-                        Text("istersen boş geç, \"arkadaş\" derim")
+                        Text(L("newOnboarding.nameInput.hint", table: "Onboarding"))
                             .font(OBFont.small)
                             .foregroundColor(OBColors.textMuted)
                     }
@@ -54,7 +54,7 @@ struct NameInputScreen: View {
             Spacer()
             
             FadeIn(delay: 3.0) {
-                OBButton("devam") { viewModel.goToNext() }
+                OBButton(L("newOnboarding.common.continue", table: "Onboarding")) { viewModel.goToNext() }
             }
             .padding(.horizontal, OBSpacing.lg)
             .padding(.bottom, OBSpacing.xl)

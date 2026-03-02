@@ -7,16 +7,16 @@ struct HealthStatusScreen: View {
         QuestionScreenLayout(
             viewModel: viewModel,
             nimmy: .sleepingNormal,
-            question: "sağlık durumun?",
-            microcopy: "en uygun ve güvenli planı seçmek için soruyorum"
+            question: L("newOnboarding.healthStatus.question", table: "Onboarding"),
+            microcopy: L("newOnboarding.healthStatus.microcopy", table: "Onboarding")
         ) {
-            OBSelectionCard(emoji: "✅", text: "sağlıklıyım", isSelected: viewModel.healthStatus == .healthy) {
+            OBSelectionCard(emoji: "✅", text: L("newOnboarding.healthStatus.option.healthy", table: "Onboarding"), isSelected: viewModel.healthStatus == .healthy) {
                 viewModel.healthStatus = .healthy
             }
-            OBSelectionCard(emoji: "💊", text: "kontrol altında kronik bir durumum var", isSelected: viewModel.healthStatus == .managedConditions) {
+            OBSelectionCard(emoji: "💊", text: L("newOnboarding.healthStatus.option.managedConditions", table: "Onboarding"), isSelected: viewModel.healthStatus == .managedConditions) {
                 viewModel.healthStatus = .managedConditions
             }
-            OBSelectionCard(emoji: "🏥", text: "aktif tedavi gerektiren bir durumum var", isSelected: viewModel.healthStatus == .seriousConditions) {
+            OBSelectionCard(emoji: "🏥", text: L("newOnboarding.healthStatus.option.seriousConditions", table: "Onboarding"), isSelected: viewModel.healthStatus == .seriousConditions) {
                 viewModel.healthStatus = .seriousConditions
             }
         }

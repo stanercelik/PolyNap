@@ -7,16 +7,16 @@ struct LifestyleScreen: View {
         QuestionScreenLayout(
             viewModel: viewModel,
             nimmy: .alarm,
-            question: "günlük aktivite tempon?",
-            microcopy: "toparlanma ihtiyacı buna göre değişiyor"
+            question: L("newOnboarding.lifestyle.question", table: "Onboarding"),
+            microcopy: L("newOnboarding.lifestyle.microcopy", table: "Onboarding")
         ) {
-            OBSelectionCard(emoji: "🏋️", text: "aktifim — düzenli antrenman, fiziksel iş", isSelected: viewModel.lifestyle == .veryActive) {
+            OBSelectionCard(emoji: "🏋️", text: L("newOnboarding.lifestyle.option.veryActive", table: "Onboarding"), isSelected: viewModel.lifestyle == .veryActive) {
                 viewModel.lifestyle = .veryActive
             }
-            OBSelectionCard(emoji: "🚶", text: "orta düzey — yürüyüş, hafif hareket", isSelected: viewModel.lifestyle == .moderatelyActive) {
+            OBSelectionCard(emoji: "🚶", text: L("newOnboarding.lifestyle.option.moderatelyActive", table: "Onboarding"), isSelected: viewModel.lifestyle == .moderatelyActive) {
                 viewModel.lifestyle = .moderatelyActive
             }
-            OBSelectionCard(emoji: "🧘", text: "sakin — çoğunlukla masa başı", isSelected: viewModel.lifestyle == .calm) {
+            OBSelectionCard(emoji: "🧘", text: L("newOnboarding.lifestyle.option.calm", table: "Onboarding"), isSelected: viewModel.lifestyle == .calm) {
                 viewModel.lifestyle = .calm
             }
         }

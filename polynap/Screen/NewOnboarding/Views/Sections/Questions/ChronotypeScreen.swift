@@ -7,16 +7,16 @@ struct ChronotypeScreen: View {
         QuestionScreenLayout(
             viewModel: viewModel,
             nimmy: .meditation,
-            question: "senin doğan en çok hangisine uygun?",
-            microcopy: "şekerleme saatlerini sana en doğal gelen yerlere koyacağım."
+            question: L("newOnboarding.chronotype.question", table: "Onboarding"),
+            microcopy: L("newOnboarding.chronotype.microcopy", table: "Onboarding")
         ) {
-            OBSelectionCard(emoji: "🌅", text: "sabahçıyım — erken kalkmak zor değil benim için", isSelected: viewModel.chronotype == .morningLark) {
+            OBSelectionCard(emoji: "🌅", text: L("newOnboarding.chronotype.option.morningLark", table: "Onboarding"), isSelected: viewModel.chronotype == .morningLark) {
                 viewModel.chronotype = .morningLark
             }
-            OBSelectionCard(emoji: "🌙", text: "gececiyim — geceleri daha iyi çalışırım", isSelected: viewModel.chronotype == .nightOwl) {
+            OBSelectionCard(emoji: "🌙", text: L("newOnboarding.chronotype.option.nightOwl", table: "Onboarding"), isSelected: viewModel.chronotype == .nightOwl) {
                 viewModel.chronotype = .nightOwl
             }
-            OBSelectionCard(emoji: "⚖️", text: "ikisi arası — duruma göre değişiyor", isSelected: viewModel.chronotype == .neutral) {
+            OBSelectionCard(emoji: "⚖️", text: L("newOnboarding.chronotype.option.neutral", table: "Onboarding"), isSelected: viewModel.chronotype == .neutral) {
                 viewModel.chronotype = .neutral
             }
         }
