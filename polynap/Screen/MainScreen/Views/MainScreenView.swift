@@ -298,7 +298,7 @@ struct MainHeroSection: View {
                     .transition(.opacity.combined(with: .scale(0.97, anchor: .topLeading)))
             }
 
-            Spacer().frame(height: descriptionExpanded ? PSSpacing.md : PSSpacing.lg)
+            Spacer().frame(height: descriptionExpanded ? PSSpacing.xl : PSSpacing.lg)
 
             // Row 4: NEXT SLEEP label
             Text(L("mainScreen.nextSleepBlock", table: "MainScreen"))

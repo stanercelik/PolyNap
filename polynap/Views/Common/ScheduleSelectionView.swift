@@ -91,28 +91,11 @@ struct ScheduleSelectionView: View {
                             }
                             .padding(.top, PSSpacing.xs)
 
-                            // Free schedule section header
-                            ScheduleSectionHeader(title: L("scheduleSelection.freeSchedules", table: "MainScreen"))
-
-                            // Free schedule cards
-                            let freeSchedules = sortedSchedules.filter { !$0.isPremium }
-                            ForEach(freeSchedules.indices, id: \.self) { index in
-                                let schedule = freeSchedules[index]
-                                CompactScheduleCard(
-                                    schedule: schedule,
-                                    isSelected: isScheduleSelected(schedule),
-                                    isProcessing: isProcessing,
-                                    onSelect: { selectScheduleWithScrollCheck(schedule) }
-                                )
-                                .id(schedule.id)
-                                .transition(.opacity.combined(with: .scale(0.97)))
-                            }
-
-                            // Premium section — single unlock banner for non-premium
+                            // ── Premium section (always at top) ──
                             let premiumSchedules = sortedSchedules.filter { $0.isPremium }
                             if !premiumSchedules.isEmpty {
                                 if !isPremium {
-                                    // Single unlock banner
+                                    // Non-premium: single unlock banner
                                     PremiumUnlockBannerCard(count: premiumSchedules.count)
                                         .transition(.opacity.combined(with: .scale(0.97)))
                                 } else {
@@ -129,6 +112,41 @@ struct ScheduleSelectionView: View {
                                         .id(schedule.id)
                                         .transition(.opacity.combined(with: .scale(0.97)))
                                     }
+                                }
+                            }
+
+                            // ── Active schedule (current selection) ──
+                            let freeSchedules = sortedSchedules.filter { !$0.isPremium }
+                            let activeSchedules = freeSchedules.filter { isScheduleSelected($0) }
+                            if !activeSchedules.isEmpty {
+                                ScheduleSectionHeader(title: L("scheduleSelection.currentSchedule", table: "MainScreen"))
+                                ForEach(activeSchedules.indices, id: \.self) { index in
+                                    let schedule = activeSchedules[index]
+                                    CompactScheduleCard(
+                                        schedule: schedule,
+                                        isSelected: true,
+                                        isProcessing: isProcessing,
+                                        onSelect: { selectScheduleWithScrollCheck(schedule) }
+                                    )
+                                    .id("active_\(schedule.id)")
+                                    .transition(.opacity.combined(with: .scale(0.97)))
+                                }
+                            }
+
+                            // ── Other free schedules ──
+                            let otherFreeSchedules = freeSchedules.filter { !isScheduleSelected($0) }
+                            if !otherFreeSchedules.isEmpty {
+                                ScheduleSectionHeader(title: L("scheduleSelection.freeSchedules", table: "MainScreen"))
+                                ForEach(otherFreeSchedules.indices, id: \.self) { index in
+                                    let schedule = otherFreeSchedules[index]
+                                    CompactScheduleCard(
+                                        schedule: schedule,
+                                        isSelected: false,
+                                        isProcessing: isProcessing,
+                                        onSelect: { selectScheduleWithScrollCheck(schedule) }
+                                    )
+                                    .id(schedule.id)
+                                    .transition(.opacity.combined(with: .scale(0.97)))
                                 }
                             }
                         }
