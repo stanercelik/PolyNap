@@ -188,7 +188,7 @@ struct MainScreenView: View {
                         }) {
                             Text(L("mainScreen.chart.save", table: "MainScreen"))
                                 .font(.system(.body, design: .rounded).weight(.semibold))
-                                .foregroundColor(.appPrimary)
+                                .foregroundColor(Color("SuccessColor"))
                         }
                         .transition(.opacity.combined(with: .scale(0.9)))
                     }
@@ -452,95 +452,62 @@ struct MetricsGridSection: View {
     @ObservedObject var viewModel: MainScreenViewModel
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var appeared = false
-    
-    private let columns = [
-        GridItem(.flexible(), spacing: PSSpacing.md),
-        GridItem(.flexible(), spacing: PSSpacing.md)
-    ]
-    
+
     var body: some View {
-        LazyVGrid(columns: columns, spacing: PSSpacing.md) {
-            HomeMetricCard(
+        HStack(spacing: 0) {
+            CompactMetricItem(
                 emoji: "🌙",
-                title: L("mainScreen.totalSleep", table: "MainScreen"),
                 value: viewModel.totalSleepTimeFormatted,
-                accentColor: .appPrimary,
-                appeared: appeared,
-                reduceMotion: reduceMotion,
-                delay: 0.0
+                label: LanguageManager.shared.currentLanguage == "tr" ? "Toplam Uyku" : "Total Sleep"
             )
-            
-            HomeMetricCard(
+
+            Rectangle()
+                .fill(Color.appTextSecondary.opacity(0.2))
+                .frame(width: 1, height: 32)
+
+            CompactMetricItem(
                 emoji: "🛏️",
-                title: blocksTitle,
                 value: "\(viewModel.model.schedule.schedule.count)",
-                accentColor: .metricTeal,
-                appeared: appeared,
-                reduceMotion: reduceMotion,
-                delay: 0.08
+                label: LanguageManager.shared.currentLanguage == "tr" ? "Uyku Bloğu" : "Sleep Blocks"
             )
         }
+        .padding(.vertical, PSSpacing.sm)
+        .padding(.horizontal, PSSpacing.md)
+        .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: 14))
+        .shadow(color: .black.opacity(0.18), radius: 8, x: 0, y: 3)
+        .opacity(appeared ? 1 : 0)
+        .scaleEffect(appeared || reduceMotion ? 1 : 0.97)
+        .animation(.spring(response: 0.4, dampingFraction: 0.85).delay(0.15), value: appeared)
         .onAppear {
-            withAnimation(.easeOut(duration: 0.35).delay(0.2)) {
-                appeared = true
-            }
+            withAnimation(.easeOut(duration: 0.35).delay(0.2)) { appeared = true }
         }
-    }
-    
-    private var blocksTitle: String {
-        LanguageManager.shared.currentLanguage == "tr" ? "Uyku Blokları" : "Sleep Blocks"
     }
 }
 
-// MARK: - Metric Card
-struct HomeMetricCard: View {
+private struct CompactMetricItem: View {
     let emoji: String
-    let title: String
     let value: String
-    let accentColor: Color
-    let appeared: Bool
-    let reduceMotion: Bool
-    var delay: Double = 0
-    var onTap: (() -> Void)? = nil
-    
+    let label: String
+
     var body: some View {
-        Button(action: { onTap?() }) {
-            VStack(alignment: .leading, spacing: PSSpacing.sm) {
-                // Emoji circle
-                Text(emoji)
-                    .font(.system(size: 18))
-                    .frame(width: 32, height: 32)
-                    .background(accentColor.opacity(0.12), in: Circle())
-                
-                // Value + Title
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(value)
-                        .font(.system(size: 18, weight: .bold, design: .rounded))
-                        .foregroundColor(.appText)
-                        .lineLimit(1)
-                        .minimumScaleFactor(0.7)
-                    
-                    Text(title)
-                        .font(.system(size: 12, weight: .medium, design: .rounded))
-                        .foregroundColor(.appTextSecondary)
-                        .lineLimit(1)
-                }
+        HStack(spacing: PSSpacing.sm) {
+            Text(emoji)
+                .font(.system(size: 20))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(value)
+                    .font(.system(size: 15, weight: .bold, design: .rounded))
+                    .foregroundColor(.appText)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                Text(label)
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundColor(.appTextSecondary)
+                    .lineLimit(1)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-            .frame(minHeight: 70)
-            .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: 18))
-            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 3)
         }
-        .buttonStyle(.plain)
-        .disabled(onTap == nil)
-        .opacity(appeared ? 1 : 0)
-        .scaleEffect(appeared || reduceMotion ? 1 : 0.95)
-        .animation(.spring(response: 0.4, dampingFraction: 0.85).delay(delay), value: appeared)
+        .frame(maxWidth: .infinity)
         .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(title): \(value)")
-        .accessibilityAddTraits(onTap != nil ? .isButton : .isStaticText)
+        .accessibilityLabel("\(label): \(value)")
     }
 }
 
@@ -599,7 +566,7 @@ struct MainChartCard: View {
         }
         .padding(PSSpacing.md)
         .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: PSCornerRadius.extraLarge))
-        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 3)
+        .shadow(color: .black.opacity(0.18), radius: 8, x: 0, y: 3)
         .animation(.spring(response: 0.35, dampingFraction: 0.85), value: viewModel.isChartEditMode)
     }
 }
@@ -726,7 +693,7 @@ struct SleepBlocksSection: View {
                 }
             }
             .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: 18))
-            .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 3)
+            .shadow(color: .black.opacity(0.18), radius: 8, x: 0, y: 3)
             .animation(.spring(response: 0.45, dampingFraction: 0.8), value: viewModel.isEditing)
         }
     }
