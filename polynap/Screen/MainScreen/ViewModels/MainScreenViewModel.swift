@@ -340,6 +340,14 @@ class MainScreenViewModel: ObservableObject {
         guard let name = userPreferences?.userName, !name.isEmpty else { return "" }
         return name
     }
+
+    /// Aktif schedule'ın lokalize açıklaması
+    var currentScheduleDescription: String {
+        let lang = languageManager.currentLanguage
+        let name = model.schedule.name
+        return SleepScheduleService.shared.getAllSchedules()
+            .first(where: { $0.name == name })?.description.localized(for: lang) ?? ""
+    }
     
     init(model: MainScreenModel = MainScreenModel(schedule: UserScheduleModel.placeholder), languageManager: LanguageManager = LanguageManager.shared) {
         self.model = model

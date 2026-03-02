@@ -62,23 +62,22 @@ struct ScheduleSelectionView: View {
     }
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Color.appBackground
                     .ignoresSafeArea()
-                
+
                 ScrollViewReader { proxy in
                     ScrollView(.vertical, showsIndicators: false) {
                         LazyVStack(spacing: PSSpacing.md) {
-                            // Başlık ve açıklama - daha kompakt
+                            // Subtitle + difficulty legend
                             VStack(spacing: PSSpacing.sm) {
                                 Text(L("scheduleSelection.subtitle", table: "MainScreen"))
-                                    .font(PSTypography.caption)
+                                    .font(OBFont.caption)
                                     .foregroundColor(.appTextSecondary)
                                     .multilineTextAlignment(.center)
                                     .padding(.horizontal, PSSpacing.md)
-                                
-                                // Zorluk derecesi açıklaması
+
                                 HStack(spacing: PSSpacing.sm) {
                                     DifficultyLegendItem(emoji: "🟢", text: "Kolay")
                                     DifficultyLegendItem(emoji: "🟡", text: "Orta")
@@ -87,41 +86,49 @@ struct ScheduleSelectionView: View {
                                 }
                                 .padding(.horizontal, PSSpacing.md)
                                 .padding(.vertical, PSSpacing.xs)
-                                .background(Color.appCardBackground.opacity(0.5), in: RoundedRectangle(cornerRadius: PSCornerRadius.small))
+                                .background(Color.appCardBackground.opacity(0.5),
+                                            in: RoundedRectangle(cornerRadius: PSCornerRadius.small))
                             }
                             .padding(.top, PSSpacing.xs)
-                            
-                            // Schedule kartları
-                            ForEach(sortedSchedules.indices, id: \.self) { index in
-                                let schedule = sortedSchedules[index]
-                                
-                                // Bölüm başlığı - Free'den Premium'a geçerken
-                                if index == 0 {
-                                    // İlk free schedule
-                                    ScheduleSectionHeader(title: L("scheduleSelection.freeSchedules", table: "MainScreen"))
-                                } else if index > 0 && !sortedSchedules[index-1].isPremium && schedule.isPremium {
-                                    // Premium bölümü başlangıcı
-                                    ScheduleSectionHeader(title: L("scheduleSelection.premiumSchedules", table: "MainScreen"))
-                                }
-                                
-                                if schedule.isPremium && !isPremium {
-                                    // Premium schedule for free users - kilitli
-                                    PremiumLockedScheduleCard(
-                                        schedule: schedule,
-                                        isSelected: isScheduleSelected(schedule)
-                                    )
-                                    .id(schedule.id)
+
+                            // Free schedule section header
+                            ScheduleSectionHeader(title: L("scheduleSelection.freeSchedules", table: "MainScreen"))
+
+                            // Free schedule cards
+                            let freeSchedules = sortedSchedules.filter { !$0.isPremium }
+                            ForEach(freeSchedules.indices, id: \.self) { index in
+                                let schedule = freeSchedules[index]
+                                CompactScheduleCard(
+                                    schedule: schedule,
+                                    isSelected: isScheduleSelected(schedule),
+                                    isProcessing: isProcessing,
+                                    onSelect: { selectScheduleWithScrollCheck(schedule) }
+                                )
+                                .id(schedule.id)
+                                .transition(.opacity.combined(with: .scale(0.97)))
+                            }
+
+                            // Premium section — single unlock banner for non-premium
+                            let premiumSchedules = sortedSchedules.filter { $0.isPremium }
+                            if !premiumSchedules.isEmpty {
+                                if !isPremium {
+                                    // Single unlock banner
+                                    PremiumUnlockBannerCard(count: premiumSchedules.count)
+                                        .transition(.opacity.combined(with: .scale(0.97)))
                                 } else {
-                                    // Available schedule (free schedules for all users, premium schedules for premium users)
-                                    CompactScheduleCard(
-                                        schedule: schedule,
-                                        isSelected: isScheduleSelected(schedule),
-                                        isProcessing: isProcessing,
-                                        onSelect: {
-                                            selectScheduleWithScrollCheck(schedule)
-                                        }
-                                    )
-                                    .id(schedule.id)
+                                    // Premium user: show all premium schedules
+                                    ScheduleSectionHeader(title: L("scheduleSelection.premiumSchedules", table: "MainScreen"))
+                                    ForEach(premiumSchedules.indices, id: \.self) { index in
+                                        let schedule = premiumSchedules[index]
+                                        CompactScheduleCard(
+                                            schedule: schedule,
+                                            isSelected: isScheduleSelected(schedule),
+                                            isProcessing: isProcessing,
+                                            onSelect: { selectScheduleWithScrollCheck(schedule) }
+                                        )
+                                        .id(schedule.id)
+                                        .transition(.opacity.combined(with: .scale(0.97)))
+                                    }
                                 }
                             }
                         }
@@ -136,16 +143,12 @@ struct ScheduleSelectionView: View {
                                     .onChange(of: geo.frame(in: .global).minY) { oldValue, newValue in
                                         let currentTime = Date()
                                         let timeDiff = currentTime.timeIntervalSince(lastScrollTime)
-                                        
                                         if timeDiff > 0 {
                                             scrollVelocity = abs(newValue - oldValue) / timeDiff
-                                            isScrolling = scrollVelocity > 50 // 50 points/second threshold
+                                            isScrolling = scrollVelocity > 50
                                         }
-                                        
                                         scrollOffset = newValue
                                         lastScrollTime = currentTime
-                                        
-                                        // Auto-stop scroll detection after 0.5 seconds of no movement
                                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                             if Date().timeIntervalSince(lastScrollTime) >= 0.5 {
                                                 isScrolling = false
@@ -619,14 +622,14 @@ struct PremiumLockedScheduleCard: View {
 /// Schedule bölüm başlığı
 struct ScheduleSectionHeader: View {
     let title: String
-    
+
     var body: some View {
         HStack {
             Text(title)
-                .font(PSTypography.headline)
-                .fontWeight(.bold)
-                .foregroundColor(.appText)
-            
+                .font(OBFont.captionBold)
+                .foregroundColor(.appTextSecondary)
+                .textCase(.uppercase)
+                .tracking(0.5)
             Spacer()
         }
         .padding(.horizontal, PSSpacing.xs)
@@ -634,6 +637,103 @@ struct ScheduleSectionHeader: View {
         .padding(.bottom, PSSpacing.xs)
     }
 }
+
+/// Single premium unlock banner (replaces N individual locked cards)
+struct PremiumUnlockBannerCard: View {
+    let count: Int
+    @StateObject private var paywallManager = PaywallManager.shared
+    @State private var isPulsing = false
+    @State private var isPressed = false
+
+    var body: some View {
+        Button(action: {
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            withAnimation(.spring(response: 0.25, dampingFraction: 0.7)) { isPulsing = true }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                isPulsing = false
+                paywallManager.presentPaywall(trigger: .premiumFeatureAccess)
+            }
+        }) {
+            VStack(spacing: 0) {
+                // Gradient background header
+                ZStack {
+                    LinearGradient(
+                        colors: [Color(hex: "1A3366"), Color(hex: "2D5A9E")],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+
+                    VStack(spacing: PSSpacing.sm) {
+                        // Crown + count badge
+                        HStack(spacing: PSSpacing.sm) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.white.opacity(0.15))
+                                    .frame(width: 44, height: 44)
+                                Image(systemName: "crown.fill")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundColor(Color(hex: "F59E0B"))
+                            }
+                            .scaleEffect(isPulsing ? 1.12 : 1.0)
+                            .animation(.spring(response: 0.25, dampingFraction: 0.7), value: isPulsing)
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(LanguageManager.shared.currentLanguage == "tr"
+                                     ? "\(count)+ Premium Program"
+                                     : "\(count)+ Premium Sleep Schedules")
+                                    .font(OBFont.bodyBold)
+                                    .foregroundColor(.white)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.85)
+
+                                Text(LanguageManager.shared.currentLanguage == "tr"
+                                     ? "Uberman, Dymaxion ve daha fazlası"
+                                     : "Uberman, Dymaxion & more")
+                                    .font(OBFont.small)
+                                    .foregroundColor(.white.opacity(0.7))
+                                    .lineLimit(1)
+                            }
+
+                            Spacer()
+
+                            // Chevron arrow
+                            Image(systemName: "arrow.right.circle.fill")
+                                .font(.system(size: 22, weight: .semibold))
+                                .foregroundColor(.white.opacity(0.9))
+                        }
+                        .padding(.horizontal, PSSpacing.md)
+                        .padding(.top, PSSpacing.md)
+                        .padding(.bottom, PSSpacing.sm)
+                    }
+                }
+                .clipShape(RoundedRectangle(cornerRadius: 18))
+
+                // CTA strip
+                HStack(spacing: PSSpacing.xs) {
+                    Image(systemName: "lock.open.fill")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(Color(hex: "F59E0B"))
+                    Text(LanguageManager.shared.currentLanguage == "tr"
+                         ? "Premium'a Geç · Tümünü Aç"
+                         : "Upgrade to Premium · Unlock All")
+                        .font(OBFont.captionBold)
+                        .foregroundColor(Color(hex: "F59E0B"))
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(Color(hex: "F59E0B").opacity(0.1))
+                .clipShape(RoundedRectangle(cornerRadius: 18))
+                .padding(.top, 4)
+            }
+        }
+        .buttonStyle(.plain)
+        .scaleEffect(isPulsing ? 0.97 : 1.0)
+        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: isPulsing)
+        .accessibilityLabel("Unlock \(count) premium sleep schedules")
+        .accessibilityHint("Tap to upgrade to premium")
+    }
+}
+
 
 /// Zorluk derecesi gösterge öğesi
 struct DifficultyLegendItem: View {

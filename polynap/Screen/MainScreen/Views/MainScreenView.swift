@@ -115,9 +115,6 @@ struct MainScreenView: View {
                             // Circular Sleep Chart
                             MainChartCard(viewModel: viewModel)
                             
-                            // Sleep Blocks Section
-                            SleepBlocksSection(viewModel: viewModel)
-                            
                             // Daily Tip Section (Nimmy)
                             DailyTipSection(viewModel: viewModel)
                         }
@@ -230,56 +227,88 @@ struct MainHeroSection: View {
     @ObservedObject var viewModel: MainScreenViewModel
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var appeared = false
-    
+    @State private var descriptionExpanded = false
+
     var body: some View {
-        VStack(alignment: .leading, spacing: PSSpacing.sm) {
-            // Greeting + Date + Schedule pill (single row)
-            HStack(alignment: .center) {
+        VStack(alignment: .leading, spacing: 0) {
+            // Row 1: Greeting · Date
+            HStack(alignment: .center, spacing: PSSpacing.xs) {
                 Text(viewModel.greetingText)
                     .font(.system(.caption, design: .rounded).weight(.medium))
                     .foregroundColor(.white.opacity(0.6))
                 Text("·")
-                    .foregroundColor(.white.opacity(0.4))
+                    .foregroundColor(.white.opacity(0.35))
                 Text(currentDateFormatted)
                     .font(.system(.caption, design: .rounded).weight(.medium))
                     .foregroundColor(.white.opacity(0.6))
                     .lineLimit(1)
-                
-                Spacer()
-                
-                // Schedule pill (tappable) — replaces big title
+            }
+            .opacity(appeared ? 1 : 0)
+            .offset(y: appeared || reduceMotion ? 0 : 8)
+
+            Spacer().frame(height: PSSpacing.sm)
+
+            // Row 2: Schedule name (prominent, tappable → schedule selection)
+            HStack(spacing: PSSpacing.xs) {
                 Button(action: {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
                     viewModel.showScheduleSelectionSheet()
                 }) {
-                    HStack(spacing: 4) {
-                        Text("📋")
-                            .font(.system(size: 11))
+                    HStack(spacing: PSSpacing.xs) {
                         Text(viewModel.model.schedule.name)
-                            .font(.system(.caption2, design: .rounded).weight(.semibold))
+                            .font(.system(.title3, design: .rounded).weight(.bold))
                             .foregroundColor(.white)
                             .lineLimit(1)
+                        Image(systemName: "chevron.right")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.white.opacity(0.5))
                     }
-                    .padding(.horizontal, PSSpacing.sm)
-                    .padding(.vertical, 5)
-                    .background(Color.white.opacity(0.15), in: Capsule())
                 }
                 .buttonStyle(.plain)
+
+                Spacer()
+
+                // Info toggle for schedule description
+                if !viewModel.currentScheduleDescription.isEmpty {
+                    Button(action: {
+                        withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
+                            descriptionExpanded.toggle()
+                        }
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    }) {
+                        Image(systemName: descriptionExpanded ? "info.circle.fill" : "info.circle")
+                            .font(.system(size: 16, weight: .medium))
+                            .foregroundColor(.white.opacity(descriptionExpanded ? 0.9 : 0.45))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(descriptionExpanded ? "Hide schedule description" : "Show schedule description")
+                }
             }
             .opacity(appeared ? 1 : 0)
             .offset(y: appeared || reduceMotion ? 0 : 8)
-            
-            Spacer().frame(height: PSSpacing.sm)
-            
-            // "Next Sleep" label
+
+            // Row 3: Collapsible description
+            if descriptionExpanded {
+                Text(viewModel.currentScheduleDescription)
+                    .font(.system(size: 13, weight: .regular, design: .rounded))
+                    .foregroundColor(.white.opacity(0.75))
+                    .lineSpacing(3)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.top, PSSpacing.sm)
+                    .transition(.opacity.combined(with: .scale(0.97, anchor: .topLeading)))
+            }
+
+            Spacer().frame(height: descriptionExpanded ? PSSpacing.md : PSSpacing.lg)
+
+            // Row 4: NEXT SLEEP label
             Text(L("mainScreen.nextSleepBlock", table: "MainScreen"))
                 .font(.system(size: 11, weight: .medium, design: .rounded))
                 .foregroundColor(.white.opacity(0.5))
                 .textCase(.uppercase)
                 .tracking(0.5)
                 .opacity(appeared ? 1 : 0)
-            
-            // Big countdown
+
+            // Row 5: Big countdown
             Text(viewModel.nextSleepBlockFormatted)
                 .font(.system(size: 44, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
@@ -310,20 +339,20 @@ struct MainHeroSection: View {
             }
         }
     }
-    
+
     private var statusBarHeight: CGFloat {
         UIApplication.shared.connectedScenes
             .compactMap { $0 as? UIWindowScene }
             .first?.statusBarManager?.statusBarFrame.height ?? 54
     }
-    
+
     private var currentDateFormatted: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: LanguageManager.shared.currentLanguage == "tr" ? "tr_TR" : "en_US")
         formatter.dateFormat = LanguageManager.shared.currentLanguage == "tr" ? "EEEE, d MMM" : "EEEE, MMM d"
         return formatter.string(from: Date())
     }
-    
+
     private var heroAccessibilityLabel: String {
         let next = viewModel.nextSleepBlockFormatted
         let schedule = viewModel.model.schedule.name
