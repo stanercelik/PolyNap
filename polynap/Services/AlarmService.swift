@@ -28,24 +28,25 @@ final class AlarmService: ObservableObject {
     // Bu sadece bir kez çağrılır.
     private init() {
         Task {
-            await initializeAlarmService()
+            await registerNotificationCategories()
         }
     }
     
-    /// Alarm servisini başlatır - AlarmKit veya UserNotifications izni ister
-    private func initializeAlarmService() async {
+    /// İzin istemeden servisi başlatır; kategori kayıtlarını kurar.
+    /// İzin, onboarding AlarmPrimerScreen'den requestPermissions() ile ayrıca istenecektir.
+    
+    /// Alarm ve bildirim izinlerini kullanıcıdan ister.
+    /// Onboarding AlarmPrimerScreen'den çağrılmalıdır.
+    func requestPermissions() async {
         if AlarmKitService.isAvailable {
-            // iOS 26+ için AlarmKit izni iste
             let authState = await AlarmKitService.shared.requestAuthorization()
             if authState == .authorized {
-                print("✅ AlarmService: AlarmKit başarıyla başlatıldı (iOS 26+)")
+                print("✅ AlarmService: AlarmKit izni verildi (iOS 26+)")
+                await registerNotificationCategories()
                 return
             }
-            // AlarmKit izni reddedilirse veya hata olursa UserNotifications'a geri dön
-            print("⚠️ AlarmService: AlarmKit başlatılamadı, UserNotifications'a geçiliyor...")
+            print("⚠️ AlarmService: AlarmKit izni reddedildi, UserNotifications'a geçiliyor...")
         }
-        
-        // UserNotifications için yetkilendirme
         await requestAuthorization()
         await registerNotificationCategories()
     }
@@ -112,26 +113,28 @@ final class AlarmService: ObservableObject {
         guard let activeSchedule = try? getActiveSchedule(context: modelContext) else {
             print("ℹ️ AlarmService: Aktif program bulunamadı. Tüm alarmlar iptal ediliyor.")
             await AlarmKitService.shared.cancelAllAlarms()
+            await cancelAllNotifications()
             return
         }
         
-        guard let alarmSettings = try? getAlarmSettings(context: modelContext) else {
-            print("ℹ️ AlarmService: Alarm ayarları bulunamadı.")
-            return
-        }
+        let alarmSettings = (try? getAlarmSettings(context: modelContext)) ?? AlarmSettings(userId: UUID())
+        let userPreferences = (try? getUserPreferences(context: modelContext)) ?? UserPreferences()
         
         print("🔄 AlarmService: '\(activeSchedule.name)' programı için AlarmKit alarmları planlanıyor...")
         
         // Önceki alarmları iptal et
         await AlarmKitService.shared.cancelAllAlarms()
+        // Eski UserNotification reminder'larını da temizle
+        await cancelAllNotifications()
         
         // Gelecek 7 gün için uyku bloklarını işle
         let futureBlocks = calculateFutureBlocks(for: activeSchedule, daysInAdvance: 7)
         
-        var scheduledCount = 0
+        var alarmCount = 0
+        var reminderCount = 0
         
         for blockInstance in futureBlocks {
-            // Alarm ayarları aktifse planla
+            // AlarmKit ile uyanma alarmı planla
             if alarmSettings.isEnabled {
                 do {
                     try await AlarmKitService.shared.scheduleSleepBlockAlarm(
@@ -140,14 +143,24 @@ final class AlarmService: ObservableObject {
                         blockId: blockInstance.blockId,
                         scheduleName: blockInstance.scheduleName
                     )
-                    scheduledCount += 1
+                    alarmCount += 1
                 } catch {
                     print("🚨 AlarmKitService: Alarm planlanamadı: \(error.localizedDescription)")
                 }
             }
+            
+            // UserNotifications ile uyku hatırlatıcısı planla
+            let leadTime = userPreferences.reminderLeadTimeInMinutes
+            if leadTime > 0 {
+                let reminderDate = blockInstance.startDate.addingTimeInterval(-Double(leadTime * 60))
+                if reminderDate > Date() && reminderCount < notificationLimit {
+                    await scheduleReminder(at: reminderDate, for: blockInstance)
+                    reminderCount += 1
+                }
+            }
         }
         
-        print("✅ AlarmService: \(scheduledCount) AlarmKit alarmı planlandı.")
+        print("✅ AlarmService: \(alarmCount) AlarmKit alarmı + \(reminderCount) hatırlatıcı planlandı.")
     }
     
     /// UserNotifications ile bildirimleri planlar (iOS < 26)
@@ -159,15 +172,8 @@ final class AlarmService: ObservableObject {
             return
         }
         
-        guard let alarmSettings = try? getAlarmSettings(context: modelContext) else {
-            print("ℹ️ AlarmService: Alarm ayarları bulunamadı. Sadece hatırlatıcılar planlanacak.")
-            return // Ayarlar yoksa devam etme
-        }
-        
-        guard let userPreferences = try? getUserPreferences(context: modelContext) else {
-            print("ℹ️ AlarmService: Kullanıcı tercihleri bulunamadı.")
-            return
-        }
+        let alarmSettings = (try? getAlarmSettings(context: modelContext)) ?? AlarmSettings(userId: UUID())
+        let userPreferences = (try? getUserPreferences(context: modelContext)) ?? UserPreferences()
         
         print("🔄 AlarmService: '\(activeSchedule.name)' programı için bildirimler yeniden planlanıyor (UserNotifications)...")
         
@@ -356,18 +362,9 @@ final class AlarmService: ObservableObject {
             
             for block in blocks {
                 let startComponents = calendar.dateComponents([.hour, .minute], from: block.startTime)
-                guard var blockStartDate = calendar.date(bySettingHour: startComponents.hour!, minute: startComponents.minute!, second: 0, of: targetDay) else { continue }
+                guard let blockStartDate = calendar.date(bySettingHour: startComponents.hour!, minute: startComponents.minute!, second: 0, of: targetDay) else { continue }
                 
-                var blockEndDate = blockStartDate.addingTimeInterval(TimeInterval(block.durationMinutes * 60))
-                
-                // Bitiş saati başlangıçtan küçükse (gece yarısını aşıyorsa), hem başlangıç hem de bitiş tarihini bir gün ileri al
-                let endComponents = calendar.dateComponents([.hour, .minute], from: block.endTime)
-                if endComponents.hour! < startComponents.hour! {
-                     blockEndDate = calendar.date(byAdding: .day, value: 1, to: blockEndDate)!
-                     if blockStartDate > blockEndDate { // Örn: 23:00'da başlayan blok için, hedef gün 1 ise başlangıç 1. gün 23:00 olmalı.
-                         blockStartDate = calendar.date(byAdding: .day, value: -1, to: blockStartDate)!
-                     }
-                }
+                let blockEndDate = blockStartDate.addingTimeInterval(TimeInterval(block.durationMinutes * 60))
                 
                 if blockEndDate > Date() {
                     instances.append(BlockInstance(

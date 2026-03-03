@@ -19,3 +19,6 @@
 /* Notification permission description */
 "NSUserNotificationsUsageDescription" = "PolyNap menghantar pemberitahuan penggera untuk membangunkan anda apabila blok tidur anda tamat. Ciri ini penting agar jadual tidur anda berfungsi dengan baik.";
 
+
+/* AlarmKit permission description */
+"NSAlarmKitUsageDescription" = "PolyNap needs alarm permission to wake you up precisely when your sleep blocks end.";

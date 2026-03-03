@@ -17,7 +17,10 @@ struct FirstBadgeScreen: View {
                 
                 VStack(spacing: -OBSpacing.md){
                     FadeIn(delay: 1.5) {
-                        NimmyImage(.meditation, size: 220)
+                        Image("badge-starter")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 220, height: 220)
                             .glowEffect(color: .white.opacity(0.75), radius: 30)
                     }
                     

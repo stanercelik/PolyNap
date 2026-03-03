@@ -19,3 +19,6 @@
 /* Notification permission description */
 "NSUserNotificationsUsageDescription" = "PolyNap ส่งการแจ้งเตือนปลุกเพื่อปลุกคุณเมื่อช่วงการนอนหลับของคุณสิ้นสุดลง ฟีเจอร์นี้จำเป็นเพื่อให้ตารางการนอนหลับของคุณทำงานได้อย่างถูกต้อง";
 
+
+/* AlarmKit permission description */
+"NSAlarmKitUsageDescription" = "PolyNap needs alarm permission to wake you up precisely when your sleep blocks end.";

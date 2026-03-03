@@ -30,7 +30,7 @@ struct NameInputScreen: View {
                             .padding(.vertical, 14)
                             .background(
                                 RoundedRectangle(cornerRadius: 14)
-                                    .fill(OBColors.softGray)
+                                    .fill(Color(white: 0.95))
                             )
                             .overlay(
                                 RoundedRectangle(cornerRadius: 14)

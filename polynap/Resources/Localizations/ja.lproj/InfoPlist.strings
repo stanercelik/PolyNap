@@ -8,3 +8,6 @@
 
 /* Critical messaging permission description */
 "NSCriticalMessagingUsageDescription" = "PolyNapは、サイレントモードやおやすみモード中でも緊急の起床通知やリマインダーを送信するために、重要なメッセージの送信許可が必要です。";
+
+/* AlarmKit permission description */
+"NSAlarmKitUsageDescription" = "PolyNap needs alarm permission to wake you up precisely when your sleep blocks end.";

@@ -8,3 +8,5 @@
 
 /* Kritik mesajlaşma izni açıklaması */
 "NSCriticalMessagingUsageDescription" = "PolyNap, Sessiz Mod veya Odak modları gibi durumlarda bile acil uyandırma ve hatırlatma bildirimleri göndermek için kritik mesaj izinlerine ihtiyaç duyar."; 
+/* Alarm izni açıklaması */
+"NSAlarmKitUsageDescription" = "PolyNap, uyku bloklarınız bittiğinde tam zamanında sizi uyandırmak için alarm iznine ihtiyaç duyar.";

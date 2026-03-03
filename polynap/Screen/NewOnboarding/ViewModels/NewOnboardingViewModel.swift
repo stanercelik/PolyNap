@@ -45,7 +45,7 @@ enum OnboardingScreen: Int, CaseIterable {
     case timeline24h = 30
     case firstBadge = 31
     case notificationPrimer = 32
-    case notificationPrompt = 33
+    case alarmPrimer = 33
     case final_ = 34
     case commitment = 35
     
@@ -115,7 +115,7 @@ final class NewOnboardingViewModel: ObservableObject {
     
     // MARK: - DEV
     #if DEBUG
-    static let devSkipToQuestions = true
+    static let devSkipToQuestions = false
     #endif
     
     // MARK: - Navigation
@@ -333,6 +333,11 @@ final class NewOnboardingViewModel: ObservableObject {
             next += 1
         }
         
+        // recommendedProgram sayfası kaldırıldı, atla
+        if OnboardingScreen(rawValue: next) == .recommendedProgram {
+            next += 1
+        }
+        
         return next
     }
     
@@ -340,6 +345,11 @@ final class NewOnboardingViewModel: ObservableObject {
         var prev = index - 1
         
         if OnboardingScreen(rawValue: prev) == .napEnvironmentInfo && !shouldShowNapEnvironmentInfo {
+            prev -= 1
+        }
+        
+        // recommendedProgram sayfası kaldırıldı, atla
+        if OnboardingScreen(rawValue: prev) == .recommendedProgram {
             prev -= 1
         }
         
@@ -384,6 +394,14 @@ final class NewOnboardingViewModel: ObservableObject {
     func requestAppRating() {
         if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
             SKStoreReviewController.requestReview(in: windowScene)
+        }
+    }
+    
+    // MARK: - Alarm Permission
+    func requestAlarmPermission() {
+        Task { @MainActor in
+            await AlarmService.shared.requestPermissions()
+            self.goToNext()
         }
     }
     
@@ -675,6 +693,7 @@ final class NewOnboardingViewModel: ObservableObject {
             )
             
             isOnboardingComplete = true
+            BadgeManager.shared.grantStarterBadge()
             
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
                 self.requestPostOnboardingRating()
@@ -731,7 +750,7 @@ extension OnboardingScreen: CustomStringConvertible {
         case .timeline24h: return "timeline_24h"
         case .firstBadge: return "first_badge"
         case .notificationPrimer: return "notification_primer"
-        case .notificationPrompt: return "notification_prompt"
+        case .alarmPrimer: return "alarm_primer"
         case .final_: return "final"
         case .commitment: return "commitment"
         }

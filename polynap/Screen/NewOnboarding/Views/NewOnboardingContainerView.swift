@@ -127,8 +127,8 @@ struct NewOnboardingContainerView: View {
                 FirstBadgeScreen(viewModel: viewModel)
             case .notificationPrimer:
                 NotificationPrimerScreen(viewModel: viewModel)
-            case .notificationPrompt:
-                NotificationPromptScreen(viewModel: viewModel)
+            case .alarmPrimer:
+                AlarmPrimerScreen(viewModel: viewModel)
             case .final_:
                 FinalScreen(viewModel: viewModel)
             case .commitment:

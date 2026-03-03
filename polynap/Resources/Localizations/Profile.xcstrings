@@ -10892,7 +10892,7 @@
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Başlangıç"
+            "value": "Starter"
           }
         },
         "en": {
@@ -10904,25 +10904,25 @@
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Anfänger"
+            "value": "Starter"
           }
         },
         "ja": {
           "stringUnit": {
             "state": "translated",
-            "value": "スターター"
+            "value": "Starter"
           }
         },
         "ms": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pemula"
+            "value": "Starter"
           }
         },
         "th": {
           "stringUnit": {
             "state": "translated",
-            "value": "ผู้เริ่มต้น"
+            "value": "Starter"
           }
         }
       }

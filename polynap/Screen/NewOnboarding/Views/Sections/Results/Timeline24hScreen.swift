@@ -67,7 +67,7 @@ struct Timeline24hScreen: View {
                     )
                     context.stroke(
                         bgPath,
-                        with: .color(OBColors.softGray.opacity(0.3)),
+                        with: .color(Color.gray.opacity(0.12)),
                         style: StrokeStyle(lineWidth: lineWidth)
                     )
                     
@@ -193,7 +193,7 @@ struct Timeline24hScreen: View {
         .padding(.vertical, OBSpacing.sm)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(OBColors.softGray)
+                .fill(Color(white: 0.95))
         )
     }
     

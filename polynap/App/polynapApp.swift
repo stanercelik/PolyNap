@@ -450,22 +450,11 @@ struct ContentView: View {
     // YENİ: Singleton AlarmManager.shared kullanımı
     @EnvironmentObject var alarmManager: AlarmManager
     @EnvironmentObject var analyticsManager: AnalyticsManager
-    #if DEBUG
-    /// Starts false every launch; flipped to true after we reset the onboarding flags.
-    /// Prevents MainTabBarView from flashing before the reset runs.
-    @State private var onboardingResetApplied = false
-    #endif
     
     var body: some View {
         Group {
             if let preferences = userPreferences.first {
-                #if DEBUG
-                let shouldShowMainApp = onboardingResetApplied
-                    && preferences.hasCompletedOnboarding
-                    && (preferences.hasCompletedQuestions || preferences.hasSkippedOnboarding)
-                #else
                 let shouldShowMainApp = preferences.hasCompletedOnboarding && (preferences.hasCompletedQuestions || preferences.hasSkippedOnboarding)
-                #endif
                 
                 if shouldShowMainApp {
                     MainTabBarView()
@@ -502,20 +491,6 @@ struct ContentView: View {
         }
         .animation(.easeInOut(duration: 0.6), value: userPreferences.first?.hasCompletedOnboarding)
         .animation(.easeInOut(duration: 0.6), value: userPreferences.first?.hasSkippedOnboarding)
-        #if DEBUG
-        .task {
-            // Reset onboarding flags every launch in DEBUG so the flow starts fresh.
-            // onboardingResetApplied starts false, blocking MainTabBarView until after reset.
-            guard !onboardingResetApplied else { return }
-            if let prefs = userPreferences.first {
-                prefs.hasCompletedOnboarding = false
-                prefs.hasCompletedQuestions = false
-                prefs.hasSkippedOnboarding = false
-                try? modelContext.save()
-            }
-            onboardingResetApplied = true
-        }
-        #endif
         .preferredColorScheme(getPreferredColorScheme())
         .fullScreenCover(isPresented: $alarmManager.isAlarmFiring) {
             AlarmFiringView()

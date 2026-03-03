@@ -458,21 +458,36 @@ struct WeeklyStreakSection: View {
                 ForEach(weekDays, id: \.dayName) { day in
                     VStack(spacing: 4) {
                         Text(day.dayName)
-                            .font(.system(size: 10, weight: .medium, design: .rounded))
-                            .foregroundColor(.appTextSecondary)
+                            .font(.system(size: 10, weight: day.isCompleted ? .semibold : .medium, design: .rounded))
+                            .foregroundColor(day.isCompleted && !day.isToday ? .metricAmber : .appTextSecondary)
                         
-                        Text(day.dateNum)
-                            .font(.system(size: 12, weight: day.isToday ? .bold : .medium, design: .rounded))
-                            .foregroundColor(day.isToday ? .white : (day.isCompleted ? .appText : .appTextTertiary))
+                        if day.isCompleted && !day.isToday {
+                            ZStack {
+                                Image(systemName: "flame.fill")
+                                    .font(.system(size: 30))
+                                    .foregroundStyle(
+                                        .linearGradient(
+                                            colors: [Color.red, .metricAmber, .yellow],
+                                            startPoint: .bottom,
+                                            endPoint: .top
+                                        )
+                                    )
+                                Text(day.dateNum)
+                                    .font(.system(size: 10, weight: .heavy, design: .rounded))
+                                    .foregroundColor(.white)
+                                    .shadow(color: .black.opacity(0.4), radius: 1, x: 0, y: 1)
+                            }
                             .frame(width: 28, height: 28)
-                            .background(
-                                Circle()
-                                    .fill(day.isToday ? Color.heroBottom : (day.isCompleted ? Color.metricAmber.opacity(0.15) : Color.clear))
-                            )
-                            .overlay(
-                                Circle()
-                                    .stroke(day.isCompleted && !day.isToday ? Color.metricAmber.opacity(0.4) : Color.clear, lineWidth: 1.5)
-                            )
+                        } else {
+                            Text(day.dateNum)
+                                .font(.system(size: 12, weight: day.isToday ? .bold : .medium, design: .rounded))
+                                .foregroundColor(day.isToday ? .white : .appTextTertiary)
+                                .frame(width: 28, height: 28)
+                                .background(
+                                    Circle()
+                                        .fill(day.isToday ? Color.heroBottom : Color.clear)
+                                )
+                        }
                     }
                     .frame(maxWidth: .infinity)
                 }

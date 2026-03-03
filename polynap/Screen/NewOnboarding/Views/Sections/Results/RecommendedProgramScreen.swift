@@ -60,13 +60,6 @@ struct RecommendedProgramScreen: View {
             
             Divider().background(Color.gray.opacity(0.2))
             
-            VStack(alignment: .leading, spacing: OBSpacing.xs) {
-                Text(L("newOnboarding.recommended.whyThisPlan", table: "Onboarding")).font(OBFont.captionBold).foregroundColor(OBColors.textPrimary)
-                
-                bulletPoint(L("newOnboarding.recommended.reason1", table: "Onboarding"))
-                bulletPoint(L("newOnboarding.recommended.reason2", table: "Onboarding"))
-                bulletPoint(L("newOnboarding.recommended.reason3", table: "Onboarding"))
-            }
         }
         .padding(OBSpacing.lg)
         .background(

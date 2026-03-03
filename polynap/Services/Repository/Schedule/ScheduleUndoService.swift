@@ -17,6 +17,10 @@ final class ScheduleUndoService: BaseRepository {
     
     static let shared = ScheduleUndoService()
     
+    /// Only true when undo data was saved in the current app session.
+    /// Resets to false on every cold launch, preventing stale undo banners.
+    private var undoDataSavedInCurrentSession: Bool = false
+    
     private override init() {
         super.init()
         logger.debug("↩️ ScheduleUndoService başlatıldı")
@@ -37,6 +41,7 @@ final class ScheduleUndoService: BaseRepository {
         // UserDefaults'a undo verisini kaydet
         if let encoded = try? JSONEncoder().encode(undoData) {
             UserDefaults.standard.set(encoded, forKey: "scheduleChangeUndoData")
+            undoDataSavedInCurrentSession = true
             logger.debug("📝 Adaptasyon ilerlemesi undo verisi kaydedildi")
         }
     }
@@ -76,6 +81,7 @@ final class ScheduleUndoService: BaseRepository {
             
             // Undo verisini temizle
             UserDefaults.standard.removeObject(forKey: "scheduleChangeUndoData")
+            undoDataSavedInCurrentSession = false
             
             // Undo başarılı olduğunda dismiss durumunu da sıfırla
             UserDefaults.standard.set(false, forKey: "undoDismissedByUser")
@@ -90,6 +96,7 @@ final class ScheduleUndoService: BaseRepository {
     
     /// Undo verisi mevcut mu kontrol et
     func hasUndoData() -> Bool {
+        guard undoDataSavedInCurrentSession else { return false }
         guard let data = UserDefaults.standard.data(forKey: "scheduleChangeUndoData"),
               let undoData = try? JSONDecoder().decode(ScheduleChangeUndoData.self, from: data) else {
             return false
@@ -103,6 +110,7 @@ final class ScheduleUndoService: BaseRepository {
     /// Undo verisini temizle (manuel cleanup)
     func clearUndoData() {
         UserDefaults.standard.removeObject(forKey: "scheduleChangeUndoData")
+        undoDataSavedInCurrentSession = false
         
         // Undo verisi temizlendiğinde dismiss durumunu da sıfırla
         UserDefaults.standard.set(false, forKey: "undoDismissedByUser")

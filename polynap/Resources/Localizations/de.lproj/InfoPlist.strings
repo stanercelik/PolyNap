@@ -19,3 +19,6 @@
 /* Notification permission description */
 "NSUserNotificationsUsageDescription" = "PolyNap sendet Weckbenachrichtigungen, um dich am Ende deiner Schlafblöcke zu wecken. Diese Funktion ist für das ordnungsgemäße Funktionieren deines Schlafplans unerlässlich.";
 
+
+/* AlarmKit permission description */
+"NSAlarmKitUsageDescription" = "PolyNap needs alarm permission to wake you up precisely when your sleep blocks end.";

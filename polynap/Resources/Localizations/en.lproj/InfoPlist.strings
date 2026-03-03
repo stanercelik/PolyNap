@@ -7,4 +7,7 @@
 "NSUserNotificationsUsageDescription" = "PolyNap sends alarm notifications to wake you up when your sleep blocks end. This feature is essential for your sleep schedule to function properly.";
 
 /* Critical messaging permission description */
-"NSCriticalMessagingUsageDescription" = "PolyNap needs critical messaging permissions to send urgent wake-up and reminder notifications even during Silent Mode or Focus modes."; 
+"NSCriticalMessagingUsageDescription" = "PolyNap needs critical messaging permissions to send urgent wake-up and reminder notifications even during Silent Mode or Focus modes.";
+
+/* AlarmKit permission description */
+"NSAlarmKitUsageDescription" = "PolyNap needs alarm permission to wake you up precisely when your sleep blocks end."; 

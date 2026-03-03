@@ -14,6 +14,8 @@ struct MainTabBarView: View {
     
     @State private var hasCheckedOnboardingPaywall = false
     @State private var earnedBadgeForModal: BadgeDefinition? = nil
+    @State private var pendingOnboardingBadge: BadgeDefinition? = nil
+    @AppStorage("hasShownOnboardingBadgeModal") private var hasShownOnboardingBadgeModal: Bool = false
     
     init() {
         self._mainScreenViewModel = StateObject(wrappedValue: MainScreenViewModel(languageManager: LanguageManager.shared))
@@ -64,6 +66,21 @@ struct MainTabBarView: View {
                 checkAndTriggerOnboardingPaywall()
                 // Start app tour if needed
                 tourManager.startTourIfNeeded()
+                
+                // Badge modal: starter badge onboarding sırasında kazanıldıysa ama modal gösterilmediyse
+                if !hasShownOnboardingBadgeModal && BadgeManager.shared.earnedBadgeIds.contains("badge-starter") {
+                    let all = BadgeDefinition.all(earnedIds: BadgeManager.shared.earnedBadgeIds)
+                    if let starterBadge = all.first(where: { $0.id == "badge-starter" }) {
+                        if tourManager.isShowingTour {
+                            pendingOnboardingBadge = starterBadge
+                        } else {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                                earnedBadgeForModal = starterBadge
+                                hasShownOnboardingBadgeModal = true
+                            }
+                        }
+                    }
+                }
             }
             .onChange(of: revenueCatManager.userState) { _, _ in
                 // User state değiştiğinde tekrar kontrol et
@@ -105,9 +122,31 @@ struct MainTabBarView: View {
         .onReceive(NotificationCenter.default.publisher(for: .badgeEarned)) { notification in
             guard let badgeId = notification.userInfo?["badgeId"] as? String else { return }
             let all = BadgeDefinition.all(earnedIds: BadgeManager.shared.earnedBadgeIds)
-            if let badge = all.first(where: { $0.id == badgeId }) {
+            guard let badge = all.first(where: { $0.id == badgeId }) else { return }
+
+            if badge.id == "badge-starter" {
+                // Starter badge: defer until after tour, show only once
+                guard !hasShownOnboardingBadgeModal else { return }
+                if tourManager.isShowingTour {
+                    pendingOnboardingBadge = badge
+                } else {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        earnedBadgeForModal = badge
+                        hasShownOnboardingBadgeModal = true
+                    }
+                }
+            } else {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     earnedBadgeForModal = badge
+                }
+            }
+        }
+        .onChange(of: tourManager.isShowingTour) { _, isShowing in
+            if !isShowing, let pending = pendingOnboardingBadge, !hasShownOnboardingBadgeModal {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    earnedBadgeForModal = pending
+                    hasShownOnboardingBadgeModal = true
+                    pendingOnboardingBadge = nil
                 }
             }
         }

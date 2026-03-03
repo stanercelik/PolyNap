@@ -88,17 +88,11 @@ final class AppTourManager: ObservableObject {
     }
 
     func startTourIfNeeded() {
-        #if DEBUG
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
-            self.startTour()
-        }
-        #else
         if !hasCompletedTour {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
                 self.startTour()
             }
         }
-        #endif
     }
 
     func startTour() {
