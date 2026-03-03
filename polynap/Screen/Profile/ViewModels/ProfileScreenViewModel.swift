@@ -325,49 +325,75 @@ class ProfileScreenViewModel: ObservableObject {
     }
 
     private func calculateStreak(from history: [HistoryModel]) {
-        guard !history.isEmpty else {
-            currentStreak = UserDefaults.standard.integer(forKey: "currentStreak")
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+
+        // Build a set of calendar days that have at least one sleep entry with actual duration.
+        // Schedule changes are irrelevant — streak is purely history-driven.
+        let daysWithSleep: Set<Date> = Set(
+            history.compactMap { model -> Date? in
+                guard let entries = model.sleepEntries,
+                      entries.contains(where: { $0.duration > 0 }) else { return nil }
+                return cal.startOfDay(for: model.date)
+            }
+        )
+
+        guard !daysWithSleep.isEmpty else {
+            let prev = UserDefaults.standard.integer(forKey: "currentStreak")
+            if prev > 0 { BadgeManager.shared.recordStreakBroken() }
+            UserDefaults.standard.set(0, forKey: "currentStreak")
+            currentStreak = 0
             longestStreak = UserDefaults.standard.integer(forKey: "longestStreak")
             return
         }
 
+        // Current streak: count consecutive days backward from today.
+        // If today has no entry yet, yesterday still keeps the streak alive.
+        let yesterday = cal.startOfDay(for: cal.date(byAdding: .day, value: -1, to: today)!)
+        let startDay: Date? = daysWithSleep.contains(today) ? today
+                            : daysWithSleep.contains(yesterday) ? yesterday
+                            : nil
+
         var current = 0
-        var longest = 0
-        var lastDate: Date? = nil
-
-        for entry in history.sorted(by: { $0.date > $1.date }) {
-            guard let last = lastDate else {
-                current = 1
-                lastDate = entry.date
-                continue
-            }
-
-            if Calendar.current.isDate(entry.date, inSameDayAs: Calendar.current.date(byAdding: .day, value: -1, to: last)!) {
+        if let start = startDay {
+            var checkDay = start
+            while daysWithSleep.contains(checkDay) {
                 current += 1
-            } else if !Calendar.current.isDate(entry.date, inSameDayAs: last) {
-                current = 1
-            }
-            lastDate = entry.date
-            if current > longest {
-                longest = current
+                checkDay = cal.startOfDay(for: cal.date(byAdding: .day, value: -1, to: checkDay)!)
             }
         }
-        
-        // currentStreak'i UserDefaults'a kaydet
-        let previousStreak = UserDefaults.standard.integer(forKey: "currentStreak")
-        if previousStreak > 0 && current == 0 {
+
+        // Longest streak: scan all days in ascending order and find the longest consecutive run.
+        let sortedDays = daysWithSleep.sorted()
+        var longest = 0
+        var run = 0
+        var prevDay: Date? = nil
+        for day in sortedDays {
+            if let prev = prevDay,
+               day == cal.startOfDay(for: cal.date(byAdding: .day, value: 1, to: prev)!) {
+                run += 1
+            } else {
+                run = 1
+            }
+            if run > longest { longest = run }
+            prevDay = day
+        }
+        longest = max(longest, current)
+
+        // Badge: detect when a previously active streak is now broken
+        let previousStreakValue = UserDefaults.standard.integer(forKey: "currentStreak")
+        if previousStreakValue > 0 && current == 0 {
             BadgeManager.shared.recordStreakBroken()
         }
+
+        // Persist
         UserDefaults.standard.set(current, forKey: "currentStreak")
         self.currentStreak = current
-        
-        let storedLongestStreak = UserDefaults.standard.integer(forKey: "longestStreak")
-        if longest > storedLongestStreak {
-            UserDefaults.standard.set(longest, forKey: "longestStreak")
-            self.longestStreak = longest
-        } else {
-            self.longestStreak = storedLongestStreak
-        }
+
+        let storedLongest = UserDefaults.standard.integer(forKey: "longestStreak")
+        let newLongest = max(longest, storedLongest)
+        UserDefaults.standard.set(newLongest, forKey: "longestStreak")
+        self.longestStreak = newLongest
     }
     
     // MARK: - Emoji Tercihleri

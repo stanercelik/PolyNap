@@ -178,11 +178,8 @@ final class ScheduleStateManager: BaseRepository {
             if isActive {
                 userScheduleToUpdate.adaptationPhase = 0 // Yeniden aktivasyonda adaptasyon fazını sıfırla
                 userScheduleToUpdate.updatedAt = Date() // Adaptasyon başlangıç tarihini güncelle
-                
-                // Streak'i sıfırla
-                UserDefaults.standard.set(0, forKey: "currentStreak")
-                
-                logger.debug("🗂️ UserSchedule (ID: \(userScheduleToUpdate.id.uuidString)) aktif edildi, adaptasyon fazı ve streak sıfırlandı.")
+                // Streak, uyku geçmişinden hesaplandığı için schedule değişikliğinde sıfırlanmaz.
+                logger.debug("🗂️ UserSchedule (ID: \(userScheduleToUpdate.id.uuidString)) aktif edildi, adaptasyon fazı sıfırlandı.")
             }
             logger.debug("✅ UserSchedule aktiflik durumu güncellendi: \(userScheduleToUpdate.name), isActive: \(isActive)")
         } else if isActive {

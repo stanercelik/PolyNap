@@ -580,6 +580,7 @@ final class OnboardingViewModel: ObservableObject {
         print("📊 Analytics: logOnboardingCompleted ÇAĞRILDI ✅")
         
         // Onboarding tamamlandı, doğrudan ana ekrana geçiş yap
+        BadgeManager.shared.grantStarterBadge()
         withAnimation {
             goToMainScreen = true
         }

@@ -89,6 +89,17 @@ final class BadgeManager {
 
     // MARK: - Notifications
 
+    /// Grants the starter badge immediately (e.g. at onboarding completion).
+    /// No-op if already earned.
+    func grantStarterBadge() {
+        let id = "badge-starter"
+        guard !earnedBadgeIds.contains(id) else { return }
+        var updated = earnedBadgeIds
+        updated.insert(id)
+        earnedBadgeIds = updated
+        notifyForNewBadges([id])
+    }
+
     private func notifyForNewBadges(_ ids: [String]) {
         let state = UIApplication.shared.applicationState
 
