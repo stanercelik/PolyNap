@@ -11,7 +11,7 @@ struct CustomizationCard: View {
             VStack(spacing: PSSpacing.md) {
                 // Header with prominent premium badge
                 HStack(spacing: PSSpacing.sm) {
-                    Image(systemName: "paintbrush.pointed.fill")
+                    Image(systemName: "wand.and.stars")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.appPrimary)
                     Text(L("profile.customization.title", table: "Profile"))

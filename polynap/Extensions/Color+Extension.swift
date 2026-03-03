@@ -37,9 +37,17 @@ extension Color {
     static let appDisabled = Color("DisabledColor")
     static let appAccent = Color("AccentColor") // Önceden AccentColor.colorset olarak adlandırılmıştı
 
-    // Hero & Metric Renkleri
-    static let heroTop = Color(hex: "0D1B3E")
-    static let heroBottom = Color(hex: "1A3366")
+    // Hero & Metric Renkleri (adaptive dark navy gradient)
+    static let heroTop = Color(UIColor { t in
+        t.userInterfaceStyle == .dark
+            ? UIColor(red: 0x0D/255, green: 0x1B/255, blue: 0x3E/255, alpha: 1)
+            : UIColor(red: 0x1A/255, green: 0x33/255, blue: 0x66/255, alpha: 1)
+    })
+    static let heroBottom = Color(UIColor { t in
+        t.userInterfaceStyle == .dark
+            ? UIColor(red: 0x1A/255, green: 0x33/255, blue: 0x66/255, alpha: 1)
+            : UIColor(red: 0x28/255, green: 0x51/255, blue: 0xA3/255, alpha: 1)
+    })
     static let metricAmber = Color(hex: "F59E0B")
     static let metricTeal = Color(hex: "0EA5E9")
     static let metricPurple = Color(hex: "8B5CF6")

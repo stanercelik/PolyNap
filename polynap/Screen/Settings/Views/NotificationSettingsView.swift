@@ -20,90 +20,57 @@ struct NotificationSettingsView: View {
     }
     
     var body: some View {
-        ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [Color.appBackground, Color.appBackground.opacity(0.95)]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-            
-            ScrollView(.vertical, showsIndicators: false) {
-                LazyVStack(spacing: 20) {
-                    // Hero Header Section
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: PSSpacing.xl) {
+                // Reminder Time Card
+                SettingsGroup(title: L("notifications.reminderTime.title", table: "Settings")) {
                     VStack(spacing: 16) {
-                        ZStack {
-                            Circle()
-                                .fill(LinearGradient(gradient: Gradient(colors: [Color.appAccent.opacity(0.8), Color.appSecondary.opacity(0.6)]), startPoint: .topLeading, endPoint: .bottomTrailing))
-                                .frame(width: 64, height: 64)
-                                .shadow(color: Color.appAccent.opacity(0.3), radius: 12, x: 0, y: 6)
-                            
-                            Image(systemName: "bell.badge.fill")
-                                .font(.title)
-                                .foregroundColor(.white)
-                        }
-                        
-                        VStack(spacing: 8) {
-                            Text(L("notifications.management.title", table: "Settings"))
-                                .font(.title2).fontWeight(.bold).foregroundColor(.appText)
-                            Text(L("notifications.management.subtitle", table: "Settings"))
-                                .font(.subheadline).foregroundColor(.appTextSecondary)
-                                .multilineTextAlignment(.center).lineLimit(2)
-                        }
-                    }
-                    .padding(.top, 8).padding(.horizontal, 24)
-                    
-                    // Reminder Time Card
-                    ModernNotificationCard {
-                        VStack(spacing: 20) {
-                            HStack(spacing: 12) {
-                                ZStack {
-                                    Circle().fill(Color.appPrimary.opacity(0.15)).frame(width: 40, height: 40)
-                                    Image(systemName: "clock.arrow.2.circlepath").font(.system(size: 18, weight: .medium)).foregroundColor(.appPrimary)
-                                }
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(L("notifications.reminderTime.title", table: "Settings")).font(.headline).fontWeight(.semibold).foregroundColor(.appText)
-                                    Text(L("notifications.reminderTime.subtitle", table: "Settings")).font(.caption).foregroundColor(.appTextSecondary)
-                                }
-                                Spacer()
+                        HStack {
+                            if reminderTime > 0 {
+                                Text(formatTime(minutes: Int(reminderTime)))
+                                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                                    .foregroundColor(.appPrimary)
+                            } else {
+                                Text(L("notifications.off", table: "Settings"))
+                                    .font(.system(size: 32, weight: .bold, design: .rounded))
+                                    .foregroundColor(.appTextSecondary)
                             }
-                            
-                            VStack(spacing: 16) {
-                                HStack {
-                                    if reminderTime > 0 {
-                                        Text("\(formatTime(minutes: Int(reminderTime)))").font(.system(size: 28, weight: .bold, design: .rounded)).foregroundColor(.appAccent)
-                                    } else {
-                                        Text(L("notifications.off", table: "Settings")).font(.system(size: 28, weight: .bold, design: .rounded)).foregroundColor(.appTextSecondary)
-                                    }
-                                    Spacer()
-                                    HStack(spacing: 8) {
-                                        ModernQuickTimeButton(time: 5, currentTime: $reminderTime)
-                                        ModernQuickTimeButton(time: 15, currentTime: $reminderTime)
-                                        ModernQuickTimeButton(time: 30, currentTime: $reminderTime)
-                                    }
-                                }
-                                
-                                Slider(value: $reminderTime, in: 0...120, step: 1)
-                                .onChange(of: reminderTime) { oldValue, newValue in
-                                    saveReminderTime(minutes: Int(newValue))
-                                }
-                                
-                                HStack {
-                                    Text(L("notifications.off", table: "Settings")).font(.caption2).foregroundColor(.appTextSecondary)
-                                    Spacer()
-                                    Text(L("notifications.twoHours", table: "Settings")).font(.caption2).foregroundColor(.appTextSecondary)
-                                }
+                            Spacer()
+                            HStack(spacing: 8) {
+                                QuickTimeButton(time: 5, currentTime: $reminderTime)
+                                QuickTimeButton(time: 15, currentTime: $reminderTime)
+                                QuickTimeButton(time: 30, currentTime: $reminderTime)
                             }
                         }
+
+                        Slider(value: $reminderTime, in: 0...120, step: 1)
+                            .accentColor(.appPrimary)
+                            .onChange(of: reminderTime) { oldValue, newValue in
+                                saveReminderTime(minutes: Int(newValue))
+                            }
+
+                        HStack {
+                            Text(L("notifications.off", table: "Settings"))
+                                .font(.system(size: 11, design: .rounded))
+                                .foregroundColor(.appTextSecondary)
+                            Spacer()
+                            Text(L("notifications.twoHours", table: "Settings"))
+                                .font(.system(size: 11, design: .rounded))
+                                .foregroundColor(.appTextSecondary)
+                        }
                     }
-                    
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 16)
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 20)
+
+                Spacer(minLength: PSSpacing.xl)
             }
+            .padding(.horizontal, PSSpacing.lg)
+            .padding(.top, PSSpacing.sm)
         }
+        .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle(L("notifications.settings.title", table: "Settings"))
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.large)
         .onAppear {
             loadDataAsync()
         }
@@ -264,33 +231,30 @@ struct ModernNotificationCard<Content: View>: View {
     }
 }
 
-// Modern quick time button with enhanced styling
-struct ModernQuickTimeButton: View {
+// Fixed quick time button
+struct QuickTimeButton: View {
     let time: Int
     @Binding var currentTime: Double
-    
+
     var body: some View {
         Button(action: {
-            withAnimation(.easeInOut(duration: 0.3)) {
+            withAnimation(.easeInOut(duration: 0.2)) {
                 currentTime = Double(time)
             }
         }) {
-            Text("\(time)dk")
-                .font(.caption)
-                .fontWeight(.medium)
-                .foregroundColor(currentTime == Double(time) ? .white : .appAccent)
+            Text("\(time) dk")
+                .font(.system(size: 13, weight: .semibold, design: .rounded))
+                .lineLimit(1)
+                .fixedSize()
+                .foregroundColor(currentTime == Double(time) ? .white : .appPrimary)
                 .padding(.horizontal, 12)
-                .padding(.vertical, 6)
+                .padding(.vertical, 7)
                 .background(
                     Capsule()
-                        .fill(currentTime == Double(time) ? Color.appAccent : Color.appAccent.opacity(0.1))
-                        .overlay(
-                            Capsule()
-                                .stroke(currentTime == Double(time) ? Color.clear : Color.appAccent.opacity(0.3), lineWidth: 1)
-                        )
+                        .fill(currentTime == Double(time) ? Color.appPrimary : Color.appPrimary.opacity(0.12))
                 )
         }
-        .buttonStyle(ModernQuickButtonStyle())
+        .buttonStyle(.plain)
     }
 }
 

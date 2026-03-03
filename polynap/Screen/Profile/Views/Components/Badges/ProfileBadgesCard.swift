@@ -14,7 +14,7 @@ struct ProfileBadgesCard: View {
             VStack(alignment: .leading, spacing: PSSpacing.md) {
                 // Section header
                 HStack(spacing: PSSpacing.sm) {
-                    Image(systemName: "medal.fill")
+                    Image(systemName: "rosette")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.appPrimary)
                     Text(L("profile.badges.title", table: "Profile"))

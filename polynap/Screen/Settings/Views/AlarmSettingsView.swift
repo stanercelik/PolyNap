@@ -46,484 +46,271 @@ struct AlarmSettingsView: View {
     private let maxSnoozeCounts = [1, 2, 3, 5, 10]
     
     var body: some View {
-        ZStack {
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.appBackground,
-                    Color.appBackground.opacity(0.95)
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-            
-            ScrollView(.vertical, showsIndicators: false) {
-                LazyVStack(spacing: PSSpacing.xl) {
-                    VStack(spacing: PSSpacing.lg) {
-                        ZStack {
-                            Circle()
-                                .fill(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            Color.appPrimary.opacity(0.8),
-                                            Color.appAccent.opacity(0.6)
-                                        ]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .frame(width: PSIconSize.headerIcon, height: PSIconSize.headerIcon)
-                                .shadow(
-                                    color: Color.appPrimary.opacity(0.3),
-                                    radius: PSSpacing.md,
-                                    x: 0,
-                                    y: PSSpacing.sm
-                                )
-                            
-                            Image(systemName: "alarm.fill")
-                                .font(.system(size: PSIconSize.headerIcon / 1.8))
-                                .foregroundColor(.appTextOnPrimary)
-                        }
-                        
-                        VStack(spacing: PSSpacing.sm) {
-                            Text(L("alarmSettings.title", table: "Settings"))
-                                .font(PSTypography.title1)
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: PSSpacing.xl) {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .appPrimary))
+                        .padding(.top, PSSpacing.xxl)
+                } else {
+                    // Status Section
+                    SettingsGroup(title: L("alarmSettings.status.title", table: "Settings")) {
+                        HStack(spacing: 12) {
+                            Image(systemName: isEnabled ? "alarm" : "alarm.slash")
+                                .font(.system(size: 18, weight: .regular))
+                                .foregroundColor(isEnabled ? .appPrimary : .appTextSecondary)
+                                .frame(width: 24, height: 24)
+                            Text(L("alarmSettings.status.sleepAlarms", table: "Settings"))
+                                .font(.system(.body, design: .rounded, weight: .medium))
                                 .foregroundColor(.appText)
-                            
-                            Text(L("alarmSettings.subtitle", table: "Settings"))
-                                .font(PSTypography.body)
-                                .foregroundColor(.appTextSecondary)
-                                .multilineTextAlignment(.center)
-                                .lineLimit(2)
-                        }
-                    }
-                    .padding(.top, PSSpacing.sm)
-                    .padding(.horizontal, PSSpacing.xl)
-                    
-                    if isLoading {
-                        // Loading State
-                        ModernSettingsSection(
-                            title: "Yükleniyor...",
-                            icon: "clock",
-                            iconColor: .appTextSecondary,
-                            isMinimal: true
-                        ) {
-                            VStack(spacing: PSSpacing.lg) {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .appPrimary))
-                                    .scaleEffect(1.2)
-                                
-                                Text("Alarm ayarları yükleniyor...")
-                                    .font(PSTypography.body)
-                                    .foregroundColor(.appTextSecondary)
-                            }
-                            .padding(.vertical, PSSpacing.xl)
-                        }
-                    } else {
-                        ModernSettingsSection(
-                            title: L("alarmSettings.status.title", table: "Settings"),
-                            icon: "alarm",
-                            iconColor: isEnabled ? .appPrimary : .appTextSecondary,
-                            isMinimal: true
-                        ) {
-                        VStack(spacing: PSSpacing.lg) {
-                            HStack {
-                                VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                                    Text(L("alarmSettings.status.sleepAlarms", table: "Settings"))
-                                        .font(PSTypography.headline)
-                                        .foregroundColor(.appText)
-                                    
-                                    Text(isEnabled ? L("alarmSettings.status.active", table: "Settings") : L("alarmSettings.status.disabled", table: "Settings"))
-                                        .font(PSTypography.caption)
-                                        .foregroundColor(.appTextSecondary)
+                            Spacer()
+                            Toggle("", isOn: $isEnabled)
+                                .labelsHidden()
+                                .onChange(of: isEnabled) { _ in
+                                    scheduleSettingsSave()
                                 }
-                                
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 13)
+                    }
+
+                    if isEnabled {
+                        // Sound Section
+                        SettingsGroup(title: L("alarmSettings.sound.title", table: "Settings")) {
+                            // Alarm Sound picker
+                            Menu {
+                                ForEach(availableSounds, id: \.0) { sound, name in
+                                    Button(action: {
+                                        selectedSound = sound
+                                        scheduleSettingsSave()
+                                        previewSound(sound)
+                                    }) {
+                                        HStack {
+                                            Text(name)
+                                            if sound == selectedSound {
+                                                Spacer()
+                                                Image(systemName: "checkmark")
+                                            }
+                                        }
+                                    }
+                                }
+                            } label: {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "music.note")
+                                        .font(.system(size: 18, weight: .regular))
+                                        .foregroundColor(.appPrimary)
+                                        .frame(width: 24, height: 24)
+                                    Text(L("alarmSettings.sound.alarmSound", table: "Settings"))
+                                        .font(.system(.body, design: .rounded, weight: .medium))
+                                        .foregroundColor(.appText)
+                                    Spacer()
+                                    Text(availableSounds.first(where: { $0.0 == selectedSound })?.1 ?? "Alarm 1")
+                                        .font(.system(size: 14, design: .rounded))
+                                        .foregroundColor(.appTextSecondary)
+                                    Image(systemName: "chevron.right")
+                                        .font(.system(size: 12, weight: .semibold))
+                                        .foregroundColor(.appTextSecondary.opacity(0.4))
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 13)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+
+                            SettingsRowDivider()
+
+                            // Vibration toggle
+                            HStack(spacing: 12) {
+                                Image(systemName: "iphone.radiowaves.left.and.right")
+                                    .font(.system(size: 18, weight: .regular))
+                                    .foregroundColor(.appPrimary)
+                                    .frame(width: 24, height: 24)
+                                Text(L("alarmSettings.sound.vibration", table: "Settings"))
+                                    .font(.system(.body, design: .rounded, weight: .medium))
+                                    .foregroundColor(.appText)
                                 Spacer()
-                                
-                                Toggle("", isOn: $isEnabled)
+                                Toggle("", isOn: $vibrationEnabled)
                                     .labelsHidden()
-                                    .scaleEffect(1.1)
-                                    .onChange(of: isEnabled) { _ in
+                                    .onChange(of: vibrationEnabled) { _ in
                                         scheduleSettingsSave()
                                     }
                             }
-                            .padding(.vertical, PSSpacing.xs)
-                            
-                            if !isEnabled {
-                                ModernInfoCard(
-                                    icon: "info.circle.fill",
-                                    title: L("alarmSettings.status.disabledTitle", table: "Settings"),
-                                    message: L("alarmSettings.status.disabledMessage", table: "Settings"),
-                                    color: .orange
-                                )
-                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 13)
                         }
-                    }
-                    
-                    if isEnabled {
-                        ModernSettingsSection(
-                            title: L("alarmSettings.permission.title", table: "Settings"),
-                            icon: isAuthorized ? "checkmark.shield.fill" : "exclamationmark.triangle.fill",
-                            iconColor: isAuthorized ? .green : .orange,
-                            isMinimal: true
-                        ) {
-                            VStack(spacing: PSSpacing.lg) {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                                        Text(L("alarmSettings.permission.notificationPermission", table: "Settings"))
-                                            .font(PSTypography.headline)
-                                            .foregroundColor(.appText)
-                                        
-                                        Text(isAuthorized ? L("alarmSettings.permission.granted", table: "Settings") : L("alarmSettings.permission.required", table: "Settings"))
-                                            .font(PSTypography.caption)
-                                            .foregroundColor(isAuthorized ? .green : .orange)
+
+                        // Snooze Section
+                        SettingsGroup(title: L("alarmSettings.snooze.title", table: "Settings")) {
+                            // Enable snooze toggle
+                            HStack(spacing: 12) {
+                                Image(systemName: "clock.arrow.2.circlepath")
+                                    .font(.system(size: 18, weight: .regular))
+                                    .foregroundColor(.purple)
+                                    .frame(width: 24, height: 24)
+                                Text(L("alarmSettings.snooze.allowSnooze", table: "Settings"))
+                                    .font(.system(.body, design: .rounded, weight: .medium))
+                                    .foregroundColor(.appText)
+                                Spacer()
+                                Toggle("", isOn: $snoozeEnabled)
+                                    .labelsHidden()
+                                    .onChange(of: snoozeEnabled) { _ in
+                                        scheduleSettingsSave()
                                     }
-                                    
-                                    Spacer()
-                                    
-                                    if !isAuthorized {
-                                        PSSecondaryButton(L("alarmSettings.permission.grantButton", table: "Settings")) {
-                                            Task {
-                                                await requestNotificationPermission()
-                                            }
-                                        }
-                                        .frame(width: 100)
-                                    } else {
-                                        Image(systemName: "checkmark.circle.fill")
-                                            .font(.title2)
-                                            .foregroundColor(.green)
-                                    }
-                                }
-                                
-                                if !isAuthorized {
-                                    ModernInfoCard(
-                                        icon: "exclamationmark.triangle.fill",
-                                        title: L("alarmSettings.permission.requiredTitle", table: "Settings"),
-                                        message: L("alarmSettings.permission.requiredMessage", table: "Settings"),
-                                        color: .orange
-                                    )
-                                }
                             }
-                        }
-                        
-                        ModernSettingsSection(
-                            title: L("alarmSettings.sound.title", table: "Settings"),
-                            icon: "speaker.wave.2.fill",
-                            iconColor: .blue,
-                            isMinimal: true
-                        ) {
-                            VStack(spacing: PSSpacing.lg) {
-                                VStack(alignment: .leading, spacing: PSSpacing.md) {
-                                    Text(L("alarmSettings.sound.alarmSound", table: "Settings"))
-                                        .font(PSTypography.subheadline)
-                                        .fontWeight(.medium)
-                                        .foregroundColor(.appText)
-                                    
-                                    Menu {
-                                        ForEach(availableSounds, id: \.0) { sound, name in
-                                            Button(action: {
-                                                selectedSound = sound
-                                                scheduleSettingsSave()
-                                                previewSound(sound)
-                                            }) {
-                                                HStack {
-                                                    Image(systemName: "speaker.wave.2.fill")
-                                                        .foregroundColor(.appPrimary)
-                                                        .frame(width: 20)
-                                                    Text(name)
-                                                    if sound == selectedSound {
-                                                        Spacer()
-                                                        Image(systemName: "checkmark")
-                                                            .foregroundColor(.appPrimary)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    } label: {
-                                        HStack {
-                                            Text(availableSounds.first(where: { $0.0 == selectedSound })?.1 ?? "Alarm 1")
-                                                .font(PSTypography.body)
-                                                .foregroundColor(.appText)
-                                            
-                                            Spacer()
-                                            
-                                            Image(systemName: "chevron.up.chevron.down")
-                                                .font(.caption)
-                                                .foregroundColor(.appTextSecondary)
-                                        }
-                                        .padding(PSSpacing.md)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                                                .fill(Color.appCardBackground.opacity(0.5))
-                                                .overlay(
-                                                    RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                                                        .stroke(Color.appTextSecondary.opacity(0.3), lineWidth: 1)
-                                                )
-                                        )
-                                    }
-                                }
-                                
-                                ModernDivider()
-                                
-                                VStack(alignment: .leading, spacing: PSSpacing.md) {
-                                    HStack {
-                                        Text(L("alarmSettings.sound.volume", table: "Settings"))
-                                            .font(PSTypography.subheadline)
-                                            .fontWeight(.medium)
-                                            .foregroundColor(.appText)
-                                        
-                                        Spacer()
-                                        
-                                        Text("\(Int(volume * 100))%")
-                                            .font(PSTypography.caption)
-                                            .fontWeight(.medium)
-                                            .foregroundColor(.appPrimary)
-                                            .padding(.horizontal, PSSpacing.sm)
-                                            .padding(.vertical, PSSpacing.xs)
-                                            .background(
-                                                Capsule()
-                                                    .fill(Color.appPrimary.opacity(0.15))
-                                            )
-                                    }
-                                    
-                                    HStack {
-                                        Image(systemName: "speaker.fill")
-                                            .foregroundColor(.appTextSecondary)
-                                            .font(.caption)
-                                        
-                                        Slider(value: $volume, in: 0.1...1.0, step: 0.1)
-                                        .accentColor(.appPrimary)
-                                        .onChange(of: volume) { _ in
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 13)
+
+                            if snoozeEnabled {
+                                SettingsRowDivider()
+
+                                Menu {
+                                    ForEach(snoozeDurations, id: \.self) { duration in
+                                        Button(L("alarmSettings.snooze.minutesFormat", table: "Settings").replacingOccurrences(of: "{duration}", with: "\(duration)")) {
+                                            snoozeDuration = duration
                                             scheduleSettingsSave()
                                         }
-                                        
-                                        Image(systemName: "speaker.wave.3.fill")
-                                            .foregroundColor(.appTextSecondary)
-                                            .font(.caption)
                                     }
-                                }
-                                
-                                ModernDivider()
-                                
-                                HStack {
-                                    VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                                        Text(L("alarmSettings.sound.vibration", table: "Settings"))
-                                            .font(PSTypography.subheadline)
-                                            .fontWeight(.medium)
-                                            .foregroundColor(.appText)
-                                        
-                                        Text(L("alarmSettings.sound.vibrationDescription", table: "Settings"))
-                                            .font(PSTypography.caption)
-                                            .foregroundColor(.appTextSecondary)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Toggle("", isOn: $vibrationEnabled)
-                                        .labelsHidden()
-                                        .scaleEffect(1.1)
-                                        .onChange(of: vibrationEnabled) { _ in
-                                            scheduleSettingsSave()
-                                        }
-                                }
-                                .padding(.vertical, PSSpacing.xs)
-                            }
-                        }
-                        
-                        ModernSettingsSection(
-                            title: L("alarmSettings.snooze.title", table: "Settings"),
-                            icon: "clock.arrow.2.circlepath",
-                            iconColor: .purple,
-                            isMinimal: true
-                        ) {
-                            VStack(spacing: PSSpacing.lg) {
-                                HStack {
-                                    VStack(alignment: .leading, spacing: PSSpacing.xs) {
-                                        Text(L("alarmSettings.snooze.allowSnooze", table: "Settings"))
-                                            .font(PSTypography.headline)
-                                            .foregroundColor(.appText)
-                                        
-                                        Text(L("alarmSettings.snooze.allowSnoozeDescription", table: "Settings"))
-                                            .font(PSTypography.caption)
-                                            .foregroundColor(.appTextSecondary)
-                                    }
-                                    
-                                    Spacer()
-                                    
-                                    Toggle("", isOn: $snoozeEnabled)
-                                        .labelsHidden()
-                                        .scaleEffect(1.1)
-                                        .onChange(of: snoozeEnabled) { _ in
-                                            scheduleSettingsSave()
-                                        }
-                                }
-                                .padding(.vertical, PSSpacing.xs)
-                                
-                                if snoozeEnabled {
-                                    ModernDivider()
-                                    
-                                    VStack(alignment: .leading, spacing: PSSpacing.md) {
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "timer")
+                                            .font(.system(size: 18, weight: .regular))
+                                            .foregroundColor(.purple)
+                                            .frame(width: 24, height: 24)
                                         Text(L("alarmSettings.snooze.duration", table: "Settings"))
-                                            .font(PSTypography.subheadline)
-                                            .fontWeight(.medium)
+                                            .font(.system(.body, design: .rounded, weight: .medium))
                                             .foregroundColor(.appText)
-                                        
-                                        Menu {
-                                            ForEach(snoozeDurations, id: \.self) { duration in
-                                                Button(L("alarmSettings.snooze.minutesFormat", table: "Settings").replacingOccurrences(of: "{duration}", with: "\(duration)")) {
-                                                    snoozeDuration = duration
-                                                    scheduleSettingsSave()
-                                                }
-                                            }
-                                        } label: {
-                                            HStack {
-                                                Text(L("alarmSettings.snooze.minutesFormat", table: "Settings").replacingOccurrences(of: "{duration}", with: "\(snoozeDuration)"))
-                                                    .font(PSTypography.body)
-                                                    .foregroundColor(.appText)
-                                                
-                                                Spacer()
-                                                
-                                                Image(systemName: "chevron.up.chevron.down")
-                                                    .font(.caption)
-                                                    .foregroundColor(.appTextSecondary)
-                                            }
-                                            .padding(PSSpacing.md)
-                                            .background(
-                                                RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                                                    .fill(Color.appCardBackground.opacity(0.5))
-                                                    .overlay(
-                                                        RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                                                            .stroke(Color.appTextSecondary.opacity(0.3), lineWidth: 1)
-                                                    )
-                                            )
+                                        Spacer()
+                                        Text(L("alarmSettings.snooze.minutesFormat", table: "Settings").replacingOccurrences(of: "{duration}", with: "\(snoozeDuration)"))
+                                            .font(.system(size: 14, design: .rounded))
+                                            .foregroundColor(.appTextSecondary)
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 12, weight: .semibold))
+                                            .foregroundColor(.appTextSecondary.opacity(0.4))
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 13)
+                                    .contentShape(Rectangle())
+                                }
+                                .buttonStyle(.plain)
+
+                                SettingsRowDivider()
+
+                                Menu {
+                                    ForEach(maxSnoozeCounts, id: \.self) { count in
+                                        Button(L("alarmSettings.snooze.timesFormat", table: "Settings").replacingOccurrences(of: "{count}", with: "\(count)")) {
+                                            maxSnoozeCount = count
+                                            scheduleSettingsSave()
                                         }
                                     }
-                                    
-                                    ModernDivider()
-                                    
-                                    VStack(alignment: .leading, spacing: PSSpacing.md) {
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "repeat")
+                                            .font(.system(size: 18, weight: .regular))
+                                            .foregroundColor(.purple)
+                                            .frame(width: 24, height: 24)
                                         Text(L("alarmSettings.snooze.maxCount", table: "Settings"))
-                                            .font(PSTypography.subheadline)
-                                            .fontWeight(.medium)
+                                            .font(.system(.body, design: .rounded, weight: .medium))
                                             .foregroundColor(.appText)
-                                        
-                                        Menu {
-                                            ForEach(maxSnoozeCounts, id: \.self) { count in
-                                                Button(L("alarmSettings.snooze.timesFormat", table: "Settings").replacingOccurrences(of: "{count}", with: "\(count)")) {
-                                                    maxSnoozeCount = count
-                                                    scheduleSettingsSave()
-                                                }
-                                            }
-                                        } label: {
-                                            HStack {
-                                                Text(L("alarmSettings.snooze.timesFormat", table: "Settings").replacingOccurrences(of: "{count}", with: "\(maxSnoozeCount)"))
-                                                    .font(PSTypography.body)
-                                                    .foregroundColor(.appText)
-                                                
-                                                Spacer()
-                                                
-                                                Image(systemName: "chevron.up.chevron.down")
-                                                    .font(.caption)
-                                                    .foregroundColor(.appTextSecondary)
-                                            }
-                                            .padding(PSSpacing.md)
-                                            .background(
-                                                RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                                                    .fill(Color.appCardBackground.opacity(0.5))
-                                                    .overlay(
-                                                        RoundedRectangle(cornerRadius: PSCornerRadius.medium)
-                                                            .stroke(Color.appTextSecondary.opacity(0.3), lineWidth: 1)
-                                                    )
-                                            )
-                                        }
+                                        Spacer()
+                                        Text(L("alarmSettings.snooze.timesFormat", table: "Settings").replacingOccurrences(of: "{count}", with: "\(maxSnoozeCount)"))
+                                            .font(.system(size: 14, design: .rounded))
+                                            .foregroundColor(.appTextSecondary)
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 12, weight: .semibold))
+                                            .foregroundColor(.appTextSecondary.opacity(0.4))
                                     }
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 13)
+                                    .contentShape(Rectangle())
                                 }
+                                .buttonStyle(.plain)
                             }
                         }
-                        
+
+                        #if DEBUG
                         // MARK: - [DEV] Test Section
-                        ModernSettingsSection(
-                            title: "[DEV] Alarm Test",
-                            icon: "hammer.fill",
-                            iconColor: .red,
-                            isMinimal: true
-                        ) {
-                            VStack(spacing: PSSpacing.lg) {
+                        SettingsGroup(title: "[DEV] Alarm Test") {
+                            VStack(spacing: PSSpacing.sm) {
                                 if AlarmKitService.isAvailable {
-                                    ModernInfoCard(
-                                        icon: "checkmark.circle.fill",
-                                        title: "AlarmKit Kullanılabilir",
-                                        message: "iOS 26+ algılandı. AlarmKit API aktif.",
-                                        color: .green
-                                    )
-                                } else {
-                                    ModernInfoCard(
-                                        icon: "xmark.circle.fill",
-                                        title: "AlarmKit Kullanılamıyor",
-                                        message: "iOS 26 gerekli. UserNotifications kullanılacak.",
-                                        color: .orange
-                                    )
+                                    HStack {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundColor(.green)
+                                        Text("AlarmKit kullanılabilir (iOS 26+)")
+                                            .font(.system(size: 13, design: .rounded))
+                                            .foregroundColor(.appTextSecondary)
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .padding(.top, 12)
                                 }
-                                
+
                                 if !alarmKitAuthStatus.isEmpty {
-                                    ModernInfoCard(
-                                        icon: "info.circle.fill",
-                                        title: "Durum",
-                                        message: alarmKitAuthStatus,
-                                        color: .blue
-                                    )
+                                    Text(alarmKitAuthStatus)
+                                        .font(.system(size: 13, design: .rounded))
+                                        .foregroundColor(.appTextSecondary)
+                                        .padding(.horizontal, 16)
                                 }
-                                
-                                ModernDivider()
-                                
-                                ModernTestButton(
-                                    icon: "alarm.waves.left.and.right.fill",
-                                    title: "[DEV] AlarmKit Test",
-                                    subtitle: "AlarmKit API ile 5 saniye sonra alarm kur (iOS 26+)",
-                                    color: .red
-                                ) {
-                                    testAlarmKit()
-                                }
-                                
-                                ModernTestButton(
-                                    icon: "bell.badge.fill",
-                                    title: "[DEV] Bildirim Test",
-                                    subtitle: "UserNotifications ile 5 saniye sonra alarm kur",
-                                    color: .blue
-                                ) {
-                                    testAlarm()
-                                }
-                                
-                                ModernTestButton(
-                                    icon: "arrow.clockwise.circle.fill",
-                                    title: "[DEV] AlarmKit İzin Kontrol",
-                                    subtitle: "AlarmKit yetkilendirme durumunu kontrol et",
-                                    color: .purple
-                                ) {
-                                    checkAlarmKitAuth()
-                                }
-                                
-                                ModernTestButton(
-                                    icon: "trash.circle.fill",
-                                    title: "[DEV] Tüm AlarmKit Alarmlarını Sil",
-                                    subtitle: "AlarmKit ile kurulmuş tüm alarmları iptal et",
-                                    color: .orange
-                                ) {
-                                    cancelAllAlarmKitAlarms()
-                                }
+
+                                SettingsRowDivider()
+
+                                Button(action: { testAlarmKit() }) {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "alarm.waves.left.and.right")
+                                            .font(.system(size: 18)).foregroundColor(.red).frame(width: 24, height: 24)
+                                        Text("[DEV] AlarmKit Test").font(.system(.body, design: .rounded, weight: .medium)).foregroundColor(.appText)
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 16).padding(.vertical, 13)
+                                }.buttonStyle(.plain)
+
+                                SettingsRowDivider()
+
+                                Button(action: { testAlarm() }) {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "bell.badge")
+                                            .font(.system(size: 18)).foregroundColor(.blue).frame(width: 24, height: 24)
+                                        Text("[DEV] Bildirim Test").font(.system(.body, design: .rounded, weight: .medium)).foregroundColor(.appText)
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 16).padding(.vertical, 13)
+                                }.buttonStyle(.plain)
+
+                                SettingsRowDivider()
+
+                                Button(action: { checkAlarmKitAuth() }) {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "shield.checkered")
+                                            .font(.system(size: 18)).foregroundColor(.purple).frame(width: 24, height: 24)
+                                        Text("[DEV] AlarmKit İzin Kontrol").font(.system(.body, design: .rounded, weight: .medium)).foregroundColor(.appText)
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 16).padding(.vertical, 13)
+                                }.buttonStyle(.plain)
+
+                                SettingsRowDivider()
+
+                                Button(action: { cancelAllAlarmKitAlarms() }) {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "trash")
+                                            .font(.system(size: 18)).foregroundColor(.orange).frame(width: 24, height: 24)
+                                        Text("[DEV] Tüm AlarmKit Alarmlarını Sil").font(.system(.body, design: .rounded, weight: .medium)).foregroundColor(.appText)
+                                        Spacer()
+                                    }
+                                    .padding(.horizontal, 16).padding(.vertical, 13)
+                                }.buttonStyle(.plain)
                             }
                         }
-                    }
-                    } // end of isLoading else
-                    
-                    Spacer(minLength: PSSpacing.xl)
-                }
-                .padding(.horizontal, PSSpacing.lg)
-                .padding(.bottom, PSSpacing.xl)
+                        #endif
+                    } // end isEnabled
+                } // end else (not loading)
+
+                Spacer(minLength: PSSpacing.xl)
             }
+            .padding(.horizontal, PSSpacing.lg)
+            .padding(.top, PSSpacing.sm)
         }
+        .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle(L("alarmSettings.title", table: "Settings"))
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.large)
         .alert(L("alarmSettings.permission.alertTitle", table: "Settings"), isPresented: $showingPermissionAlert) {
             Button(L("alarmSettings.permission.alertSettings", table: "Settings")) {
                 openAppSettings()

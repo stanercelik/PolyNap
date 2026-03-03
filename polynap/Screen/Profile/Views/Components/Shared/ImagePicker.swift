@@ -10,7 +10,7 @@ struct ImagePicker: UIViewControllerRepresentable {
         let picker = UIImagePickerController()
         picker.delegate = context.coordinator
         picker.sourceType = .photoLibrary
-        picker.allowsEditing = false
+        picker.allowsEditing = true
         return picker
     }
     
@@ -28,10 +28,9 @@ struct ImagePicker: UIViewControllerRepresentable {
         }
         
         func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-            if let image = info[.originalImage] as? UIImage {
-                // Crop to circle and resize
-                let croppedImage = cropToCircle(image: image, targetSize: CGSize(width: 300, height: 300))
-                parent.completion(croppedImage)
+            let picked = (info[.editedImage] as? UIImage) ?? (info[.originalImage] as? UIImage)
+            if let image = picked {
+                parent.completion(resizeImage(image, to: CGSize(width: 400, height: 400)))
             } else {
                 parent.completion(nil)
             }
@@ -43,53 +42,10 @@ struct ImagePicker: UIViewControllerRepresentable {
             parent.dismiss()
         }
         
-        private func cropToCircle(image: UIImage, targetSize: CGSize) -> UIImage? {
-            // Önce square crop yap
-            let squareCroppedImage = cropToSquare(image)
-            
-            // Sonra resize yap
-            let resizedImage = resizeImage(squareCroppedImage, to: targetSize)
-            
-            // Son olarak circular mask uygula
-            return applyCircularMask(to: resizedImage)
-        }
-        
-        private func cropToSquare(_ image: UIImage) -> UIImage {
-            let originalSize = image.size
-            let sideLength = min(originalSize.width, originalSize.height)
-            
-            let xOffset = (originalSize.width - sideLength) / 2
-            let yOffset = (originalSize.height - sideLength) / 2
-            
-            let cropRect = CGRect(x: xOffset, y: yOffset, width: sideLength, height: sideLength)
-            
-            guard let cgImage = image.cgImage?.cropping(to: cropRect) else {
-                return image
-            }
-            
-            return UIImage(cgImage: cgImage, scale: image.scale, orientation: image.imageOrientation)
-        }
-        
         private func resizeImage(_ image: UIImage, to targetSize: CGSize) -> UIImage {
             let renderer = UIGraphicsImageRenderer(size: targetSize)
             return renderer.image { _ in
                 image.draw(in: CGRect(origin: .zero, size: targetSize))
-            }
-        }
-        
-        private func applyCircularMask(to image: UIImage) -> UIImage? {
-            let imageSize = image.size
-            let renderer = UIGraphicsImageRenderer(size: imageSize)
-            
-            return renderer.image { context in
-                let rect = CGRect(origin: .zero, size: imageSize)
-                
-                // Circular clipping path oluştur
-                let path = UIBezierPath(ovalIn: rect)
-                path.addClip()
-                
-                // Image'i çiz
-                image.draw(in: rect)
             }
         }
     }

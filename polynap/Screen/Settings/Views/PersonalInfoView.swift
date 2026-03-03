@@ -20,230 +20,81 @@ struct PersonalInfoView: View {
     }
 
     var body: some View {
-        ZStack {
-            // Modern gradient background
-            LinearGradient(
-                gradient: Gradient(colors: [
-                    Color.appBackground,
-                    Color.appBackground.opacity(0.95)
-                ]),
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .ignoresSafeArea()
-            
-            ScrollView(.vertical, showsIndicators: false) {
-                LazyVStack(spacing: 20) {
-                    // Hero Header Section
-                    VStack(spacing: 16) {
-                        // Icon with gradient background
-                        ZStack {
-                            Circle()
-                                .fill(
-                                    LinearGradient(
-                                        gradient: Gradient(colors: [
-                                            Color.appPrimary.opacity(0.8),
-                                            Color.appAccent.opacity(0.6)
-                                        ]),
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .frame(width: 64, height: 64)
-                                .shadow(
-                                    color: Color.appPrimary.opacity(0.3),
-                                    radius: 12,
-                                    x: 0,
-                                    y: 6
-                                )
-                            
-                            Image(systemName: "person.crop.circle.fill")
-                                .font(.title)
-                                .foregroundColor(.white)
-                        }
-                        
-                        VStack(spacing: 8) {
-                            Text(L("personalInfo.title", table: "Profile"))
-                                .font(.title2)
-                                .fontWeight(.bold)
-                                .foregroundColor(.appText)
-                            
-                            Text(L("personalInfo.subtitle", table: "Profile"))
-                                .font(.subheadline)
-                                .foregroundColor(.appTextSecondary)
-                                .multilineTextAlignment(.center)
-                                .lineLimit(2)
-                        }
+        ScrollView(.vertical, showsIndicators: false) {
+            VStack(spacing: PSSpacing.xl) {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .appPrimary))
+                        .padding(.top, PSSpacing.xxl)
+                } else if answersForDisplay.isEmpty {
+                    VStack(spacing: 12) {
+                        Text(L("personalInfo.empty.title", table: "Profile"))
+                            .font(.system(.headline, design: .rounded, weight: .semibold))
+                            .foregroundColor(.appText)
+                        Text(L("personalInfo.empty.message", table: "Profile"))
+                            .font(.system(.subheadline, design: .rounded))
+                            .foregroundColor(.appTextSecondary)
+                            .multilineTextAlignment(.center)
                     }
-                    .padding(.top, 8)
-                    .padding(.horizontal, 24)
-                    
-                    if isLoading {
-                        // Loading State
-                        PersonalInfoModernCard {
-                            VStack(spacing: 20) {
-                                ProgressView()
-                                    .progressViewStyle(CircularProgressViewStyle(tint: .appPrimary))
-                                    .scaleEffect(1.2)
-                                
-                                Text("Yükleniyor...")
-                                    .font(.subheadline)
-                                    .foregroundColor(.appTextSecondary)
-                            }
-                            .padding(.vertical, 40)
-                        }
-                    } else if answersForDisplay.isEmpty {
-                        // Enhanced Empty State
-                        PersonalInfoModernCard {
-                            VStack(spacing: 20) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color.appTextSecondary.opacity(0.1))
-                                        .frame(width: 56, height: 56)
-                                    
-                                    Image(systemName: "doc.text")
-                                        .font(.title2)
-                                        .foregroundColor(.appTextSecondary.opacity(0.6))
-                                }
-                                
-                                VStack(spacing: 12) {
-                                    Text(L("personalInfo.empty.title", table: "Profile"))
-                                        .font(.headline)
-                                        .fontWeight(.semibold)
+                    .padding(.top, PSSpacing.xxl)
+                    .padding(.horizontal, PSSpacing.xl)
+                } else {
+                    // Active Schedule Card
+                    if let schedule = scheduleStore.first {
+                        SettingsGroup(title: L("personalInfo.schedule.title", table: "Profile")) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "bed.double")
+                                    .font(.system(size: 18, weight: .regular))
+                                    .foregroundColor(.appAccent)
+                                    .frame(width: 24, height: 24)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(schedule.name)
+                                        .font(.system(.body, design: .rounded, weight: .medium))
                                         .foregroundColor(.appText)
-                                    
-                                    Text(L("personalInfo.empty.message", table: "Profile"))
-                                        .font(.subheadline)
+                                    Text("\(String(format: "%.1f", schedule.totalSleepHours)) " + L("personalInfo.schedule.hours", table: "Profile"))
+                                        .font(.system(size: 13, design: .rounded))
                                         .foregroundColor(.appTextSecondary)
-                                        .multilineTextAlignment(.center)
-                                        .lineSpacing(2)
                                 }
+                                Spacer()
                             }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 13)
                         }
-                    } else {
-                        // Schedule Card with enhanced design
-                        if let schedule = scheduleStore.first {
-                            PersonalInfoModernCard {
-                                VStack(spacing: 16) {
-                                    // Card Header
-                                    HStack(spacing: 12) {
-                                        ZStack {
-                                            Circle()
-                                                .fill(Color.appAccent.opacity(0.15))
-                                                .frame(width: 40, height: 40)
-                                            
-                                            Image(systemName: "bed.double.fill")
-                                                .font(.system(size: 18, weight: .medium))
-                                                .foregroundColor(.appAccent)
-                                        }
-                                        
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(L("personalInfo.schedule.title", table: "Profile"))
-                                                .font(.headline)
-                                                .fontWeight(.semibold)
-                                                .foregroundColor(.appText)
-                                            
-                                            Text(L("personalInfo.schedule.subtitle", table: "Profile"))
-                                                .font(.caption)
-                                                .foregroundColor(.appTextSecondary)
-                                        }
-                                        
-                                        Spacer()
-                                    }
-                                    
-                                    // Schedule Details
-                                    HStack {
-                                        VStack(alignment: .leading, spacing: 4) {
-                                            Text(schedule.name)
-                                                .font(.title3)
-                                                .fontWeight(.medium)
-                                                .foregroundColor(.appText)
-                                            
-                                            Text("\(String(format: "%.1f", schedule.totalSleepHours)) " + L("personalInfo.schedule.hours", table: "Profile"))
-                                                .font(.subheadline)
-                                                .foregroundColor(.appTextSecondary)
-                                        }
-                                        
-                                        Spacer()
-                                        
-                                        // Sleep hours badge
-                                        HStack(spacing: 6) {
-                                            Image(systemName: "clock.fill")
-                                                .font(.caption)
-                                                .foregroundColor(.appSecondary)
-                                            
-                                            Text("\(String(format: "%.1f", schedule.totalSleepHours))h")
-                                                .font(.subheadline)
-                                                .fontWeight(.medium)
-                                                .foregroundColor(.appSecondary)
-                                        }
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 6)
-                                        .background(
-                                            Capsule()
-                                                .fill(Color.appSecondary.opacity(0.15))
-                                        )
-                                    }
+                    }
+
+                    // Onboarding Answers
+                    SettingsGroup(title: L("personalInfo.answers.title", table: "Profile")) {
+                        let questions = getOrderedQuestions()
+                        ForEach(Array(questions.enumerated()), id: \.element) { index, question in
+                            if let answer = answersForDisplay[question] {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(getLocalizedQuestion(for: question).uppercased())
+                                        .font(.system(size: 11, weight: .semibold, design: .rounded))
+                                        .foregroundColor(.appTextSecondary)
+                                    Text(getLocalizedAnswer(for: question, value: answer))
+                                        .font(.system(.body, design: .rounded, weight: .medium))
+                                        .foregroundColor(.appText)
                                 }
-                            }
-                        }
-                        
-                        // Answers Card with improved layout
-                        PersonalInfoModernCard {
-                            VStack(spacing: 20) {
-                                // Card Header
-                                HStack(spacing: 12) {
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color.appPrimary.opacity(0.15))
-                                            .frame(width: 40, height: 40)
-                                        
-                                        Image(systemName: "person.text.rectangle.fill")
-                                            .font(.system(size: 18, weight: .medium))
-                                            .foregroundColor(.appPrimary)
-                                    }
-                                    
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text(L("personalInfo.answers.title", table: "Profile"))
-                                            .font(.headline)
-                                            .fontWeight(.semibold)
-                                            .foregroundColor(.appText)
-                                        
-                                        Text("\(getOrderedQuestions().count) " + L("personalInfo.answers.count", table: "Profile"))
-                                            .font(.caption)
-                                            .foregroundColor(.appTextSecondary)
-                                    }
-                                    
-                                    Spacer()
-                                }
-                                
-                                // Answers Grid
-                                LazyVGrid(columns: [
-                                    GridItem(.flexible(), spacing: 12),
-                                    GridItem(.flexible(), spacing: 12)
-                                ], spacing: 12) {
-                                    ForEach(Array(getOrderedQuestions().enumerated()), id: \.element) { index, question in
-                                        if let answer = answersForDisplay[question] {
-                                            PersonalInfoAnswerCard(
-                                                question: getLocalizedQuestion(for: question),
-                                                answer: getLocalizedAnswer(for: question, value: answer),
-                                                index: index
-                                            )
-                                        }
-                                    }
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 13)
+
+                                if index < questions.count - 1 {
+                                    Divider().padding(.leading, 16)
                                 }
                             }
                         }
                     }
-                    
-                    Spacer(minLength: 24)
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 20)
+
+                Spacer(minLength: PSSpacing.xl)
             }
+            .padding(.horizontal, PSSpacing.lg)
+            .padding(.top, PSSpacing.sm)
         }
+        .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle(L("personalInfo.title", table: "Profile"))
-        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarTitleDisplayMode(.large)
         .onAppear {
             loadDataAsync()
         }

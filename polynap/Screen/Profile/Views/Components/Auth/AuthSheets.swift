@@ -47,13 +47,13 @@ struct LoginSheetView: View {
         return VStack(spacing: PSSpacing.xl) {
             // Başlık
             Text(L("profile.edit.title", table: "Profile"))
-                .font(PSTypography.headline)
+                .font(.system(.headline, design: .rounded, weight: .semibold))
                 .foregroundColor(.appText)
                 .padding(.top, PSSpacing.xl)
             
             // Açıklama
             Text(L("profile.edit.description", table: "Profile"))
-                .font(PSTypography.subheadline)
+                .font(.system(.subheadline, design: .rounded))
                 .multilineTextAlignment(.center)
                 .foregroundColor(.appTextSecondary)
                 .padding(.horizontal, PSSpacing.xl)
@@ -65,7 +65,7 @@ struct LoginSheetView: View {
                     L("profile.edit.name.placeholder", table: "Profile"),
                     text: $displayName
                 )
-                .font(PSTypography.body)
+                .font(.system(.body, design: .rounded))
                 .padding(PSSpacing.md)
                 .background(Color.appCardBackground)
                 .cornerRadius(PSCornerRadius.medium)

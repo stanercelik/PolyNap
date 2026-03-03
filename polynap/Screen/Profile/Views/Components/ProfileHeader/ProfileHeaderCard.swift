@@ -91,11 +91,12 @@ struct ProfileHeaderCard: View {
             Button(action: {
                 showActionSheet = true
             }) {
-                Image(systemName: "camera.circle.fill")
-                    .font(.system(size: 24))
-                    .foregroundColor(Color.appAccent)
-                    .background(Circle().fill(Color.appBackground).scaleEffect(1.2))
-                    .shadow(color: Color.black.opacity(0.1), radius: 2, x: 0, y: 1)
+                Image(systemName: "plus.circle.fill")
+                    .font(.system(size: 22, weight: .semibold))
+                    .symbolRenderingMode(.palette)
+                    .foregroundStyle(Color.appTextOnPrimary, Color.appPrimary)
+                    .background(Circle().fill(Color.appBackground).scaleEffect(1.15))
+                    .shadow(color: Color.black.opacity(0.12), radius: 3, x: 0, y: 2)
             }
             .offset(x: 4, y: 4)
         }
@@ -118,8 +119,8 @@ struct ProfileHeaderCard: View {
                     Button(action: { // Düzenleme Butonu
                         showLoginSheet = true
                     }) {
-                        Image(systemName: "pencil.circle.fill")
-                            .font(.title2) // Ayarlar ikonuyla benzer büyüklükte
+                        Image(systemName: "square.and.pencil")
+                            .font(.system(size: 16, weight: .medium))
                             .foregroundColor(Color.appAccent)
                     }
                 }
@@ -148,8 +149,8 @@ struct ProfileHeaderCard: View {
         Button(action: {
             navigateToSettings = true
         }) {
-            Image(systemName: "gearshape.fill")
-                .font(.title2)
+            Image(systemName: "gearshape")
+                .font(.system(size: 18, weight: .medium))
                 .foregroundColor(.appTextSecondary)
         }
         .padding(PSSpacing.sm)
@@ -161,13 +162,13 @@ struct ProfileHeaderCard: View {
     private func dynamicDisplayNameFont(forName name: String) -> Font {
         let length = name.count
         if length <= 12 {
-            return PSTypography.title1
+            return .system(size: 28, weight: .bold, design: .rounded)
         } else if length <= 18 {
-            return .system(size: 26, weight: .bold)
+            return .system(size: 24, weight: .bold, design: .rounded)
         } else if length <= 25 {
-            return .system(size: 20, weight: .bold)
+            return .system(size: 20, weight: .bold, design: .rounded)
         } else {
-            return .system(size: 18, weight: .bold)
+            return .system(size: 18, weight: .bold, design: .rounded)
         }
     }
     

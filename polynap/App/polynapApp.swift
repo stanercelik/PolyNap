@@ -461,6 +461,14 @@ struct ContentView: View {
                         .transition(.opacity.combined(with: .scale(scale: 1.02)))
                         .onAppear {
                             print("🏠 ContentView: SHOWING MAIN APP")
+                            // Sync userName from SwiftData to AuthManager for existing users
+                            if let storedName = userPreferences.first?.userName,
+                               !storedName.isEmpty,
+                               AuthManager.shared.currentUser?.displayName.isEmpty == true {
+                                Task { @MainActor in
+                                    AuthManager.shared.updateDisplayName(storedName)
+                                }
+                            }
                         }
                 } else {
                     NewOnboardingContainerView()

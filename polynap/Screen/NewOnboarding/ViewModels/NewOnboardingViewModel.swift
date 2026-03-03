@@ -557,6 +557,7 @@ final class NewOnboardingViewModel: ObservableObject {
             }
             
             try modelContext.save()
+            AuthManager.shared.updateDisplayName(userName)
             
             updateProgress(0.50, L("newOnboarding.resultIntro.stage3", table: "Onboarding"))
             try? await Task.sleep(nanoseconds: 800_000_000)
@@ -653,6 +654,7 @@ final class NewOnboardingViewModel: ObservableObject {
                 prefs.hasSkippedOnboarding = false
                 prefs.userName = userName
                 try modelContext.save()
+                AuthManager.shared.updateDisplayName(userName)
             } else {
                 let newPrefs = UserPreferences(
                     hasCompletedOnboarding: true,
@@ -662,6 +664,7 @@ final class NewOnboardingViewModel: ObservableObject {
                 )
                 modelContext.insert(newPrefs)
                 try modelContext.save()
+                AuthManager.shared.updateDisplayName(userName)
             }
             
             let timeTaken = onboardingStartTime != nil ? Date().timeIntervalSince(onboardingStartTime!) : 0
