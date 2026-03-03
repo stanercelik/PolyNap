@@ -174,12 +174,14 @@ final class ScheduleStateManager: BaseRepository {
             userScheduleToUpdate.isActive = isActive
             userScheduleToUpdate.updatedAt = Date()
             
-            // Eğer aktif ediliyorsa adaptasyon fazını sıfırla
+            // Schedule değişikliğinde adaptasyon ilerlemesi korunur.
+            // Sadece adaptationStartDate yoksa yeni başlangıç ata.
             if isActive {
-                userScheduleToUpdate.adaptationPhase = 0 // Yeniden aktivasyonda adaptasyon fazını sıfırla
-                userScheduleToUpdate.updatedAt = Date() // Adaptasyon başlangıç tarihini güncelle
-                // Streak, uyku geçmişinden hesaplandığı için schedule değişikliğinde sıfırlanmaz.
-                logger.debug("🗂️ UserSchedule (ID: \(userScheduleToUpdate.id.uuidString)) aktif edildi, adaptasyon fazı sıfırlandı.")
+                if userScheduleToUpdate.adaptationStartDate == nil {
+                    userScheduleToUpdate.adaptationPhase = 0
+                    userScheduleToUpdate.adaptationStartDate = Date()
+                }
+                logger.debug("🗂️ UserSchedule (ID: \(userScheduleToUpdate.id.uuidString)) aktif edildi, adaptasyon ilerlemesi korundu.")
             }
             logger.debug("✅ UserSchedule aktiflik durumu güncellendi: \(userScheduleToUpdate.name), isActive: \(isActive)")
         } else if isActive {

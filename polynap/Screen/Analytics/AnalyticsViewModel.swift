@@ -221,6 +221,13 @@ class AnalyticsViewModel: ObservableObject {
     @Published var qualityConsistencyData: [QualityConsistencyData] = []
     @Published var qualityConsistencyCorrelation: CorrelationStats = CorrelationStats(slope: 0, intercept: 0, correlation: 0)
     
+    // Apple Health verileri (Premium)
+    @Published var heartRateData: [DailyHeartRateData] = []
+    @Published var hrvData: [DailyHRVData] = []
+    @Published var sleepRegularityData: [SleepRegularityData] = []
+    @Published var isHealthDataLoading: Bool = false
+    @Published var hasHealthKitAccess: Bool = false
+    
     // En iyi/en kötü günler
     @Published var bestSleepDay: (date: Date, hours: Double, score: Double)?
     @Published var worstSleepDay: (date: Date, hours: Double, score: Double)?
@@ -244,6 +251,113 @@ class AnalyticsViewModel: ObservableObject {
         
         selectedTimeRange = newRange
         loadRealData()
+    }
+    
+    /// Apple Health verilerini yükle (Premium özellik)
+    func loadHealthData() {
+        isHealthDataLoading = true
+        
+        let healthKit = HealthKitManager.shared
+        
+        Task { @MainActor in
+            guard healthKit.isHealthDataAvailable else {
+                isHealthDataLoading = false
+                hasHealthKitAccess = false
+                return
+            }
+            
+            let authResult = await healthKit.requestAuthorization()
+            switch authResult {
+            case .success:
+                hasHealthKitAccess = true
+            case .failure:
+                isHealthDataLoading = false
+                hasHealthKitAccess = false
+                return
+            }
+            
+            let endDate = Date()
+            let startDate = Calendar.current.date(byAdding: .day, value: -selectedTimeRange.days, to: endDate) ?? endDate
+            
+            // Paralel olarak HR ve HRV verilerini çek
+            async let hrResult = healthKit.fetchHeartRateData(startDate: startDate, endDate: endDate)
+            async let hrvResult = healthKit.fetchHRVData(startDate: startDate, endDate: endDate)
+            async let restingHRResult = healthKit.fetchRestingHeartRate(startDate: startDate, endDate: endDate)
+            
+            let (hrData, hrvRawData, restingHRData) = await (hrResult, hrvResult, restingHRResult)
+            
+            // Heart Rate verilerini günlük gruplara ayır
+            if case .success(let samples) = hrData {
+                self.heartRateData = self.aggregateHeartRateByDay(samples, restingHR: (try? restingHRData.get()) ?? [])
+            }
+            
+            // HRV verilerini günlük gruplara ayır
+            if case .success(let samples) = hrvRawData {
+                self.hrvData = self.aggregateHRVByDay(samples)
+            }
+            
+            // Uyku düzenlilik verisini hesapla
+            self.calculateSleepRegularity()
+            
+            self.isHealthDataLoading = false
+        }
+    }
+    
+    private func aggregateHeartRateByDay(_ samples: [HealthKitHeartRateSample], restingHR: [HealthKitHeartRateSample]) -> [DailyHeartRateData] {
+        let calendar = Calendar.current
+        let grouped = Dictionary(grouping: samples) { calendar.startOfDay(for: $0.date) }
+        let restingGrouped = Dictionary(grouping: restingHR) { calendar.startOfDay(for: $0.date) }
+        
+        return grouped.map { (day, daySamples) in
+            let bpms = daySamples.map(\.bpm)
+            let avg = bpms.reduce(0, +) / Double(bpms.count)
+            let resting = restingGrouped[day]?.map(\.bpm).min()
+            return DailyHeartRateData(
+                date: day,
+                averageBPM: avg,
+                minBPM: bpms.min() ?? 0,
+                maxBPM: bpms.max() ?? 0,
+                restingBPM: resting
+            )
+        }.sorted { $0.date < $1.date }
+    }
+    
+    private func aggregateHRVByDay(_ samples: [HealthKitHRVSample]) -> [DailyHRVData] {
+        let calendar = Calendar.current
+        let grouped = Dictionary(grouping: samples) { calendar.startOfDay(for: $0.date) }
+        
+        return grouped.map { (day, daySamples) in
+            let sdnns = daySamples.map(\.sdnn)
+            let avg = sdnns.reduce(0, +) / Double(sdnns.count)
+            return DailyHRVData(
+                date: day,
+                averageSDNN: avg,
+                minSDNN: sdnns.min() ?? 0,
+                maxSDNN: sdnns.max() ?? 0
+            )
+        }.sorted { $0.date < $1.date }
+    }
+    
+    private func calculateSleepRegularity() {
+        guard !sleepTrendData.isEmpty else { return }
+        
+        sleepRegularityData = sleepTrendData.map { trend in
+            // Uyku düzenlilik skoru: tutarlılık bazlı (ortalamadan sapma)
+            let avgHours = averageDailyHours > 0 ? averageDailyHours : 6.0
+            let deviation = abs(trend.totalHours - avgHours)
+            let maxDeviation: Double = 4.0 // 4 saatten fazla sapma = 0 puan
+            let regularityScore = max(0, (1.0 - deviation / maxDeviation)) * 100
+            let deviationMinutes = deviation * 60
+            
+            return SleepRegularityData(
+                date: trend.date,
+                scheduledStartTime: nil,
+                actualStartTime: nil,
+                deviationMinutes: deviationMinutes,
+                totalSleepHours: trend.totalHours,
+                score: regularityScore
+            )
+        }
     }
     
     // MARK: - Private Methods
@@ -923,4 +1037,44 @@ extension SleepQualityCategory {
         case .bad: return L("analytics.quality.bad", table: "Analytics")
         }
     }
+}
+
+// MARK: - Health Data Models
+
+/// Günlük kalp atış hızı verisi
+struct DailyHeartRateData: Identifiable {
+    let id = UUID()
+    let date: Date
+    let averageBPM: Double
+    let minBPM: Double
+    let maxBPM: Double
+    let restingBPM: Double?
+}
+
+/// Günlük HRV verisi
+struct DailyHRVData: Identifiable {
+    let id = UUID()
+    let date: Date
+    let averageSDNN: Double
+    let minSDNN: Double
+    let maxSDNN: Double
+    
+    /// HRV recovery score (0-100)
+    var recoveryScore: Double {
+        // HRV SDNN bazlı recovery skoru
+        // 20ms altı: kötü, 20-40: düşük, 40-60: orta, 60-100: iyi, 100+: mükemmel
+        let normalized = min(max((averageSDNN - 20) / 80.0, 0), 1.0)
+        return normalized * 100
+    }
+}
+
+/// Uyku düzenlilik verisi
+struct SleepRegularityData: Identifiable {
+    let id = UUID()
+    let date: Date
+    let scheduledStartTime: Date?
+    let actualStartTime: Date?
+    let deviationMinutes: Double // Planlanan vs gerçekleşen farkı (dakika)
+    let totalSleepHours: Double
+    let score: Double // 0-100 arası düzenlilik skoru
 }

@@ -316,8 +316,9 @@ final class ScheduleRepository: BaseRepository {
                 existingUserSchedule.isActive = true
                 existingUserSchedule.updatedAt = Date()
                 
-                // Eğer schedule daha önce inaktif idi veya adaptationStartDate yoksa, yeni adaptasyon başlat
-                if wasInactive || existingUserSchedule.adaptationStartDate == nil {
+                // Sadece adaptationStartDate hiç set edilmemişse başlangıç tarihi ata.
+                // Schedule değişikliğinde mevcut adaptasyon ilerlemesi korunur.
+                if existingUserSchedule.adaptationStartDate == nil {
                     existingUserSchedule.adaptationStartDate = Date()
                     existingUserSchedule.adaptationPhase = 0
                 }

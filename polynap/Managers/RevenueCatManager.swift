@@ -74,6 +74,10 @@ final class RevenueCatManager: NSObject, ObservableObject {
         if purchaseResult.customerInfo.entitlements[premiumEntitlementID]?.isActive == true {
             await MainActor.run {
                 self.userState = .premium
+            }
+            // Paywall kapandıktan sonra badge değerlendirmesi yap
+            try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5 saniye bekle
+            await MainActor.run {
                 self.evaluatePremiumBadge()
             }
             return true

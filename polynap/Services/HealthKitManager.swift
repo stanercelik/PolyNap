@@ -21,11 +21,25 @@ class HealthKitManager: ObservableObject {
     // MARK: - Data Types
     
     private var readTypes: Set<HKObjectType> {
-        guard let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) else {
-            logger.error("Failed to create sleep analysis type for reading")
-            return Set()
+        var types = Set<HKObjectType>()
+        
+        if let sleepAnalysisType = HKObjectType.categoryType(forIdentifier: .sleepAnalysis) {
+            types.insert(sleepAnalysisType)
         }
-        return [sleepAnalysisType]
+        if let heartRateType = HKObjectType.quantityType(forIdentifier: .heartRate) {
+            types.insert(heartRateType)
+        }
+        if let hrvType = HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN) {
+            types.insert(hrvType)
+        }
+        if let restingHRType = HKObjectType.quantityType(forIdentifier: .restingHeartRate) {
+            types.insert(restingHRType)
+        }
+        
+        if types.isEmpty {
+            logger.error("Failed to create health data types for reading")
+        }
+        return types
     }
     
     private var shareTypes: Set<HKSampleType> {
@@ -252,6 +266,159 @@ class HealthKitManager: ObservableObject {
         
         return await fetchSleepAnalysis(startDate: startDate, endDate: endDate)
     }
+    
+    // MARK: - Heart Rate Data
+    
+    func fetchHeartRateData(
+        startDate: Date,
+        endDate: Date
+    ) async -> Result<[HealthKitHeartRateSample], HealthKitError> {
+        guard isHealthDataAvailable else {
+            return .failure(.healthKitNotAvailable)
+        }
+        
+        guard let heartRateType = HKQuantityType.quantityType(forIdentifier: .heartRate) else {
+            return .failure(.invalidDataType)
+        }
+        
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
+        
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: heartRateType,
+                predicate: predicate,
+                limit: HKObjectQueryNoLimit,
+                sortDescriptors: [sortDescriptor]
+            ) { [weak self] (_, samples, error) in
+                if let error = error {
+                    self?.logger.error("Failed to fetch heart rate data: \(error.localizedDescription)")
+                    continuation.resume(returning: .failure(.fetchFailed(error)))
+                    return
+                }
+                
+                guard let quantitySamples = samples as? [HKQuantitySample] else {
+                    continuation.resume(returning: .success([]))
+                    return
+                }
+                
+                let hrSamples = quantitySamples.map { sample in
+                    HealthKitHeartRateSample(
+                        date: sample.startDate,
+                        bpm: sample.quantity.doubleValue(for: HKUnit.count().unitDivided(by: .minute())),
+                        source: sample.sourceRevision.source.name
+                    )
+                }
+                
+                self?.logger.info("Successfully fetched \(hrSamples.count) heart rate samples")
+                continuation.resume(returning: .success(hrSamples))
+            }
+            
+            healthStore.execute(query)
+        }
+    }
+    
+    // MARK: - HRV Data
+    
+    func fetchHRVData(
+        startDate: Date,
+        endDate: Date
+    ) async -> Result<[HealthKitHRVSample], HealthKitError> {
+        guard isHealthDataAvailable else {
+            return .failure(.healthKitNotAvailable)
+        }
+        
+        guard let hrvType = HKQuantityType.quantityType(forIdentifier: .heartRateVariabilitySDNN) else {
+            return .failure(.invalidDataType)
+        }
+        
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
+        
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: hrvType,
+                predicate: predicate,
+                limit: HKObjectQueryNoLimit,
+                sortDescriptors: [sortDescriptor]
+            ) { [weak self] (_, samples, error) in
+                if let error = error {
+                    self?.logger.error("Failed to fetch HRV data: \(error.localizedDescription)")
+                    continuation.resume(returning: .failure(.fetchFailed(error)))
+                    return
+                }
+                
+                guard let quantitySamples = samples as? [HKQuantitySample] else {
+                    continuation.resume(returning: .success([]))
+                    return
+                }
+                
+                let hrvSamples = quantitySamples.map { sample in
+                    HealthKitHRVSample(
+                        date: sample.startDate,
+                        sdnn: sample.quantity.doubleValue(for: HKUnit.secondUnit(with: .milli)),
+                        source: sample.sourceRevision.source.name
+                    )
+                }
+                
+                self?.logger.info("Successfully fetched \(hrvSamples.count) HRV samples")
+                continuation.resume(returning: .success(hrvSamples))
+            }
+            
+            healthStore.execute(query)
+        }
+    }
+    
+    // MARK: - Resting Heart Rate
+    
+    func fetchRestingHeartRate(
+        startDate: Date,
+        endDate: Date
+    ) async -> Result<[HealthKitHeartRateSample], HealthKitError> {
+        guard isHealthDataAvailable else {
+            return .failure(.healthKitNotAvailable)
+        }
+        
+        guard let restingHRType = HKQuantityType.quantityType(forIdentifier: .restingHeartRate) else {
+            return .failure(.invalidDataType)
+        }
+        
+        let predicate = HKQuery.predicateForSamples(withStart: startDate, end: endDate, options: .strictStartDate)
+        let sortDescriptor = NSSortDescriptor(key: HKSampleSortIdentifierStartDate, ascending: true)
+        
+        return await withCheckedContinuation { continuation in
+            let query = HKSampleQuery(
+                sampleType: restingHRType,
+                predicate: predicate,
+                limit: HKObjectQueryNoLimit,
+                sortDescriptors: [sortDescriptor]
+            ) { [weak self] (_, samples, error) in
+                if let error = error {
+                    self?.logger.error("Failed to fetch resting heart rate: \(error.localizedDescription)")
+                    continuation.resume(returning: .failure(.fetchFailed(error)))
+                    return
+                }
+                
+                guard let quantitySamples = samples as? [HKQuantitySample] else {
+                    continuation.resume(returning: .success([]))
+                    return
+                }
+                
+                let hrSamples = quantitySamples.map { sample in
+                    HealthKitHeartRateSample(
+                        date: sample.startDate,
+                        bpm: sample.quantity.doubleValue(for: HKUnit.count().unitDivided(by: .minute())),
+                        source: sample.sourceRevision.source.name
+                    )
+                }
+                
+                self?.logger.info("Successfully fetched \(hrSamples.count) resting heart rate samples")
+                continuation.resume(returning: .success(hrSamples))
+            }
+            
+            healthStore.execute(query)
+        }
+    }
 }
 
 // MARK: - Supporting Types
@@ -402,4 +569,20 @@ struct SleepSegment {
     var duration: TimeInterval {
         return endDate.timeIntervalSince(startDate)
     }
+}
+
+// MARK: - Heart Rate Sample
+struct HealthKitHeartRateSample: Identifiable {
+    let id = UUID()
+    let date: Date
+    let bpm: Double
+    let source: String
+}
+
+// MARK: - HRV Sample
+struct HealthKitHRVSample: Identifiable {
+    let id = UUID()
+    let date: Date
+    let sdnn: Double // milliseconds
+    let source: String
 }
