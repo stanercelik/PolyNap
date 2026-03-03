@@ -12,6 +12,7 @@ struct MainTabBarView: View {
     @EnvironmentObject private var analyticsManager: AnalyticsManager
     
     @State private var hasCheckedOnboardingPaywall = false
+    @State private var earnedBadgeForModal: BadgeDefinition? = nil
     
     init() {
         self._mainScreenViewModel = StateObject(wrappedValue: MainScreenViewModel(languageManager: LanguageManager.shared))
@@ -71,6 +72,23 @@ struct MainTabBarView: View {
                 // 📊 Analytics: Tab değişikliği tracking
                 logTabScreenView(newValue)
                 analyticsManager.logFeatureUsed(featureName: "tab_navigation", action: "tab_changed")
+            }
+
+            // Global badge earned modal
+            if let badge = earnedBadgeForModal {
+                BadgeCelebrationModal(badge: badge) {
+                    earnedBadgeForModal = nil
+                }
+                .zIndex(100)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .badgeEarned)) { notification in
+            guard let badgeId = notification.userInfo?["badgeId"] as? String else { return }
+            let all = BadgeDefinition.all(earnedIds: BadgeManager.shared.earnedBadgeIds)
+            if let badge = all.first(where: { $0.id == badgeId }) {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    earnedBadgeForModal = badge
+                }
             }
         }
         .managePaywalls() // PaywallManager ile otomatik paywall yönetimi

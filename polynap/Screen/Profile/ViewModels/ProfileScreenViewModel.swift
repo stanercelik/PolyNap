@@ -135,6 +135,7 @@ class ProfileScreenViewModel: ObservableObject {
         self.totalSleepHours = 0
         self.activeSchedule = nil
         self.adaptationDuration = 21
+        UserDefaults.standard.set(false, forKey: "cachedHasSchedule")
     }
 
     // Aktif uyku programını ve adaptasyon aşamasını yükle
@@ -253,6 +254,15 @@ class ProfileScreenViewModel: ObservableObject {
             }
         }
         self.totalSleepHours = scheduleData.totalSleepHours ?? 0.0
+
+        // Cache adaptation data for badge evaluation across view models
+        UserDefaults.standard.set(true, forKey: "cachedHasSchedule")
+        UserDefaults.standard.set(self.adaptationPhase, forKey: "cachedAdaptationPhase")
+        UserDefaults.standard.set(self.completedAdaptationDays, forKey: "cachedAdaptationDay")
+        UserDefaults.standard.set(self.adaptationDuration, forKey: "cachedAdaptationDuration")
+        UserDefaults.standard.set(self.isAdaptationCompleted, forKey: "cachedIsAdaptationComplete")
+
+        evaluateBadges()
     }
     
     private func calculateAdaptationPhase(schedule: UserSchedule) -> Int {
@@ -344,6 +354,10 @@ class ProfileScreenViewModel: ObservableObject {
         }
         
         // currentStreak'i UserDefaults'a kaydet
+        let previousStreak = UserDefaults.standard.integer(forKey: "currentStreak")
+        if previousStreak > 0 && current == 0 {
+            BadgeManager.shared.recordStreakBroken()
+        }
         UserDefaults.standard.set(current, forKey: "currentStreak")
         self.currentStreak = current
         
@@ -477,7 +491,22 @@ class ProfileScreenViewModel: ObservableObject {
     func hasRawUndoData() -> Bool {
         return Repository.shared.hasUndoData()
     }
-    
+
+    // MARK: - Badge Evaluation
+
+    func evaluateBadges() {
+        let context = BadgeManager.EvaluationContext(
+            hasSchedule: activeSchedule != nil,
+            longestStreak: longestStreak,
+            currentStreak: currentStreak,
+            adaptationPhase: adaptationPhase,
+            currentAdaptationDay: completedAdaptationDays,
+            adaptationDuration: adaptationDuration,
+            isAdaptationComplete: isAdaptationCompleted,
+            isPremium: RevenueCatManager.shared.userState == .premium
+        )
+        BadgeManager.shared.evaluateBadges(context: context)
+    }
 
 }
 

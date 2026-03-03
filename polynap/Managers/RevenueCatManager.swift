@@ -74,6 +74,7 @@ final class RevenueCatManager: NSObject, ObservableObject {
         if purchaseResult.customerInfo.entitlements[premiumEntitlementID]?.isActive == true {
             await MainActor.run {
                 self.userState = .premium
+                self.evaluatePremiumBadge()
             }
             return true
         }
@@ -109,7 +110,28 @@ final class RevenueCatManager: NSObject, ObservableObject {
         Task { @MainActor in
             self.userState = isPremium ? .premium : .free
             print("User state updated: \(self.userState)")
+            if isPremium {
+                self.evaluatePremiumBadge()
+            }
         }
+    }
+
+    private func evaluatePremiumBadge() {
+        let longestStreak = UserDefaults.standard.integer(forKey: "longestStreak")
+        let currentStreak = UserDefaults.standard.integer(forKey: "currentStreak")
+        let hasSchedule = UserDefaults.standard.bool(forKey: "cachedHasSchedule")
+        let context = BadgeManager.EvaluationContext(
+            hasSchedule: hasSchedule,
+            longestStreak: longestStreak,
+            currentStreak: currentStreak,
+            adaptationPhase: UserDefaults.standard.integer(forKey: "cachedAdaptationPhase"),
+            currentAdaptationDay: UserDefaults.standard.integer(forKey: "cachedAdaptationDay"),
+            adaptationDuration: UserDefaults.standard.integer(forKey: "cachedAdaptationDuration") > 0
+                ? UserDefaults.standard.integer(forKey: "cachedAdaptationDuration") : 21,
+            isAdaptationComplete: UserDefaults.standard.bool(forKey: "cachedIsAdaptationComplete"),
+            isPremium: true
+        )
+        BadgeManager.shared.evaluateBadges(context: context)
     }
 }
 

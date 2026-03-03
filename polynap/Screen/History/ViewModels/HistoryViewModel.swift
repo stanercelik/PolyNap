@@ -193,6 +193,9 @@ class HistoryViewModel: ObservableObject {
             // Manuel veri eklendiğinde çakışan HealthKit verileri otomatik filtrelenir (view level'da yapılıyor)
             loadHistoryItems()
             print("SleepEntry başarıyla eklendi: \(newSleepEntry.id)")
+
+            // Badge evaluation after new sleep entry
+            evaluateBadgesAfterSleepLog()
             
         } catch {
             handleError("Failed to add sleep entry: \(error.localizedDescription)")
@@ -740,6 +743,26 @@ class HistoryViewModel: ObservableObject {
     /// HealthKit verisini düzenler
     func editHealthKitSample(_ sample: HealthKitSleepSample, newRating: Double) {
         updateHealthKitRating(for: sample.id, rating: newRating)
+    }
+
+    // MARK: - Badge Evaluation
+
+    private func evaluateBadgesAfterSleepLog() {
+        let longestStreak = UserDefaults.standard.integer(forKey: "longestStreak")
+        let currentStreak = UserDefaults.standard.integer(forKey: "currentStreak")
+
+        let context = BadgeManager.EvaluationContext(
+            hasSchedule: ScheduleManager.shared.activeSchedule != nil,
+            longestStreak: longestStreak,
+            currentStreak: currentStreak,
+            adaptationPhase: UserDefaults.standard.integer(forKey: "cachedAdaptationPhase"),
+            currentAdaptationDay: UserDefaults.standard.integer(forKey: "cachedAdaptationDay"),
+            adaptationDuration: UserDefaults.standard.integer(forKey: "cachedAdaptationDuration") > 0
+                ? UserDefaults.standard.integer(forKey: "cachedAdaptationDuration") : 21,
+            isAdaptationComplete: UserDefaults.standard.bool(forKey: "cachedIsAdaptationComplete"),
+            isPremium: RevenueCatManager.shared.userState == .premium
+        )
+        BadgeManager.shared.evaluateBadges(context: context)
     }
 }
 
