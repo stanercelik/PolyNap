@@ -1,0 +1,1350 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "tour.done" : {
+      "comment" : "Button label for the final tour step",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "alles klar!"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "got it!"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "わかった!"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "faham!"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เข้าใจแล้ว!"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "anladım!"
+          }
+        }
+      }
+    },
+    "tour.next" : {
+      "comment" : "Button to advance to the next tour step",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "weiter"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "next"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "次へ"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "seterusnya"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ถัดไป"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sonraki"
+          }
+        }
+      }
+    },
+    "tour.rating.later" : {
+      "comment" : "Dismiss button in rating modal",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "vielleicht später"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "maybe later"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "後で"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mungkin nanti"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "บางทีภายหลัง"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "belki sonra"
+          }
+        }
+      }
+    },
+    "tour.rating.submit" : {
+      "comment" : "Submit button in rating modal",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "app bewerten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rate the app"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アプリを評価する"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "nilai aplikasi"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ให้คะแนนแอป"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "uygulamayı değerlendir"
+          }
+        }
+      }
+    },
+    "tour.rating.subtitle" : {
+      "comment" : "Subtitle of the rating modal",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wie gefällt dir polynap bisher?"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "how are you liking polynap so far?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "polynapはいかがですか？"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bagaimana anda suka polynap setakat ini?"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "คุณชอบ polynap แค่ไหนจนถึงตอนนี้?"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "polynap'ı şimdiye kadar nasıl buldun?"
+          }
+        }
+      }
+    },
+    "tour.rating.title" : {
+      "comment" : "Title of the rating modal shown after tour completes",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "danke, dass du dabei bist! 🌙"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "thanks for being here! 🌙"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "一緒にいてくれてありがとう！🌙"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "terima kasih kerana bersama! 🌙"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ขอบคุณที่อยู่กับเรา! 🌙"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "seninle olmak güzel! 🌙"
+          }
+        }
+      }
+    },
+    "tour.restart.title" : {
+      "comment" : "Settings row title for restarting the app tour",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "einführung erneut starten"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "replay app tour"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ツアーを再プレイ"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "main semula panduan"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เล่นทัวร์อีกครั้ง"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tanıtımı yeniden oynat"
+          }
+        }
+      }
+    },
+    "tour.skip" : {
+      "comment" : "Button to skip the app tour",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "überspringen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "skip"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スキップ"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "langkau"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ข้าม"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "atla"
+          }
+        }
+      }
+    },
+    "tour.step0.desc" : {
+      "comment" : "Tour step 0 description - overview of main schedule",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hier siehst du all deine schlafblöcke auf der 24-stunden-uhr"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "here you can see all your sleep blocks on the 24-hour clock"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "24時間時計上のすべての睡眠ブロックをここで確認できます"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "di sini anda boleh lihat semua blok tidur anda pada jam 24 jam"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ที่นี่คุณสามารถดูบล็อกการนอนหลับทั้งหมดของคุณบนนาฬิกา 24 ชั่วโมง"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "uyku bloklarını 24 saatlik kadran üzerinde burada görebilirsin"
+          }
+        }
+      }
+    },
+    "tour.step0.title" : {
+      "comment" : "Tour step 0 title - overview of main schedule",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dein schlafplan 🌙"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "your schedule 🌙"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "あなたのスケジュール 🌙"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "jadual anda 🌙"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ตารางของคุณ 🌙"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "uyku programın 🌙"
+          }
+        }
+      }
+    },
+    "tour.step1.desc" : {
+      "comment" : "Tour step 1 description - editing sleep blocks",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tippe auf bearbeiten, um blöcke zu verschieben, ziehe sie zum rand zum löschen oder nutze + um neue hinzuzufügen. tippe direkt auf einen block um zeiten anzupassen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tap edit to drag and move blocks, drag to the edge to delete, or use + to add new ones. tap any block directly to adjust its times"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "編集をタップしてブロックをドラッグ移動、端にドラッグして削除、または+で新しいブロックを追加。ブロックを直接タップして時間を調整できます"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ketik edit untuk seret dan gerak blok, seret ke tepi untuk padam, atau gunakan + untuk tambah yang baru. ketik mana-mana blok untuk laras masa"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แตะแก้ไขเพื่อลากและเลื่อนบล็อก ลากไปที่ขอบเพื่อลบ หรือใช้ + เพื่อเพิ่มใหม่ แตะบล็อกใดก็ได้เพื่อปรับเวลา"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "düzenle'ye basarak blokları taşıyabilir, kenara sürükleyerek silebilir ya da + ile yeni blok ekleyebilirsin. saatlerini ayarlamak için bir bloğa direkt basabilirsin"
+          }
+        }
+      }
+    },
+    "tour.step1.title" : {
+      "comment" : "Tour step 1 title - editing sleep blocks",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "blöcke bearbeiten ✏️"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "editing blocks ✏️"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ブロックを編集 ✏️"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "mengedit blok ✏️"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แก้ไขบล็อก ✏️"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "blokları düzenle ✏️"
+          }
+        }
+      }
+    },
+    "tour.step2.desc" : {
+      "comment" : "Tour step 2 description - change sleep program",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tippe hier um zwischen verschiedenen schlafplänen zu wechseln"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tap here to switch between different polyphasic sleep programs"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ここをタップして、異なる多相睡眠プログラムを切り替えます"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ketik di sini untuk beralih antara program tidur polifasik yang berbeza"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แตะที่นี่เพื่อสลับระหว่างโปรแกรมการนอนหลับแบบโพลีเฟสิก"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "farklı bir uyku programına geçmek için buraya basabilirsin"
+          }
+        }
+      }
+    },
+    "tour.step2.title" : {
+      "comment" : "Tour step 2 title - change sleep program",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "programm wechseln 🔄"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "change your program 🔄"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プログラムを変更 🔄"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tukar program anda 🔄"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เปลี่ยนโปรแกรมของคุณ 🔄"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "programını değiştir 🔄"
+          }
+        }
+      }
+    },
+    "tour.step3.desc" : {
+      "comment" : "Tour step 3 description - sleep history",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "füge schlafeinträge hinzu, bewerte sie und sieh dir vergangene aufzeichnungen an"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "add sleep entries, rate their quality, and browse your past sleep records"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "睡眠エントリを追加し、品質を評価して、過去の睡眠記録を閲覧できます"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tambah entri tidur, nilai kualitinya, dan semak rekod tidur lalu anda"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เพิ่มรายการการนอนหลับ ให้คะแนนคุณภาพ และดูบันทึกการนอนหลับในอดีต"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "uyku bloğu ekleyip puanlayabilir ve geçmiş kayıtlarına göz atabilirsin"
+          }
+        }
+      }
+    },
+    "tour.step3.title" : {
+      "comment" : "Tour step 3 title - sleep history",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "schlafverlauf 📅"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sleep history 📅"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "睡眠履歴 📅"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sejarah tidur 📅"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ประวัติการนอนหลับ 📅"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "uyku geçmişi 📅"
+          }
+        }
+      }
+    },
+    "tour.step4.desc" : {
+      "comment" : "Tour step 4 description - sleep analytics",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "detaillierte analysen deiner schlafdaten — du musst zuerst schlaf protokollieren"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "detailed analysis of your sleep data — you'll need to log some sleep first"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "睡眠データの詳細な分析 — まず睡眠を記録する必要があります"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "analisis terperinci data tidur anda — anda perlu log tidur dahulu"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การวิเคราะห์ข้อมูลการนอนหลับโดยละเอียด — คุณต้องบันทึกการนอนหลับก่อน"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "uyku verilerinin detaylı analizi — bunun için önce uyku kaydetmen gerekiyor"
+          }
+        }
+      }
+    },
+    "tour.step4.title" : {
+      "comment" : "Tour step 4 title - sleep analytics",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "schlafanalysen 📊"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sleep analytics 📊"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "睡眠分析 📊"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "analitik tidur 📊"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การวิเคราะห์การนอนหลับ 📊"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "uyku analizleri 📊"
+          }
+        }
+      }
+    },
+    "tour.step5.desc" : {
+      "comment" : "Tour step 5 description - adaptation progress",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "verfolge hier täglich deinen fortschritt bei der anpassung an polyphasischen schlaf"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "track your polyphasic sleep adaptation progress day by day right here"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "多相睡眠への適応の進捗を日々ここで追跡できます"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "jejaki kemajuan penyesuaian tidur polifasik anda hari demi hari di sini"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ติดตามความคืบหน้าการปรับตัวการนอนหลับแบบโพลีเฟสิกของคุณวันต่อวันที่นี่"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "çok fazlı uyku adaptasyonundaki ilerlemeyi gün gün buradan takip edebilirsin"
+          }
+        }
+      }
+    },
+    "tour.step5.title" : {
+      "comment" : "Tour step 5 title - adaptation progress",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "anpassungsfortschritt 🌱"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "adaptation journey 🌱"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "適応の旅 🌱"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "perjalanan penyesuaian 🌱"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การเดินทางปรับตัว 🌱"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "adaptasyon süreci 🌱"
+          }
+        }
+      }
+    },
+    "tour.step6.desc" : {
+      "comment" : "Tour step 6 description - badges",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "schalte errungenschaften frei, während du deine schlafgewohnheiten aufbaust"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unlock achievements as you build your sleep routine"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "睡眠ルーティンを積み上げながら実績を解除できます"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "buka kunci pencapaian sambil membina rutin tidur anda"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ปลดล็อกความสำเร็จขณะที่คุณสร้างกิจวัตรการนอนหลับ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "uyku rutinini geliştirdikçe yeni başarılar kazanabilirsin"
+          }
+        }
+      }
+    },
+    "tour.step6.title" : {
+      "comment" : "Tour step 6 title - badges",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "abzeichen verdienen 🏅"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "earn badges 🏅"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バッジを獲得 🏅"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "dapatkan lencana 🏅"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "รับเหรียญตรา 🏅"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "rozetler 🏅"
+          }
+        }
+      }
+    },
+    "tour.step7.desc" : {
+      "comment" : "Tour step 7 description - settings button",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tippe hier um die einstellungen zu öffnen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tap here to open settings"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ここをタップして設定を開きます"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ketik di sini untuk membuka tetapan"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "แตะที่นี่เพื่อเปิดการตั้งค่า"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ayarlara gitmek için buraya bas"
+          }
+        }
+      }
+    },
+    "tour.step7.title" : {
+      "comment" : "Tour step 7 title - settings button",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "einstellungen ⚙️"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "settings ⚙️"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "設定 ⚙️"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tetapan ⚙️"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การตั้งค่า ⚙️"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ayarlar ⚙️"
+          }
+        }
+      }
+    },
+    "tour.step8.desc" : {
+      "comment" : "Tour step 8 description - notifications settings",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "passe hier an, wann und wie du an deine schlafblöcke erinnert wirst"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "customize when and how you get reminded about your sleep blocks"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "睡眠ブロックのリマインダーをいつどのように受け取るかカスタマイズできます"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sesuaikan bila dan bagaimana anda diingatkan tentang blok tidur anda"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ปรับแต่งเมื่อไรและอย่างไรที่คุณจะได้รับการเตือนเกี่ยวกับบล็อกการนอนหลับ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "uyku bloklarını hatırlatma bildirimlerini buradan özelleştirebilirsin"
+          }
+        }
+      }
+    },
+    "tour.step8.title" : {
+      "comment" : "Tour step 8 title - notifications settings",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "benachrichtigungen 🔔"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "notifications 🔔"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "通知 🔔"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "pemberitahuan 🔔"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "การแจ้งเตือน 🔔"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bildirimler 🔔"
+          }
+        }
+      }
+    },
+    "tour.step9.desc" : {
+      "comment" : "Tour step 9 description - alarms settings",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "richte deine wecker ein und verwalte sie"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "set up and manage your wake-up alarms"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "起床アラームを設定・管理できます"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sediakan dan urus penggera bangun anda"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ตั้งค่าและจัดการนาฬิกาปลุกปลุกนอนของคุณ"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "uyanma alarmlarını buradan ayarlayabilir ve düzenleyebilirsin"
+          }
+        }
+      }
+    },
+    "tour.step9.title" : {
+      "comment" : "Tour step 9 title - alarms settings",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "wecker ⏰"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "alarms ⏰"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "アラーム ⏰"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "penggera ⏰"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "นาฬิกาปลุก ⏰"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "alarmlar ⏰"
+          }
+        }
+      }
+    },
+    "tour.step10.desc" : {
+      "comment" : "Tour step 10 description - restart tour button",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "du kannst diese einführung jederzeit von hier aus wiederholen"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "you can come back and replay this tour anytime from here"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "いつでもここに戻ってツアーを再プレイできます"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "anda boleh kembali dan main semula panduan ini bila-bila masa dari sini"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "คุณสามารถกลับมาและเล่นทัวร์นี้อีกครั้งได้ตลอดเวลาจากที่นี่"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "bu tanıtımı istediğin zaman buradan yeniden başlatabilirsin"
+          }
+        }
+      }
+    },
+    "tour.step10.title" : {
+      "comment" : "Tour step 10 title - restart tour button",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "einführung wiederholen 🗺️"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "replay this tour 🗺️"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ツアーを再プレイ 🗺️"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "main semula panduan ini 🗺️"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เล่นทัวร์นี้อีกครั้ง 🗺️"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "tanıtımı yeniden oynat 🗺️"
+          }
+        }
+      }
+    },
+    "tour.step11.desc" : {
+      "comment" : "Tour step 11 description - apple health",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "verbinde apple gesundheit für nahtloses integriertes schlaftracking"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "connect apple health for seamless integrated sleep tracking"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "シームレスな統合睡眠トラッキングのためにAppleヘルスを接続してください"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "sambungkan apple health untuk penjejakan tidur bersepadu yang lancar"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "เชื่อมต่อ Apple Health เพื่อการติดตามการนอนหลับแบบบูรณาการที่ราบรื่น"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "entegre uyku takibi için apple sağlık bağlantısını buradan etkinleştirebilirsin"
+          }
+        }
+      }
+    },
+    "tour.step11.title" : {
+      "comment" : "Tour step 11 title - apple health",
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "apple gesundheit ❤️"
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "apple health ❤️"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appleヘルス ❤️"
+          }
+        },
+        "ms" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "apple health ❤️"
+          }
+        },
+        "th" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apple Health ❤️"
+          }
+        },
+        "tr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "apple sağlık ❤️"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

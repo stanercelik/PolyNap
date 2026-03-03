@@ -136,29 +136,21 @@ public struct LocalizedDescription: Codable, Equatable {
     }
     
     public func localized(for language: String = "en") -> String {
-        print("🔍 LocalizedDescription.localized - Requested language: '\(language)'")
-        print("🔍 Available descriptions: en='\(en.prefix(50))...', tr='\(tr.prefix(50))...', ja='\(ja.prefix(50))...', de='\(de.prefix(50))...', ms='\(ms.prefix(50))...', th='\(th.prefix(50))...'")
         
         let result: String
         switch language {
         case "tr":
             result = tr
-            print("🔍 Using Turkish description: '\(result.prefix(100))...'")
         case "ja":
             result = ja
-            print("🔍 Using Japanese description: '\(result.prefix(100))...'")
         case "de":
             result = de
-            print("🔍 Using German description: '\(result.prefix(100))...'")
         case "ms":
             result = ms
-            print("🔍 Using Malay description: '\(result.prefix(100))...'")
         case "th":
             result = th
-            print("🔍 Using Thai description: '\(result.prefix(100))...'")
         default:
             result = en
-            print("🔍 Falling back to English description: '\(result.prefix(100))...'")
         }
         
         return result

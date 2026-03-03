@@ -22,6 +22,7 @@ struct HistoryView: View {
                     VStack(spacing: 0) {
                         // Hero Header
                         HistoryHeroHeader(viewModel: viewModel)
+                            .tourTarget("tour.history.content")
                         
                         VStack(spacing: PSSpacing.xl) {
                             // Filter Section

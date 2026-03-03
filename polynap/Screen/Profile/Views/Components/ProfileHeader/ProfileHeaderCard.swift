@@ -156,6 +156,7 @@ struct ProfileHeaderCard: View {
         .padding(PSSpacing.sm)
         .background(Color.appTextSecondary.opacity(0.1))
         .clipShape(Circle())
+        .tourTarget("tour.profile.settingsButton")
     }
     
     // Kullanıcı adı için dinamik font boyutu hesaplayan fonksiyon

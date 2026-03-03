@@ -20,6 +20,7 @@ struct ProfileScreenView: View {
     @State private var adaptationTimer: Timer?
     @State private var showingCelebration = false
     @StateObject private var paywallManager = PaywallManager.shared
+    @StateObject private var tourManager = AppTourManager.shared
     
     init() {
         self._viewModel = StateObject(wrappedValue: ProfileScreenViewModel(languageManager: LanguageManager.shared))
@@ -33,6 +34,7 @@ struct ProfileScreenView: View {
                     Color.appBackground
                         .ignoresSafeArea()
                     
+                    ScrollViewReader { scrollProxy in
                     ScrollView(.vertical, showsIndicators: false) {
                         VStack(spacing: PSSpacing.xl) {
                             // Profile Header Card
@@ -42,6 +44,7 @@ struct ProfileScreenView: View {
                                 navigateToSettings: $navigateToSettings, 
                                 authManager: authManager
                             )
+                            .id("scroll.profile.top")
                             
                             // Premium Upgrade Card - Premium kullanıcılar için gizle ve en üstte göster
                             if revenueCatManager.userState != .premium {
@@ -57,15 +60,21 @@ struct ProfileScreenView: View {
                             // Adaptation Completed Celebration Card or Adaptation Phase Card
                             if viewModel.isAdaptationCompleted {
                                 AdaptationCompletedCard(viewModel: viewModel, showingCelebration: $showingCelebration)
+                                    .tourTarget("tour.profile.adaptation")
+                                    .id("tour.profile.adaptation")
                             } else {
                                 // Adaptation Phase Card (only show if not completed)
                                 AdaptationPhaseCard(viewModel: viewModel)
+                                    .tourTarget("tour.profile.adaptation")
+                                    .id("tour.profile.adaptation")
                             }
                             
 
                             
                             // Badges Card
                             ProfileBadgesCard(viewModel: viewModel)
+                                .tourTarget("tour.profile.badges")
+                                .id("tour.profile.badges")
                             
                             // Customization Card
                             CustomizationCard(
@@ -78,6 +87,17 @@ struct ProfileScreenView: View {
                         .padding(.horizontal, PSSpacing.lg)
                         .padding(.vertical, PSSpacing.sm)
                     }
+                    .onChange(of: tourManager.currentStepIndex) { _, newIndex in
+                        // Handles intra-profile step changes (e.g., adaptation → badges)
+                        handleProfileTourScroll(step: TourStep(rawValue: newIndex), proxy: scrollProxy, delay: 0.2)
+                    }
+                    .onAppear {
+                        // Handles the tab-switch-to-profile case: onChange fires before views render,
+                        // so onAppear gives a second chance after the tab is fully visible.
+                        guard tourManager.isShowingTour else { return }
+                        handleProfileTourScroll(step: TourStep(rawValue: tourManager.currentStepIndex), proxy: scrollProxy, delay: 0.35)
+                    }
+                    } // end ScrollViewReader
                     
                     // Başarılı giriş mesajı
                     if showSuccessMessage {
@@ -142,6 +162,9 @@ struct ProfileScreenView: View {
                         viewModel.objectWillChange.send()
                     }
                 }
+                .onChange(of: tourManager.navigateToSettingsForTour) { _, shouldNavigate in
+                    navigateToSettings = shouldNavigate
+                }
                 .onDisappear {
                     stopAdaptationTimer()
                 }
@@ -175,6 +198,25 @@ struct ProfileScreenView: View {
     private func stopAdaptationTimer() {
         adaptationTimer?.invalidate()
         adaptationTimer = nil
+    }
+
+    // MARK: - Tour Scroll Helper
+
+    private func handleProfileTourScroll(step: TourStep?, proxy: ScrollViewProxy, delay: Double) {
+        guard let step, step.requiredTab == 3 else { return }
+        let scrollId: String
+        switch step {
+        case .profileAdaptation: scrollId = "tour.profile.adaptation"
+        case .profileBadges:     scrollId = "tour.profile.badges"
+        case .settingsButton:    scrollId = "scroll.profile.top"
+        default: return
+        }
+        let anchor: UnitPoint = scrollId == "scroll.profile.top" ? .top : UnitPoint(x: 0.5, y: 0.25)
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            withAnimation(.easeInOut(duration: 0.35)) {
+                proxy.scrollTo(scrollId, anchor: anchor)
+            }
+        }
     }
 }
 

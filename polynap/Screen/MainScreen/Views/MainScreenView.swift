@@ -67,6 +67,7 @@ struct AnimatedMaskModifier: ViewModifier {
 
 struct MainScreenView: View {
     @StateObject private var viewModel: MainScreenViewModel
+    @StateObject private var tourManager = AppTourManager.shared
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var languageManager: LanguageManager
     @EnvironmentObject private var alarmManager: AlarmManager
@@ -86,10 +87,12 @@ struct MainScreenView: View {
                 Color.appBackground
                     .ignoresSafeArea()
                 
+                ScrollViewReader { scrollProxy in
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 0) {
                         // Hero Section (gradient header – extends behind status bar)
                         MainHeroSection(viewModel: viewModel)
+                            .id("scroll.main.top")
                         
                         // Content Area
                         VStack(spacing: PSSpacing.xl) {
@@ -114,6 +117,8 @@ struct MainScreenView: View {
                             
                             // Circular Sleep Chart
                             MainChartCard(viewModel: viewModel)
+                                .tourTarget("tour.main.chartCard")
+                                .id("tour.main.chartCard")
                             
                             // Daily Tip Section (Nimmy)
                             DailyTipSection(viewModel: viewModel)
@@ -124,6 +129,14 @@ struct MainScreenView: View {
                     }
                 }
                 .ignoresSafeArea(.container, edges: .top)
+                .onChange(of: tourManager.currentStepIndex) { _, newIndex in
+                    handleTourScroll(newIndex: newIndex, proxy: scrollProxy)
+                    handleTourEditMode(newIndex: newIndex)
+                }
+                .onChange(of: tourManager.isShowingTour) { _, isShowing in
+                    if isShowing { handleTourStart(proxy: scrollProxy) }
+                }
+                } // end ScrollViewReader
                 
                 // Error Overlay
                 if let errorMessage = viewModel.errorMessage {
@@ -220,9 +233,47 @@ struct MainScreenView: View {
             .environmentObject(languageManager)
         }
     }
-}
 
-// MARK: - Hero Section
+    // MARK: - Tour helpers
+
+    private func handleTourScroll(newIndex: Int, proxy: ScrollViewProxy) {
+        guard let step = TourStep(rawValue: newIndex), step.requiredTab == 0 else { return }
+        let scrollId: String
+        switch step {
+        case .overview, .editButton:
+            scrollId = "tour.main.chartCard"
+        case .changeSchedule:
+            scrollId = "scroll.main.top"
+        default: return
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            withAnimation(.easeInOut(duration: 0.35)) {
+                proxy.scrollTo(scrollId, anchor: scrollId == "scroll.main.top" ? .top : UnitPoint(x: 0.5, y: 0.25))
+            }
+        }
+    }
+
+    /// Fired when tour becomes active — handles the step-0 initial scroll since
+    /// currentStepIndex is already 0, so onChange(of:) won't fire for it.
+    private func handleTourStart(proxy: ScrollViewProxy) {
+        guard tourManager.isShowingTour, tourManager.currentStepIndex == 0 else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.45) {
+            withAnimation(.easeInOut(duration: 0.35)) {
+                proxy.scrollTo("tour.main.chartCard", anchor: UnitPoint(x: 0.5, y: 0.25))
+            }
+        }
+    }
+
+    private func handleTourEditMode(newIndex: Int) {
+        if newIndex == TourStep.editButton.rawValue {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                if !viewModel.isChartEditMode { viewModel.startChartEdit() }
+            }
+        } else if newIndex > TourStep.editButton.rawValue && viewModel.isChartEditMode {
+            viewModel.cancelChartEdit()
+        }
+    }
+}
 struct MainHeroSection: View {
     @ObservedObject var viewModel: MainScreenViewModel
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -265,6 +316,7 @@ struct MainHeroSection: View {
                     }
                 }
                 .buttonStyle(.plain)
+                .tourTarget("tour.main.scheduleButton")
 
                 Spacer()
 
@@ -567,6 +619,7 @@ struct MainChartCard: View {
                         .background(Color.appPrimary.opacity(0.1), in: Capsule())
                     }
                     .buttonStyle(.plain)
+                    .tourTarget("tour.main.editButton")
                 }
             }
             

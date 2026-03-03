@@ -14,8 +14,10 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showLanguagePicker = false
     @State private var showThemePicker = false
+    @StateObject private var tourManager = AppTourManager.shared
     
     var body: some View {
+        ScrollViewReader { scrollProxy in
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: PSSpacing.xl) {
                 // Profile & Account Section
@@ -34,12 +36,16 @@ struct SettingsView: View {
                         title: L("settings.notifications.settings", table: "Profile"),
                         destination: NotificationSettingsView()
                     )
+                    .tourTarget("tour.settings.notifications")
+                    .id("tour.settings.notifications")
                     SettingsRowDivider()
                     SettingsNavRow(
                         icon: "alarm",
                         title: L("settings.alarms.title", table: "Profile"),
                         destination: AlarmSettingsView()
                     )
+                    .tourTarget("tour.settings.alarms")
+                    .id("tour.settings.alarms")
                 }
 
                 // Advanced Section
@@ -47,11 +53,15 @@ struct SettingsView: View {
                     AdaptationUndoRow()
                     SettingsRowDivider()
                     RestartOnboardingRow()
+                    SettingsRowDivider()
+                    RestartTourRow()
                 }
 
                 // Integrations Section
                 SettingsGroup(title: L("settings.integrations", table: "Settings")) {
                     HealthKitIntegrationRow()
+                        .tourTarget("tour.settings.health")
+                        .id("tour.settings.health")
                 }
 
                 // General Settings Section
@@ -116,6 +126,22 @@ struct SettingsView: View {
         .background(Color.appBackground.ignoresSafeArea())
         .navigationTitle(L("settings.title", table: "Profile"))
         .navigationBarTitleDisplayMode(.large)
+        .onChange(of: tourManager.currentStepIndex) { _, newIndex in
+            guard let step = TourStep(rawValue: newIndex), step.requiresSettingsNav else { return }
+            let scrollId: String
+            switch step {
+            case .settingsNotifications: scrollId = "tour.settings.notifications"
+            case .settingsAlarms:        scrollId = "tour.settings.alarms"
+            case .settingsRestartTour:   scrollId = "tour.settings.restartTour"
+            case .settingsHealth:        scrollId = "tour.settings.health"
+            default: return
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
+                withAnimation(.easeInOut(duration: 0.35)) {
+                    scrollProxy.scrollTo(scrollId, anchor: UnitPoint(x: 0.5, y: 0.25))
+                }
+            }
+        }
         .confirmationDialog(L("settings.general.selectTheme", table: "Profile"), isPresented: $showThemePicker, titleVisibility: .visible) {
             Button(L("settings.general.theme.system", table: "Profile")) {
                 userSelectedTheme = nil
@@ -150,6 +176,7 @@ struct SettingsView: View {
             Button(L("general.cancel", table: "Profile"), role: .cancel) { }
         }
         .environment(\.locale, Locale(identifier: languageManager.currentLanguage))
+        } // end ScrollViewReader
     }
     
     /// Kullanıcının daha önce rating verip vermediğini kontrol eder
@@ -733,6 +760,41 @@ struct RestartOnboardingRow: View {
 
 extension Notification.Name {
     static let restartOnboarding = Notification.Name("restartOnboarding")
+}
+
+// MARK: - Restart Tour Row
+struct RestartTourRow: View {
+    @StateObject private var tourManager = AppTourManager.shared
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        Button {
+            dismiss()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                tourManager.restartTour()
+            }
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "map")
+                    .font(.system(size: 18, weight: .regular))
+                    .foregroundColor(.appPrimary)
+                    .frame(width: 24, height: 24)
+                Text(L("tour.restart.title", table: "Tour"))
+                    .font(.system(.body, design: .rounded, weight: .medium))
+                    .foregroundColor(.appText)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundColor(.appTextSecondary.opacity(0.4))
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 13)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .tourTarget("tour.settings.restartTour")
+        .id("tour.settings.restartTour")
+    }
 }
 
 struct SettingsView_Previews: PreviewProvider {

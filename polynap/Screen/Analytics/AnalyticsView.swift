@@ -29,6 +29,7 @@ public struct AnalyticsView: View {
                             .foregroundColor(.appText)
                             .padding(.horizontal, PSSpacing.lg)
                             .padding(.top, PSSpacing.sm)
+                            .tourTarget("tour.analytics.content")
                         
                         // Zaman Aralığı Seçici
                         timeRangePicker

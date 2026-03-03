@@ -5,6 +5,7 @@ struct MainTabBarView: View {
     @State private var selectedTab = 0
     @StateObject private var mainScreenViewModel: MainScreenViewModel
     @StateObject private var paywallManager = PaywallManager.shared
+    @StateObject private var tourManager = AppTourManager.shared
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var languageManager: LanguageManager
     @EnvironmentObject private var alarmManager: AlarmManager
@@ -61,6 +62,8 @@ struct MainTabBarView: View {
                 logTabScreenView(selectedTab)
                 mainScreenViewModel.setModelContext(modelContext)
                 checkAndTriggerOnboardingPaywall()
+                // Start app tour if needed
+                tourManager.startTourIfNeeded()
             }
             .onChange(of: revenueCatManager.userState) { _, _ in
                 // User state değiştiğinde tekrar kontrol et
@@ -73,6 +76,15 @@ struct MainTabBarView: View {
                 logTabScreenView(newValue)
                 analyticsManager.logFeatureUsed(featureName: "tab_navigation", action: "tab_changed")
             }
+            // Switch tab when tour requires it
+            .onChange(of: tourManager.currentStepIndex) { _, _ in
+                let requiredTab = tourManager.currentStep.requiredTab
+                if selectedTab != requiredTab {
+                    withAnimation {
+                        selectedTab = requiredTab
+                    }
+                }
+            }
 
             // Global badge earned modal
             if let badge = earnedBadgeForModal {
@@ -80,6 +92,14 @@ struct MainTabBarView: View {
                     earnedBadgeForModal = nil
                 }
                 .zIndex(100)
+            }
+        }
+        // App tour overlay collects preference anchors from all children
+        .overlayPreferenceValue(TourTargetKey.self) { anchors in
+            if tourManager.isShowingTour {
+                AppTourOverlayView(anchors: anchors)
+                    .environmentObject(tourManager)
+                    .environmentObject(languageManager)
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .badgeEarned)) { notification in
