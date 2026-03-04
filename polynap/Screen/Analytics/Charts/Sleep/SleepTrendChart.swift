@@ -12,8 +12,8 @@ struct SleepTrendChart: View {
             ForEach(viewModel.sleepTrendData) { day in
                 // Alanı göstermek için alan işaretleyici
                 AreaMark(
-                    x: .value("Tarih", day.date, unit: .day),
-                    y: .value("Saat", day.totalHours)
+                    x: .value("Date", day.date, unit: .day),
+                    y: .value("Hours", day.totalHours)
                 )
                 .foregroundStyle(
                     .linearGradient(
@@ -26,8 +26,8 @@ struct SleepTrendChart: View {
                 
                 // Çizgi
                 LineMark(
-                    x: .value("Tarih", day.date, unit: .day),
-                    y: .value("Saat", day.totalHours)
+                    x: .value("Date", day.date, unit: .day),
+                    y: .value("Hours", day.totalHours)
                 )
                 .foregroundStyle(Color.appPrimary)
                 .lineStyle(StrokeStyle(lineWidth: 3))
@@ -36,8 +36,8 @@ struct SleepTrendChart: View {
                 // Noktalar (sadece veri olan günler için)
                 if day.totalHours > 0 {
                     PointMark(
-                        x: .value("Tarih", day.date, unit: .day),
-                        y: .value("Saat", day.totalHours)
+                        x: .value("Date", day.date, unit: .day),
+                        y: .value("Hours", day.totalHours)
                     )
                     .foregroundStyle(Color.appPrimary)
                     .symbolSize(30)
@@ -45,7 +45,7 @@ struct SleepTrendChart: View {
             }
             
             // Hedef uyku süresi - referans çizgisi
-            RuleMark(y: .value("Hedef", 8))
+            RuleMark(y: .value("Target", 8))
                 .foregroundStyle(Color.gray.opacity(0.5))
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 5]))
                 .annotation(position: .top, alignment: .trailing) {

@@ -42,17 +42,13 @@ public struct AnalyticsView: View {
                         } else if viewModel.hasEnoughData {
                             VStack(spacing: PSSpacing.xl) {
                                 // ═══════════════════════════════════════
-                                // SECTION 1: FREE — Temel Metrikler
+                                // SECTION 1: FREE — Genel Bakış
                                 // ═══════════════════════════════════════
                                 
+                                // 1. Summary card (key numbers)
                                 AnalyticsSummaryCard(viewModel: viewModel)
                                 
-                                // Adherence Summary (Uyum özeti)
-                                if !viewModel.adherenceData.isEmpty {
-                                    adherenceSummaryCard
-                                }
-                                
-                                // Sleep Trends (Tüm kullanıcılar)
+                                // 2. Sleep Trends (total sleep + quality + [premium: components])
                                 AnalyticsSleepTrendsSection(
                                     viewModel: viewModel,
                                     isPremiumUser: isPremiumUser,
@@ -61,10 +57,10 @@ public struct AnalyticsView: View {
                                     tooltipPosition: $tooltipPosition
                                 )
                                 
-                                AnalyticsBestWorstDays(viewModel: viewModel)
-                                
-                                // Adherence Detail Chart (Uyum detay)
+                                // 3. Adherence (plan uyumu) — summary + detail chart grouped
                                 if !viewModel.adherenceData.isEmpty {
+                                    adherenceSummaryCard
+                                    
                                     PSCard {
                                         VStack(alignment: .leading, spacing: PSSpacing.lg) {
                                             PSSectionHeader(
@@ -78,89 +74,35 @@ public struct AnalyticsView: View {
                                     .padding(.horizontal, PSSpacing.lg)
                                 }
                                 
+                                // 4. Best/worst days
+                                AnalyticsBestWorstDays(viewModel: viewModel)
+                                
                                 // ═══════════════════════════════════════
-                                // SECTION 2: PREMIUM — Gelişmiş Analizler
+                                // SECTION 2: PREMIUM — Detaylı Analizler
                                 // ═══════════════════════════════════════
                                 
                                 if isPremiumUser {
-                                    AnalyticsQualityDistribution(viewModel: viewModel)
-                                    
+                                    // 5. Sleep breakdown (donut pie chart — visual)
                                     AnalyticsSleepBreakdown(
                                         viewModel: viewModel,
                                         selectedPieSlice: $selectedPieSlice,
                                         tooltipPosition: $tooltipPosition
                                     )
                                     
-                                    // Sleep Debt (Uyku borcu)
+                                    // 6. Quality distribution (bar breakdown)
+                                    AnalyticsQualityDistribution(viewModel: viewModel)
+                                    
+                                    // 7. Sleep debt (cumulative tracking)
                                     if !viewModel.sleepDebtData.isEmpty {
                                         AnalyticsSleepDebtSection(viewModel: viewModel)
                                     }
                                     
-                                    // Consistency Trend (Tutarlılık)
+                                    // 8. Consistency trend (how stable are your times?)
                                     if !viewModel.consistencyTrendData.isEmpty {
                                         AnalyticsConsistencyTrendSection(viewModel: viewModel)
                                     }
                                     
-                                    // HeatMap (Actogram)
-                                    AnalyticsHeatMapSection(viewModel: viewModel)
-                                    
-                                    AnalyticsTimeGained(viewModel: viewModel)
-                                    
-                                    // Quality-Consistency Correlation
-                                    if !viewModel.qualityConsistencyData.isEmpty {
-                                        AnalyticsQualityConsistencyCorrelation(viewModel: viewModel)
-                                    }
-                                    
-                                    // ═══════════════════════════════════════
-                                    // SECTION 3: PREMIUM + HEALTHKIT
-                                    // ═══════════════════════════════════════
-                                    
-                                    // Sleep Stages (Uyku evreleri)
-                                    if !viewModel.sleepStagesData.isEmpty {
-                                        PSCard {
-                                            VStack(alignment: .leading, spacing: PSSpacing.lg) {
-                                                PSSectionHeader(
-                                                    L("analytics.sleepStages.title", table: "Analytics"),
-                                                    icon: "moon.stars.fill",
-                                                    subtitle: L("analytics.sleepStages.subtitle", table: "Analytics")
-                                                )
-                                                SleepStagesChart(viewModel: viewModel)
-                                            }
-                                        }
-                                        .padding(.horizontal, PSSpacing.lg)
-                                    }
-                                    
-                                    // Heart Rate
-                                    if !viewModel.heartRateData.isEmpty {
-                                        PSCard {
-                                            VStack(alignment: .leading, spacing: PSSpacing.lg) {
-                                                PSSectionHeader(
-                                                    L("analytics.heartRate.title", table: "Analytics"),
-                                                    icon: "heart.fill",
-                                                    subtitle: L("analytics.heartRate.subtitle", table: "Analytics")
-                                                )
-                                                HeartRateChart(viewModel: viewModel)
-                                            }
-                                        }
-                                        .padding(.horizontal, PSSpacing.lg)
-                                    }
-                                    
-                                    // HRV Recovery
-                                    if !viewModel.hrvData.isEmpty {
-                                        PSCard {
-                                            VStack(alignment: .leading, spacing: PSSpacing.lg) {
-                                                PSSectionHeader(
-                                                    L("analytics.hrv.title", table: "Analytics"),
-                                                    icon: "waveform.path.ecg",
-                                                    subtitle: L("analytics.hrv.subtitle", table: "Analytics")
-                                                )
-                                                HRVRecoveryChart(viewModel: viewModel)
-                                            }
-                                        }
-                                        .padding(.horizontal, PSSpacing.lg)
-                                    }
-                                    
-                                    // Sleep Regularity
+                                    // 9. Sleep regularity (deviation from average)
                                     if !viewModel.sleepRegularityData.isEmpty {
                                         PSCard {
                                             VStack(alignment: .leading, spacing: PSSpacing.lg) {
@@ -175,7 +117,67 @@ public struct AnalyticsView: View {
                                         .padding(.horizontal, PSSpacing.lg)
                                     }
                                     
-                                    // HealthKit erişimi yoksa bağlantı butonu göster
+                                    // 10. HeatMap (actogram — visual pattern)
+                                    AnalyticsHeatMapSection(viewModel: viewModel)
+                                    
+                                    // 11. Time gained (motivational)
+                                    AnalyticsTimeGained(viewModel: viewModel)
+                                    
+                                    // 12. Quality-Consistency correlation (scatter — most advanced)
+                                    if !viewModel.qualityConsistencyData.isEmpty {
+                                        AnalyticsQualityConsistencyCorrelation(viewModel: viewModel)
+                                    }
+                                    
+                                    // ═══════════════════════════════════════
+                                    // SECTION 3: PREMIUM + HEALTHKIT — Vücut Sinyalleri
+                                    // ═══════════════════════════════════════
+                                    
+                                    // 13. Sleep Stages (stacked bar)
+                                    if !viewModel.sleepStagesData.isEmpty {
+                                        PSCard {
+                                            VStack(alignment: .leading, spacing: PSSpacing.lg) {
+                                                PSSectionHeader(
+                                                    L("analytics.sleepStages.title", table: "Analytics"),
+                                                    icon: "moon.stars.fill",
+                                                    subtitle: L("analytics.sleepStages.subtitle", table: "Analytics")
+                                                )
+                                                SleepStagesChart(viewModel: viewModel)
+                                            }
+                                        }
+                                        .padding(.horizontal, PSSpacing.lg)
+                                    }
+                                    
+                                    // 14. Heart Rate (multi-line)
+                                    if !viewModel.heartRateData.isEmpty {
+                                        PSCard {
+                                            VStack(alignment: .leading, spacing: PSSpacing.lg) {
+                                                PSSectionHeader(
+                                                    L("analytics.heartRate.title", table: "Analytics"),
+                                                    icon: "heart.fill",
+                                                    subtitle: L("analytics.heartRate.subtitle", table: "Analytics")
+                                                )
+                                                HeartRateChart(viewModel: viewModel)
+                                            }
+                                        }
+                                        .padding(.horizontal, PSSpacing.lg)
+                                    }
+                                    
+                                    // 15. HRV Recovery (area+line)
+                                    if !viewModel.hrvData.isEmpty {
+                                        PSCard {
+                                            VStack(alignment: .leading, spacing: PSSpacing.lg) {
+                                                PSSectionHeader(
+                                                    L("analytics.hrv.title", table: "Analytics"),
+                                                    icon: "waveform.path.ecg",
+                                                    subtitle: L("analytics.hrv.subtitle", table: "Analytics")
+                                                )
+                                                HRVRecoveryChart(viewModel: viewModel)
+                                            }
+                                        }
+                                        .padding(.horizontal, PSSpacing.lg)
+                                    }
+                                    
+                                    // HealthKit access prompt
                                     if !viewModel.hasHealthKitAccess && !viewModel.isHealthDataLoading {
                                         PSCard {
                                             VStack(spacing: PSSpacing.md) {
@@ -199,7 +201,7 @@ public struct AnalyticsView: View {
                                         .padding(.horizontal, PSSpacing.lg)
                                     }
                                     
-                                    // HealthKit verisi yoksa bilgi
+                                    // HealthKit no data state
                                     if viewModel.hasHealthKitAccess && viewModel.heartRateData.isEmpty && viewModel.hrvData.isEmpty && viewModel.sleepStagesData.isEmpty && !viewModel.isHealthDataLoading {
                                         PSCard {
                                             VStack(spacing: PSSpacing.md) {

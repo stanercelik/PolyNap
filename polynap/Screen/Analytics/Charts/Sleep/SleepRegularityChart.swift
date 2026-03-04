@@ -12,15 +12,15 @@ struct SleepRegularityChart: View {
             ForEach(viewModel.sleepRegularityData) { data in
                 // Düzenlilik skoru bar chart
                 BarMark(
-                    x: .value("Tarih", data.date, unit: .day),
-                    y: .value("Skor", data.score)
+                    x: .value("Date", data.date, unit: .day),
+                    y: .value("Score", data.score)
                 )
                 .foregroundStyle(barColor(for: data.score))
                 .cornerRadius(PSCornerRadius.small)
             }
             
             // Hedef düzenlilik çizgisi
-            RuleMark(y: .value("Hedef", 80))
+            RuleMark(y: .value("Target", 80))
                 .foregroundStyle(Color.appSecondary.opacity(0.7))
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 5]))
                 .annotation(position: .top, alignment: .trailing) {
