@@ -10,7 +10,7 @@ struct AnalyticsTotalSleepChart: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(L("analytics.trend.title", table: "Analytics"))
                 .font(.system(size: 22, weight: .semibold, design: .rounded))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(.appText)
             
             VStack(alignment: .leading, spacing: 20) {
                 // Sadece Toplam Uyku Süresi Grafiği
@@ -26,7 +26,7 @@ struct AnalyticsTotalSleepChart: View {
                 )
             }
             .padding()
-            .background(Color("CardBackground"))
+            .background(Color.appCardBackground)
             .cornerRadius(12)
         }
         .padding(.horizontal)
@@ -44,7 +44,7 @@ struct AnalyticsTrendCharts: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(L("analytics.trend.title", table: "Analytics"))
                 .font(.system(size: 22, weight: .semibold, design: .rounded))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(.appText)
             
             VStack(alignment: .leading, spacing: 20) {
                 // Toplam Uyku Süresi Grafiği
@@ -72,7 +72,7 @@ struct AnalyticsTrendCharts: View {
                 )
             }
             .padding()
-            .background(Color("CardBackground"))
+            .background(Color.appCardBackground)
             .cornerRadius(12)
         }
         .padding(.horizontal)
@@ -89,7 +89,7 @@ struct AnalyticsSleepBreakdown: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(L("analytics.sleepBreakdown.title", table: "Analytics"))
                 .font(.system(size: 22, weight: .semibold, design: .rounded))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(.appText)
             
             VStack(spacing: 20) {
                 HStack(alignment: .top, spacing: 20) {
@@ -105,7 +105,7 @@ struct AnalyticsSleepBreakdown: View {
                 }
             }
             .padding()
-            .background(Color("CardBackground"))
+            .background(Color.appCardBackground)
             .cornerRadius(12)
             .shadow(color: Color.black.opacity(0.05), radius: 4, x: 0, y: 2)
         }
@@ -139,8 +139,8 @@ struct AnalyticsHeatMapSection: View {
                 // Veri yetersizliği uyarısı
                 if viewModel.sleepTrendData.filter({ $0.totalHours > 0 }).count < 7 {
                     PSInfoBox(
-                        title: "Yetersiz Veri",
-                        message: "Daha doğru analiz için en az 1 haftalık düzenli uyku verisi gereklidir. Şu anda sadece \(viewModel.sleepTrendData.filter({ $0.totalHours > 0 }).count) gün veri mevcut.",
+                        title: L("analytics.heatMap.insufficientData.title", table: "Analytics"),
+                        message: L("analytics.heatMap.insufficientData.message", table: "Analytics"),
                         icon: "exclamationmark.triangle.fill"
                     )
                 }
@@ -244,8 +244,8 @@ struct AnalyticsQualityConsistencyCorrelation: View {
                 // Veri güvenilirliği uyarısı
                 if viewModel.qualityConsistencyData.count < 10 {
                     PSInfoBox(
-                        title: "Sınırlı Veri Analizi",
-                        message: "Sadece \(viewModel.qualityConsistencyData.count) gün verisiyle korelasyon analizi yapılıyor. Manuel puanlar ve varsayılan saatler kullanılıyor. Daha güvenilir sonuçlar için en az 2-3 haftalık veri gereklidir.",
+                        title: L("analytics.qualityConsistency.limitedData.title", table: "Analytics"),
+                        message: L("analytics.qualityConsistency.limitedData.message", table: "Analytics"),
                         icon: "exclamationmark.triangle.fill"
                     )
                 }

@@ -8,13 +8,32 @@ struct QualityConsistencyScatterChart: View {
     @Binding var tooltipPosition: CGPoint
     
     var body: some View {
+        if viewModel.qualityConsistencyData.count < 3 {
+            // Minimum 3 veri noktası gerekli
+            VStack(spacing: PSSpacing.sm) {
+                Image(systemName: "chart.dots.scatter")
+                    .font(.system(size: 28))
+                    .foregroundColor(.appTextSecondary)
+                Text(L("analytics.qualityConsistency.needMoreData", table: "Analytics"))
+                    .font(.system(.subheadline, design: .rounded))
+                    .foregroundColor(.appTextSecondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .frame(height: 160)
+        } else {
+            scatterContent
+        }
+    }
+    
+    private var scatterContent: some View {
         Chart(viewModel.qualityConsistencyData) { data in
             PointMark(
                 x: .value(L("analytics.qualityConsistency.deviation", table: "Analytics"), data.consistencyDeviation),
                 y: .value(L("analytics.qualityConsistency.quality", table: "Analytics"), data.sleepQuality)
             )
             .foregroundStyle(data.qualityCategory.color)
-            .symbolSize(data.sleepHours * 10) // Uyku süresiyle orantılı boyut
+            .symbolSize(max(30, data.sleepHours * 10))
             .opacity(0.7)
         }
         .chartOverlay { proxy in
@@ -106,7 +125,7 @@ struct QualityConsistencyScatterChart: View {
             AxisMarks(position: .bottom) { value in
                 AxisValueLabel {
                     if let deviation = value.as(Double.self) {
-                        Text("\(Int(deviation))dk")
+                        Text("\(Int(deviation))m")
                             .font(PSTypography.caption)
                     }
                 }

@@ -12,8 +12,8 @@ struct HRVRecoveryChart: View {
             ForEach(viewModel.hrvData) { data in
                 // Recovery score area (gradient fill)
                 AreaMark(
-                    x: .value("Tarih", data.date, unit: .day),
-                    y: .value("Toparlanma", data.recoveryScore)
+                    x: .value("Date", data.date, unit: .day),
+                    y: .value("Recovery", data.recoveryScore)
                 )
                 .foregroundStyle(
                     .linearGradient(
@@ -26,8 +26,8 @@ struct HRVRecoveryChart: View {
                 
                 // Recovery score line
                 LineMark(
-                    x: .value("Tarih", data.date, unit: .day),
-                    y: .value("Toparlanma", data.recoveryScore)
+                    x: .value("Date", data.date, unit: .day),
+                    y: .value("Recovery", data.recoveryScore)
                 )
                 .foregroundStyle(Color.green)
                 .lineStyle(StrokeStyle(lineWidth: 2.5))
@@ -35,15 +35,15 @@ struct HRVRecoveryChart: View {
                 
                 // Data points with color based on score
                 PointMark(
-                    x: .value("Tarih", data.date, unit: .day),
-                    y: .value("Toparlanma", data.recoveryScore)
+                    x: .value("Date", data.date, unit: .day),
+                    y: .value("Recovery", data.recoveryScore)
                 )
                 .foregroundStyle(recoveryColor(for: data.recoveryScore))
                 .symbolSize(35)
             }
             
             // Recovery zone bands
-            RuleMark(y: .value("İyi", 75))
+            RuleMark(y: .value("Good", 75))
                 .foregroundStyle(Color.green.opacity(0.4))
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 5]))
                 .annotation(position: .top, alignment: .trailing) {
@@ -56,7 +56,7 @@ struct HRVRecoveryChart: View {
                         .cornerRadius(PSCornerRadius.small)
                 }
             
-            RuleMark(y: .value("Düşük", 40))
+            RuleMark(y: .value("Low", 40))
                 .foregroundStyle(Color.orange.opacity(0.4))
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 5]))
                 .annotation(position: .bottom, alignment: .trailing) {

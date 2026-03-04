@@ -198,32 +198,32 @@ struct PieChartTooltip: View {
         VStack(alignment: .leading, spacing: 6) {
             Text(slice.type)
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(.appText)
             
             HStack {
                 VStack(alignment: .leading, spacing: 3) {
                     Text(String(format: L("analytics.tooltip.percentageLabel", table: "Analytics"), slice.percentage))
                         .font(.system(size: 11))
-                        .foregroundColor(Color("TextColor"))
+                        .foregroundColor(.appText)
                     
                     Text(String(format: L("analytics.tooltip.totalHoursLabel", table: "Analytics"), slice.hours))
                         .font(.system(size: 11))
-                        .foregroundColor(Color("TextColor"))
+                        .foregroundColor(.appText)
                 }
                 
                 VStack(alignment: .leading, spacing: 3) {
                     Text(String(format: L("analytics.tooltip.dailyHoursLabel", table: "Analytics"), slice.averagePerDay))
                         .font(.system(size: 11))
-                        .foregroundColor(Color("TextColor"))
+                        .foregroundColor(.appText)
                     
                     Text(String(format: L("analytics.tooltip.daysLabel", table: "Analytics"), slice.daysWithThisType))
                         .font(.system(size: 11))
-                        .foregroundColor(Color("TextColor"))
+                        .foregroundColor(.appText)
                 }
             }
         }
         .padding(8)
-        .background(Color("CardBackground"))
+        .background(Color.appCardBackground)
         .cornerRadius(8)
         .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: 2)
         .frame(width: 160)

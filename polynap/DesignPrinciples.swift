@@ -8,36 +8,36 @@ import SwiftUI
 
 // MARK: - Typography Scale
 enum PSTypography {
-    /// H1 - Sayfa Başlığı: SF Pro Bold, 28-34pt
-    static var largeTitle: Font { .largeTitle.bold() }
+    /// H1 - Sayfa Başlığı: SF Pro Rounded Bold, 28-34pt
+    static var largeTitle: Font { .system(.largeTitle, design: .rounded, weight: .bold) }
     
-    /// H2 - Bölüm Başlığı: SF Pro Semibold, 22-24pt  
-    static var title1: Font { .title.weight(.semibold) }
+    /// H2 - Bölüm Başlığı: SF Pro Rounded Semibold, 22-24pt  
+    static var title1: Font { .system(.title, design: .rounded, weight: .semibold) }
     
-    static var title2: Font { .title2.weight(.semibold) }
+    static var title2: Font { .system(.title2, design: .rounded, weight: .semibold) }
     
-    static var title3: Font { .title3.weight(.semibold) }
+    static var title3: Font { .system(.title3, design: .rounded, weight: .semibold) }
     
-    /// H2 - Bölüm Başlığı: SF Pro Semibold, 22-24pt
-    static var h2: Font { .title2.weight(.semibold) }
+    /// H2 - Bölüm Başlığı: SF Pro Rounded Semibold, 22-24pt
+    static var h2: Font { .system(.title2, design: .rounded, weight: .semibold) }
     
-    /// H3 - Kart Başlığı: SF Pro Semibold, 18-20pt
-    static var h3: Font { .headline.weight(.semibold) }
+    /// H3 - Kart Başlığı: SF Pro Rounded Semibold, 18-20pt
+    static var h3: Font { .system(.headline, design: .rounded, weight: .semibold) }
     
-    /// H3 - Kart Başlığı: SF Pro Semibold, 18-20pt
-    static var headline: Font { .headline.weight(.semibold) }
+    /// H3 - Kart Başlığı: SF Pro Rounded Semibold, 18-20pt
+    static var headline: Font { .system(.headline, design: .rounded, weight: .semibold) }
     
-    /// Gövde Metni: SF Pro Regular, 16-17pt
-    static var body: Font { .body }
+    /// Gövde Metni: SF Pro Rounded Regular, 16-17pt
+    static var body: Font { .system(.body, design: .rounded) }
     
-    /// Alt Başlık / İkincil Metin: SF Pro Regular, 15pt
-    static var subheadline: Font { .subheadline }
+    /// Alt Başlık / İkincil Metin: SF Pro Rounded Regular, 15pt
+    static var subheadline: Font { .system(.subheadline, design: .rounded) }
     
-    /// Alt Metin / Açıklama: SF Pro Regular, 13-15pt
-    static var caption: Font { .caption }
+    /// Alt Metin / Açıklama: SF Pro Rounded Regular, 13-15pt
+    static var caption: Font { .system(.caption, design: .rounded) }
     
-    /// Düğme Metni: SF Pro Semibold, 15-17pt
-    static var button: Font { .subheadline.weight(.semibold) }
+    /// Düğme Metni: SF Pro Rounded Semibold, 15-17pt
+    static var button: Font { .system(.subheadline, design: .rounded, weight: .semibold) }
 }
 
 // MARK: - Spacing System (8pt Grid)

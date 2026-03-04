@@ -936,7 +936,7 @@ struct AnalyticsSleepComponentsPreview: View {
                             
                             // Şekerleme 1
                             Rectangle()
-                                .fill(Color("PrimaryColor"))
+                                .fill(Color.appPrimary)
                                 .frame(height: CGFloat.random(in: 12...35))
                             
                             // Ana uyku
@@ -954,7 +954,7 @@ struct AnalyticsSleepComponentsPreview: View {
             // Legend
             HStack(spacing: PSSpacing.lg) {
                 LegendItem(color: Color("AccentColor"), label: L("analytics.sleepComponentsTrend.core", table: "Analytics"))
-                LegendItem(color: Color("PrimaryColor"), label: L("analytics.sleepComponentsTrend.nap", table: "Analytics"))
+                LegendItem(color: .appPrimary, label: L("analytics.sleepComponentsTrend.nap", table: "Analytics"))
                 
                 HStack(spacing: PSSpacing.xs) {
                     Circle()
@@ -978,10 +978,10 @@ struct AnalyticsQualityDistributionPreview: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(L("analytics.qualityDistribution.title", table: "Analytics"))
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(.appText)
             
             VStack(spacing: 8) {
-                ForEach(["Mükemmel", "İyi", "Ortalama", "Kötü"], id: \.self) { quality in
+                ForEach(["Excellent", "Good", "Average", "Poor"], id: \.self) { quality in
                     HStack {
                         Circle()
                             .fill(Color.random)
@@ -989,7 +989,7 @@ struct AnalyticsQualityDistributionPreview: View {
                         
                         Text(quality)
                             .font(.system(size: 14))
-                            .foregroundColor(Color("TextColor"))
+                            .foregroundColor(.appText)
                         
                         Spacer()
                         
@@ -1000,14 +1000,14 @@ struct AnalyticsQualityDistributionPreview: View {
                         
                         Text("\(Int.random(in: 10...45))%")
                             .font(.system(size: 14))
-                            .foregroundColor(Color("TextColor"))
+                            .foregroundColor(.appText)
                             .frame(width: 35, alignment: .trailing)
                     }
                 }
             }
         }
         .padding()
-        .background(Color("CardBackground"))
+        .background(Color.appCardBackground)
         .cornerRadius(12)
     }
 }
@@ -1017,7 +1017,7 @@ struct AnalyticsSleepBreakdownPreview: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(L("analytics.sleepBreakdown.title", table: "Analytics"))
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(.appText)
             
             HStack {
                 // Fake pie chart
@@ -1028,7 +1028,7 @@ struct AnalyticsSleepBreakdownPreview: View {
                     
                     Circle()
                         .trim(from: 0, to: 0.3)
-                        .fill(Color("PrimaryColor"))
+                        .fill(Color.appPrimary)
                         .frame(width: 120, height: 120)
                         .rotationEffect(.degrees(90))
                     
@@ -1048,16 +1048,16 @@ struct AnalyticsSleepBreakdownPreview: View {
                             .frame(width: 12, height: 12)
                         Text(String(format: L("analytics.sleepBreakdown.core", table: "Analytics"), 75))
                             .font(.system(size: 14))
-                            .foregroundColor(Color("TextColor"))
+                            .foregroundColor(.appText)
                     }
                     
                     HStack {
                         Circle()
-                            .fill(Color("PrimaryColor"))
+                            .fill(Color.appPrimary)
                             .frame(width: 12, height: 12)
                         Text(String(format: L("analytics.sleepBreakdown.nap1", table: "Analytics"), 20))
                             .font(.system(size: 14))
-                            .foregroundColor(Color("TextColor"))
+                            .foregroundColor(.appText)
                     }
                     
                     HStack {
@@ -1066,13 +1066,13 @@ struct AnalyticsSleepBreakdownPreview: View {
                             .frame(width: 12, height: 12)
                         Text(String(format: L("analytics.sleepBreakdown.nap2", table: "Analytics"), 5))
                             .font(.system(size: 14))
-                            .foregroundColor(Color("TextColor"))
+                            .foregroundColor(.appText)
                     }
                 }
             }
         }
         .padding()
-        .background(Color("CardBackground"))
+        .background(Color.appCardBackground)
         .cornerRadius(12)
     }
 }
@@ -1082,7 +1082,7 @@ struct AnalyticsConsistencyPreview: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(L("analytics.consistency.title", table: "Analytics"))
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(.appText)
             
             HStack {
                 // Fake consistency circle
@@ -1100,7 +1100,7 @@ struct AnalyticsConsistencyPreview: View {
                     VStack {
                         Text("75")
                             .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(Color("TextColor"))
+                            .foregroundColor(.appText)
                         Text(L("analytics.consistency.scoreUnit", table: "Analytics"))
                             .font(.system(size: 12))
                             .foregroundColor(Color("SecondaryTextColor"))
@@ -1112,7 +1112,7 @@ struct AnalyticsConsistencyPreview: View {
                 VStack(alignment: .leading, spacing: 8) {
                     Text(String(format: L("analytics.variability.scoreFormat", table: "Analytics"), 25))
                         .font(.system(size: 14))
-                        .foregroundColor(Color("TextColor"))
+                        .foregroundColor(.appText)
                     
                     Text(L("analytics.consistency.greatRoutine", table: "Analytics"))
                         .font(.system(size: 12))
@@ -1121,7 +1121,7 @@ struct AnalyticsConsistencyPreview: View {
             }
         }
         .padding()
-        .background(Color("CardBackground"))
+        .background(Color.appCardBackground)
         .cornerRadius(12)
     }
 }
@@ -1131,7 +1131,7 @@ struct AnalyticsTimeGainedPreview: View {
         VStack(alignment: .leading, spacing: 12) {
             Text(L("analytics.timeGained.title", table: "Analytics"))
                 .font(.system(size: 18, weight: .semibold))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(.appText)
             
             HStack {
                 ZStack {
@@ -1154,20 +1154,20 @@ struct AnalyticsTimeGainedPreview: View {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(L("analytics.timeGained.activity.reading", table: "Analytics"))
                         .font(.system(size: 12))
-                        .foregroundColor(Color("TextColor"))
+                        .foregroundColor(.appText)
                     
                     Text(L("analytics.timeGained.activity.walking", table: "Analytics"))
                         .font(.system(size: 12))
-                        .foregroundColor(Color("TextColor"))
+                        .foregroundColor(.appText)
                     
                     Text(L("analytics.timeGained.activity.movies", table: "Analytics"))
                         .font(.system(size: 12))
-                        .foregroundColor(Color("TextColor"))
+                        .foregroundColor(.appText)
                 }
             }
         }
         .padding()
-        .background(Color("CardBackground"))
+        .background(Color.appCardBackground)
         .cornerRadius(12)
     }
 }

@@ -51,7 +51,7 @@ struct PieChart: View {
             VStack(spacing: 0) {
                 Text(String(format: "%.1f", viewModel.averageDailyHours))
                     .font(.system(size: 20, weight: .bold))
-                    .foregroundColor(Color("TextColor"))
+                    .foregroundColor(.appText)
                 
                 Text(L("analytics.sleepBreakdown.hoursPerDay", table: "Analytics"))
                     .font(.system(size: 12))
@@ -84,7 +84,7 @@ struct SleepBreakdownTable: View {
                         
                         Text(item.type)
                             .font(.system(size: 16, weight: .medium))
-                            .foregroundColor(Color("TextColor"))
+                            .foregroundColor(.appText)
                     }
                     
                     HStack {
@@ -97,7 +97,7 @@ struct SleepBreakdownTable: View {
                                 
                                 Text(String(format: L("analytics.sleepBreakdown.percentageValue", table: "Analytics"), item.percentage))
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(Color("TextColor"))
+                                    .foregroundColor(.appText)
                             }
                             
                             // Toplam süre
@@ -108,7 +108,7 @@ struct SleepBreakdownTable: View {
                                 
                                 Text(String(format: L("analytics.sleepBreakdown.totalValue", table: "Analytics"), item.hours))
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(Color("TextColor"))
+                                    .foregroundColor(.appText)
                             }
                         }
                         
@@ -123,7 +123,7 @@ struct SleepBreakdownTable: View {
                                 
                                 Text(String(format: L("analytics.sleepBreakdown.dailyValue", table: "Analytics"), item.averagePerDay))
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(Color("TextColor"))
+                                    .foregroundColor(.appText)
                             }
                             
                             // Gün sayısı
@@ -134,7 +134,7 @@ struct SleepBreakdownTable: View {
                                 
                                 Text("\(item.daysWithThisType)")
                                     .font(.system(size: 14, weight: .semibold))
-                                    .foregroundColor(Color("TextColor"))
+                                    .foregroundColor(.appText)
                             }
                         }
                     }

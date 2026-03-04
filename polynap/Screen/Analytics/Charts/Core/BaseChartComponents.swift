@@ -12,7 +12,7 @@ struct ChartHeader: View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
                 .font(.system(size: 16, weight: .semibold))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(.appText)
             
             Text(subtitle)
                 .font(.system(size: 12))
@@ -34,7 +34,7 @@ struct LegendItem: View {
             
             Text(label)
                 .font(.system(size: 12))
-                .foregroundColor(Color("TextColor"))
+                .foregroundColor(.appText)
         }
     }
 }

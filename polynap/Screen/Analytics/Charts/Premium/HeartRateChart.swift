@@ -12,7 +12,7 @@ struct HeartRateChart: View {
             ForEach(viewModel.heartRateData) { data in
                 // Min-Max aralığı (alan)
                 AreaMark(
-                    x: .value("Tarih", data.date, unit: .day),
+                    x: .value("Date", data.date, unit: .day),
                     yStart: .value("Min", data.minBPM),
                     yEnd: .value("Max", data.maxBPM)
                 )
@@ -21,8 +21,8 @@ struct HeartRateChart: View {
                 
                 // Ortalama BPM çizgisi
                 LineMark(
-                    x: .value("Tarih", data.date, unit: .day),
-                    y: .value("Ort", data.averageBPM)
+                    x: .value("Date", data.date, unit: .day),
+                    y: .value("Avg", data.averageBPM)
                 )
                 .foregroundStyle(Color.red.opacity(0.8))
                 .lineStyle(StrokeStyle(lineWidth: 2.5))
@@ -31,8 +31,8 @@ struct HeartRateChart: View {
                 // Dinlenme kalp hızı
                 if let resting = data.restingBPM {
                     LineMark(
-                        x: .value("Tarih", data.date, unit: .day),
-                        y: .value("Dinlenme", resting)
+                        x: .value("Date", data.date, unit: .day),
+                        y: .value("Resting", resting)
                     )
                     .foregroundStyle(Color.pink.opacity(0.6))
                     .lineStyle(StrokeStyle(lineWidth: 2, dash: [4, 4]))
@@ -41,8 +41,8 @@ struct HeartRateChart: View {
                 
                 // Veri noktaları
                 PointMark(
-                    x: .value("Tarih", data.date, unit: .day),
-                    y: .value("Ort", data.averageBPM)
+                    x: .value("Date", data.date, unit: .day),
+                    y: .value("Avg", data.averageBPM)
                 )
                 .foregroundStyle(Color.red)
                 .symbolSize(25)

@@ -30,7 +30,7 @@ struct SleepComponentsChart: View {
                         y: .value("Nap 1", day.nap1Hours),
                         stacking: .standard
                     )
-                    .foregroundStyle(Color("PrimaryColor"))
+                    .foregroundStyle(Color.appPrimary)
                     .cornerRadius(4)
                     
                     // Şekerleme 2
@@ -64,14 +64,14 @@ struct SleepComponentsChart: View {
             .frame(width: geometry.size.width, height: 220) // Sabit yükseklik, tam genişlik
             .chartForegroundStyleScale([
                 L("analytics.sleepComponentsTrend.core", table: "Analytics"): Color("AccentColor"),
-                L("analytics.sleepComponentsTrend.nap1", table: "Analytics"): Color("PrimaryColor"),
+                L("analytics.sleepComponentsTrend.nap1", table: "Analytics"): .appPrimary,
                 L("analytics.sleepComponentsTrend.nap2", table: "Analytics"): Color("SecondaryColor"),
                 L("analytics.chart.sleepScoreLabel", table: "Analytics"): Color.yellow
             ])
             .chartLegend(position: .bottom, alignment: .center, spacing: 10) {
                 HStack(spacing: 16) {
                     LegendItem(color: Color("AccentColor"), label: L("analytics.sleepComponentsTrend.core", table: "Analytics"))
-                    LegendItem(color: Color("PrimaryColor"), label: L("analytics.sleepComponentsTrend.nap", table: "Analytics"))
+                    LegendItem(color: .appPrimary, label: L("analytics.sleepComponentsTrend.nap", table: "Analytics"))
                     
                     Divider().frame(height: 20)
                     
@@ -81,7 +81,7 @@ struct SleepComponentsChart: View {
                             .frame(width: 12, height: 12)
                         Text(L("analytics.sleepComponentsTrend.score", table: "Analytics"))
                             .font(.system(size: 12))
-                            .foregroundColor(Color("TextColor"))
+                            .foregroundColor(.appText)
                     }
                 }
             }

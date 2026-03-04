@@ -17,7 +17,7 @@ struct SleepTrendChart: View {
                 )
                 .foregroundStyle(
                     .linearGradient(
-                        colors: [Color("PrimaryColor").opacity(0.7), Color("PrimaryColor").opacity(0.1)],
+                        colors: [Color.appPrimary.opacity(0.7), Color.appPrimary.opacity(0.1)],
                         startPoint: .top,
                         endPoint: .bottom
                     )
@@ -29,7 +29,7 @@ struct SleepTrendChart: View {
                     x: .value("Tarih", day.date, unit: .day),
                     y: .value("Saat", day.totalHours)
                 )
-                .foregroundStyle(Color("PrimaryColor"))
+                .foregroundStyle(Color.appPrimary)
                 .lineStyle(StrokeStyle(lineWidth: 3))
                 .interpolationMethod(.catmullRom)
                 
@@ -39,7 +39,7 @@ struct SleepTrendChart: View {
                         x: .value("Tarih", day.date, unit: .day),
                         y: .value("Saat", day.totalHours)
                     )
-                    .foregroundStyle(Color("PrimaryColor"))
+                    .foregroundStyle(Color.appPrimary)
                     .symbolSize(30)
                 }
             }
@@ -54,7 +54,7 @@ struct SleepTrendChart: View {
                         .foregroundColor(Color("SecondaryTextColor"))
                         .padding(.horizontal, 6)
                         .padding(.vertical, 2)
-                        .background(Color("CardBackground").opacity(0.8))
+                        .background(Color.appCardBackground.opacity(0.8))
                         .cornerRadius(4)
                 }
         }

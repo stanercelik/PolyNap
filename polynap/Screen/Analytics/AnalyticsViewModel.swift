@@ -797,7 +797,7 @@ class AnalyticsViewModel: ObservableObject {
             type: L("analytics.sleepBreakdown.nap", table: "Analytics"),
             hours: napHours,
             percentage: totalHours > 0 ? (napHours / totalHours) * 100 : 0,
-            color: Color("PrimaryColor") // Design system rengi
+            color: .appPrimary // Design system rengi
         )
         
         coreData.averagePerDay = coreHours / Double(timeRangeDays)
