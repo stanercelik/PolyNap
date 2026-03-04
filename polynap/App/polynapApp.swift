@@ -4,6 +4,7 @@ import Combine
 import Network
 import UserNotifications
 import RevenueCat
+import SuperwallKit
 import FirebaseCore
 import FirebaseAnalytics
 import PolyNapShared
@@ -267,6 +268,15 @@ struct polynapApp: App {
     
     init() {
         RevenueCatManager.configure()
+        
+        // Superwall configuration with RevenueCat purchase controller
+        let purchaseController = RCPurchaseController()
+        Superwall.configure(
+            apiKey: AppConfiguration.superwallAPIKey,
+            purchaseController: purchaseController
+        )
+        purchaseController.syncSubscriptionStatus()
+        
         FirebaseApp.configure()
 
         do {

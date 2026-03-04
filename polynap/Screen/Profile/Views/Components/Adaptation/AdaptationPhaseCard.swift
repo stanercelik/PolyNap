@@ -1,5 +1,4 @@
 import SwiftUI
-import RevenueCatUI
 
 // MARK: - Adaptation Phase Card
 struct AdaptationPhaseCard: View {

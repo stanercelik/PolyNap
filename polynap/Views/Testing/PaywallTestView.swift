@@ -29,15 +29,15 @@ struct PaywallTestView: View {
                 VStack(spacing: 12) {
                     PaywallTestButton(
                         title: "Senaryo 1: Onboarding Complete",
-                        subtitle: "all_plans offering",
+                        subtitle: "Superwall: onboarding_complete",
                         color: .blue
                     ) {
                         paywallManager.presentPaywall(trigger: .onboardingComplete)
                     }
                     
                     PaywallTestButton(
-                        title: "Senaryo 2/3: Premium Feature",
-                        subtitle: "exit_discount veya threePlansPaywall",
+                        title: "Senaryo 2: Premium Feature",
+                        subtitle: "Superwall: feature_paywall",
                         color: .orange
                     ) {
                         paywallManager.presentPaywall(trigger: .premiumFeatureAccess)
@@ -45,7 +45,7 @@ struct PaywallTestView: View {
                     
                     PaywallTestButton(
                         title: "Manuel Tetikleme",
-                        subtitle: "Mevcut sayaca göre offering",
+                        subtitle: "Superwall: feature_paywall",
                         color: .green
                     ) {
                         paywallManager.presentPaywall(trigger: .manualTrigger)

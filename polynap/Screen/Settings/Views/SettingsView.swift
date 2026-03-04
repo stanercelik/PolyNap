@@ -1,7 +1,6 @@
 import SwiftUI
 import SwiftData
 import RevenueCat
-import RevenueCatUI
 import HealthKit
 
 struct SettingsView: View {

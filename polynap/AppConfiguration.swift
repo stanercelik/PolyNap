@@ -46,4 +46,12 @@ extension AppConfiguration {
             fatalError("RevenueCat API Key not found in Info.plist. Error: \(error)")
         }
     }
+    
+    static var superwallAPIKey: String {
+        do {
+            return try value(for: "SuperwallAPIKey")
+        } catch {
+            fatalError("Superwall API Key not found in Info.plist. Error: \(error)")
+        }
+    }
 }

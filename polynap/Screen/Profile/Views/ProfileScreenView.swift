@@ -3,7 +3,6 @@ import SwiftData
 import AVFoundation
 import Lottie
 import RevenueCat
-import RevenueCatUI
 
 struct ProfileScreenView: View {
     @StateObject var viewModel: ProfileScreenViewModel

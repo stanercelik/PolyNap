@@ -1,5 +1,4 @@
 import SwiftUI
-import RevenueCatUI
 
 // MARK: - Schedule Change Undo Banner (Premium Feature)
 struct UndoScheduleChangeCard: View {

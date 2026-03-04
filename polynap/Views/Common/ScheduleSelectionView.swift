@@ -1,6 +1,5 @@
 import SwiftUI
 import RevenueCat
-import RevenueCatUI
 
 /// Uyku düzeni seçimi için kompakt view
 struct ScheduleSelectionView: View {

@@ -1,9 +1,7 @@
 import SwiftUI
-import RevenueCat
-import RevenueCatUI
+import SuperwallKit
 
-/// A view modifier that presents a paywall sheet when a non-premium user tries to interact with the content.
-/// It overlays a tappable clear view if the user is not subscribed to the "premium" entitlement.
+/// A view modifier that presents a Superwall paywall when a non-premium user tries to interact with the content.
 struct RequirePremiumViewModifier: ViewModifier {
     @EnvironmentObject private var revenueCatManager: RevenueCatManager
     @StateObject private var paywallManager = PaywallManager.shared
@@ -13,13 +11,10 @@ struct RequirePremiumViewModifier: ViewModifier {
             .overlay(
                 Group {
                     if revenueCatManager.userState != .premium {
-                        // This clear rectangle sits on top of the content and intercepts taps
-                        // if the user is not premium.
                         Rectangle()
                             .foregroundColor(.clear)
-                            .contentShape(Rectangle()) // Make the whole area tappable
+                            .contentShape(Rectangle())
                             .onTapGesture {
-                                // PaywallManager ile dinamik paywall göster
                                 paywallManager.presentPaywall(trigger: .premiumFeatureAccess)
                             }
                     }
@@ -29,10 +24,7 @@ struct RequirePremiumViewModifier: ViewModifier {
 }
 
 extension View {
-    /// A view modifier that restricts interaction with a view to premium users.
-    ///
-    /// If a non-premium user taps on the view, a paywall is presented.
-    /// Premium users can interact with the view as normal.
+    /// Restricts interaction to premium users. Non-premium taps trigger a Superwall paywall.
     func requiresPremium() -> some View {
         modifier(RequirePremiumViewModifier())
     }
