@@ -1110,6 +1110,244 @@
         }
       }
     },
+    "analytics.health.access.button": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect Apple Health"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Health'i Bağla"
+          }
+        }
+      }
+    },
+    "analytics.health.access.message": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connect Apple Health to see heart rate, HRV, and recovery insights from your sleep data."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalp hızı, HRV ve toparlanma analizlerini görmek için Apple Health'i bağla."
+          }
+        }
+      }
+    },
+    "analytics.health.access.title": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Health Integration"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Health Entegrasyonu"
+          }
+        }
+      }
+    },
+    "analytics.health.noData.message": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wear your Apple Watch while sleeping to see heart rate and HRV data here."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uyurken Apple Watch takarak kalp hızı ve HRV verilerini burada görebilirsin."
+          }
+        }
+      }
+    },
+    "analytics.health.noData.title": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No Health Data Available"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sağlık Verisi Bulunamadı"
+          }
+        }
+      }
+    },
+    "analytics.heartRate.bpmUnit": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d bpm"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%d bpm"
+          }
+        }
+      }
+    },
+    "analytics.heartRate.legend.average": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Average"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ortalama"
+          }
+        }
+      }
+    },
+    "analytics.heartRate.legend.range": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Range"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aralık"
+          }
+        }
+      }
+    },
+    "analytics.heartRate.legend.resting": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resting"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dinlenme"
+          }
+        }
+      }
+    },
+    "analytics.heartRate.subtitle": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heart rate trends during sleep periods"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uyku dönemlerinde kalp hızı trendleri"
+          }
+        }
+      }
+    },
+    "analytics.heartRate.title": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heart Rate & Sleep"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalp Hızı ve Uyku"
+          }
+        }
+      }
+    },
+    "analytics.heartRate.tooltip.avg": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Average HR"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ortalama KH"
+          }
+        }
+      }
+    },
+    "analytics.heartRate.tooltip.range": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Range"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aralık"
+          }
+        }
+      }
+    },
+    "analytics.heartRate.tooltip.resting": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resting: %d bpm"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dinlenme: %d bpm"
+          }
+        }
+      }
+    },
     "analytics.heatMap.dayLabel": {
       "extractionState": "manual",
       "localizations": {
@@ -1643,6 +1881,125 @@
         }
       }
     },
+    "analytics.hrv.goodZone": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Good"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "İyi"
+          }
+        }
+      }
+    },
+    "analytics.hrv.lowZone": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Low"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Düşük"
+          }
+        }
+      }
+    },
+    "analytics.hrv.subtitle": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Heart rate variability & recovery quality"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kalp hızı değişkenliği ve toparlanma kalitesi"
+          }
+        }
+      }
+    },
+    "analytics.hrv.title": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HRV Recovery"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HRV Toparlanma"
+          }
+        }
+      }
+    },
+    "analytics.hrv.tooltip.range": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Range: %d-%d ms"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aralık: %d-%d ms"
+          }
+        }
+      }
+    },
+    "analytics.hrv.tooltip.recovery": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toparlanma"
+          }
+        }
+      }
+    },
+    "analytics.hrv.tooltip.sdnn": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HRV (SDNN)"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HRV (SDNN)"
+          }
+        }
+      }
+    },
     "analytics.insufficientData.button": {
       "comment": "Insufficient data button title",
       "extractionState": "stale",
@@ -2057,6 +2414,74 @@
         }
       }
     },
+    "analytics.premium.feature1": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep component breakdown (core + naps)"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uyku bileşeni dağılımı (core + şekerlemeler)"
+          }
+        }
+      }
+    },
+    "analytics.premium.feature2": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HRV & heart rate trends (Apple Watch)"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HRV ve kalp ritmi trendi (Apple Watch)"
+          }
+        }
+      }
+    },
+    "analytics.premium.feature3": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Consistency score & variability analysis"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tutarlılık skoru ve değişkenlik analizi"
+          }
+        }
+      }
+    },
+    "analytics.premium.feature4": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep debt & efficiency tracking"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uyku borcu ve verimlilik takibi"
+          }
+        }
+      }
+    },
     "analytics.premium.qualityDescription": {
       "extractionState": "manual",
       "localizations": {
@@ -2180,125 +2605,6 @@
         }
       }
     },
-    "analytics.premium.feature1": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sleep component breakdown (core + naps)"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uyku bileşeni dağılımı (core + şekerlemeler)"
-          }
-        }
-      }
-    },
-    "analytics.premium.feature2": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "HRV & heart rate trends (Apple Watch)"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "HRV ve kalp ritmi trendi (Apple Watch)"
-          }
-        }
-      }
-    },
-    "analytics.premium.feature3": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Consistency score & variability analysis"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tutarlılık skoru ve değişkenlik analizi"
-          }
-        }
-      }
-    },
-    "analytics.premium.feature4": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sleep debt & efficiency tracking"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uyku borcu ve verimlilik takibi"
-          }
-        }
-      }
-    },
-    "analytics.premium.upsell.cta": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Upgrade to Premium"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Premium'a Geç"
-          }
-        }
-      }
-    },
-    "analytics.premium.upsell.subtitle": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Advanced charts and insights to better understand your sleep quality"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uyku kaliteni daha iyi anlamak için gelişmiş grafikler ve içgörüler"
-          }
-        }
-      }
-    },
-    "analytics.premium.upsell.title": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Premium Analytics"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Premium Analizler"
-          }
-        }
-      }
-    },
     "analytics.premium.unlockMessage": {
       "extractionState": "manual",
       "localizations": {
@@ -2377,6 +2683,57 @@
           "stringUnit": {
             "state": "translated",
             "value": "Premium'a Yükseltin"
+          }
+        }
+      }
+    },
+    "analytics.premium.upsell.cta": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Upgrade to Premium"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premium'a Geç"
+          }
+        }
+      }
+    },
+    "analytics.premium.upsell.subtitle": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Advanced charts and insights to better understand your sleep quality"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uyku kaliteni daha iyi anlamak için gelişmiş grafikler ve içgörüler"
+          }
+        }
+      }
+    },
+    "analytics.premium.upsell.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premium Analytics"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Premium Analizler"
           }
         }
       }
@@ -3116,6 +3473,88 @@
           "stringUnit": {
             "state": "translated",
             "value": "Şekerleme"
+          }
+        }
+      }
+    },
+    "analytics.sleepBreakdown.nap1": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nickerchen 1: %lld%%"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nap 1: %lld%%"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仮眠1: %lld%%"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tidur Siang 1: %lld%%"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "งีบ 1: %lld%%"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şekerleme 1: %lld%%"
+          }
+        }
+      }
+    },
+    "analytics.sleepBreakdown.nap2": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nickerchen 2: %lld%%"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nap 2: %lld%%"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "仮眠2: %lld%%"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tidur Siang 2: %lld%%"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "งีบ 2: %lld%%"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Şekerleme 2: %lld%%"
           }
         }
       }
@@ -5003,6 +5442,108 @@
           "stringUnit": {
             "state": "translated",
             "value": "Toplam Uyku:"
+          }
+        }
+      }
+    },
+    "analytics.sleepRegularity.noData": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not enough data to show regularity. Keep logging your sleep!"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Düzenlilik göstermek için yeterli veri yok. Uyku kayıtlarına devam et!"
+          }
+        }
+      }
+    },
+    "analytics.sleepRegularity.subtitle": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "How consistent is your sleep schedule"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uyku programına ne kadar uyuyorsun"
+          }
+        }
+      }
+    },
+    "analytics.sleepRegularity.target": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Target"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hedef"
+          }
+        }
+      }
+    },
+    "analytics.sleepRegularity.title": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep Regularity"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uyku Düzenliliği"
+          }
+        }
+      }
+    },
+    "analytics.sleepRegularity.tooltip.deviation": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deviation: %d min"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sapma: %d dk"
+          }
+        }
+      }
+    },
+    "analytics.sleepRegularity.tooltip.score": {
+      "extractionState": "stale",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Regularity: %d%%"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Düzenlilik: %%%d"
           }
         }
       }
@@ -6937,6 +7478,47 @@
         }
       }
     },
+    "analytics.variability.scoreFormat": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Variabilität: %lld Punkte"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Variability: %lld Score"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "変動性: %lldスコア"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kebolehubahan: %lld Skor"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ความแปรปรวน: %lld คะแนน"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Değişkenlik: %lld Puan"
+          }
+        }
+      }
+    },
     "analytics.variability.stable": {
       "extractionState": "stale",
       "localizations": {
@@ -7019,402 +7601,151 @@
         }
       }
     },
-    "analytics.sleepBreakdown.nap1": {
-      "extractionState": "manual",
+    "analytics.adherence.title": {
       "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nickerchen 1: %lld%%"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nap 1: %lld%%"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "仮眠1: %lld%%"
-          }
-        },
-        "ms": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tidur Siang 1: %lld%%"
-          }
-        },
-        "th": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "งีบ 1: %lld%%"
+            "value": "Schedule Adherence"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Şekerleme 1: %lld%%"
+            "value": "Program Uyumu"
           }
         }
       }
     },
-    "analytics.sleepBreakdown.nap2": {
-      "extractionState": "manual",
+    "analytics.adherence.subtitle": {
       "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nickerchen 2: %lld%%"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nap 2: %lld%%"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "仮眠2: %lld%%"
-          }
-        },
-        "ms": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tidur Siang 2: %lld%%"
-          }
-        },
-        "th": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "งีบ 2: %lld%%"
+            "value": "How closely you follow your sleep schedule"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Şekerleme 2: %lld%%"
+            "value": "Uyku programınıza ne kadar uyduğunuz"
           }
         }
       }
     },
-    "analytics.variability.scoreFormat": {
-      "extractionState": "manual",
+    "analytics.adherence.summary.title": {
       "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Variabilität: %lld Punkte"
-          }
-        },
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Variability: %lld Score"
-          }
-        },
-        "ja": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "変動性: %lldスコア"
-          }
-        },
-        "ms": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kebolehubahan: %lld Skor"
-          }
-        },
-        "th": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "ความแปรปรวน: %lld คะแนน"
+            "value": "Adherence"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Değişkenlik: %lld Puan"
+            "value": "Uyum"
           }
         }
       }
     },
-    "analytics.sleepRegularity.title": {
+    "analytics.adherence.summary.subtitle": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sleep Regularity"
+            "value": "How well you stick to your polyphasic schedule"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uyku Düzenliliği"
+            "value": "Polifazik programınıza ne kadar uyuyorsunuz"
           }
         }
       }
     },
-    "analytics.sleepRegularity.subtitle": {
+    "analytics.adherence.score": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "How consistent is your sleep schedule"
+            "value": "Adherence"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Uyku programına ne kadar uyuyorsun"
+            "value": "Uyum"
           }
         }
       }
     },
-    "analytics.sleepRegularity.target": {
+    "analytics.adherence.avgLateness": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Target"
+            "value": "Avg Lateness"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hedef"
+            "value": "Ort. Gecikme"
           }
         }
       }
     },
-    "analytics.sleepRegularity.noData": {
+    "analytics.adherence.min": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Not enough data to show regularity. Keep logging your sleep!"
+            "value": "min"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Düzenlilik göstermek için yeterli veri yok. Uyku kayıtlarına devam et!"
+            "value": "dk"
           }
         }
       }
     },
-    "analytics.sleepRegularity.tooltip.score": {
+    "analytics.adherence.blocks": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Regularity: %d%%"
+            "value": "Blocks"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Düzenlilik: %%%d"
+            "value": "Blok"
           }
         }
       }
     },
-    "analytics.sleepRegularity.tooltip.deviation": {
+    "analytics.adherence.excellent": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deviation: %d min"
+            "value": "Excellent"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sapma: %d dk"
+            "value": "Mükemmel"
           }
         }
       }
     },
-    "analytics.heartRate.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Heart Rate & Sleep"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kalp Hızı ve Uyku"
-          }
-        }
-      }
-    },
-    "analytics.heartRate.subtitle": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Heart rate trends during sleep periods"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uyku dönemlerinde kalp hızı trendleri"
-          }
-        }
-      }
-    },
-    "analytics.heartRate.legend.range": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Range"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aralık"
-          }
-        }
-      }
-    },
-    "analytics.heartRate.legend.average": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Average"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ortalama"
-          }
-        }
-      }
-    },
-    "analytics.heartRate.legend.resting": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Resting"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dinlenme"
-          }
-        }
-      }
-    },
-    "analytics.heartRate.bpmUnit": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d bpm"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%d bpm"
-          }
-        }
-      }
-    },
-    "analytics.heartRate.tooltip.avg": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Average HR"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ortalama KH"
-          }
-        }
-      }
-    },
-    "analytics.heartRate.tooltip.range": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Range"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aralık"
-          }
-        }
-      }
-    },
-    "analytics.heartRate.tooltip.resting": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Resting: %d bpm"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dinlenme: %d bpm"
-          }
-        }
-      }
-    },
-    "analytics.hrv.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "HRV Recovery"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "HRV Toparlanma"
-          }
-        }
-      }
-    },
-    "analytics.hrv.subtitle": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Heart rate variability & recovery quality"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kalp hızı değişkenliği ve toparlanma kalitesi"
-          }
-        }
-      }
-    },
-    "analytics.hrv.goodZone": {
+    "analytics.adherence.good": {
       "localizations": {
         "en": {
           "stringUnit": {
@@ -7430,146 +7761,66 @@
         }
       }
     },
-    "analytics.hrv.lowZone": {
+    "analytics.adherence.fair": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Low"
+            "value": "Fair"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Düşük"
+            "value": "Orta"
           }
         }
       }
     },
-    "analytics.hrv.tooltip.recovery": {
+    "analytics.adherence.poor": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recovery"
+            "value": "Poor"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toparlanma"
+            "value": "Zayıf"
           }
         }
       }
     },
-    "analytics.hrv.tooltip.sdnn": {
+    "analytics.sleepStages.title": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "HRV (SDNN)"
+            "value": "Sleep Stages"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "HRV (SDNN)"
+            "value": "Uyku Evreleri"
           }
         }
       }
     },
-    "analytics.hrv.tooltip.range": {
+    "analytics.sleepStages.subtitle": {
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Range: %d-%d ms"
+            "value": "Daily breakdown of REM, Core, Deep and Awake time"
           }
         },
         "tr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aralık: %d-%d ms"
-          }
-        }
-      }
-    },
-    "analytics.health.noData.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "No Health Data Available"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sağlık Verisi Bulunamadı"
-          }
-        }
-      }
-    },
-    "analytics.health.noData.message": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wear your Apple Watch while sleeping to see heart rate and HRV data here."
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Uyurken Apple Watch takarak kalp hızı ve HRV verilerini burada görebilirsin."
-          }
-        }
-      }
-    },
-    "analytics.health.access.title": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apple Health Integration"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apple Health Entegrasyonu"
-          }
-        }
-      }
-    },
-    "analytics.health.access.message": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connect Apple Health to see heart rate, HRV, and recovery insights from your sleep data."
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Kalp hızı, HRV ve toparlanma analizlerini görmek için Apple Health'i bağla."
-          }
-        }
-      }
-    },
-    "analytics.health.access.button": {
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Connect Apple Health"
-          }
-        },
-        "tr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apple Health'i Bağla"
+            "value": "REM, Çekirdek, Derin ve Uyanık sürelerinin günlük dağılımı"
           }
         }
       }

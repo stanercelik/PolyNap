@@ -40,12 +40,19 @@ public struct AnalyticsView: View {
                         if viewModel.isLoading {
                             loadingView
                         } else if viewModel.hasEnoughData {
-                            // Ana Analiz İçeriği
                             VStack(spacing: PSSpacing.xl) {
-                                // Free kullanıcılar için temel özellikler
+                                // ═══════════════════════════════════════
+                                // SECTION 1: FREE — Temel Metrikler
+                                // ═══════════════════════════════════════
+                                
                                 AnalyticsSummaryCard(viewModel: viewModel)
                                 
-                                // Sleep Trends Section (Tüm kullanıcılar için)
+                                // Adherence Summary (Uyum özeti)
+                                if !viewModel.adherenceData.isEmpty {
+                                    adherenceSummaryCard
+                                }
+                                
+                                // Sleep Trends (Tüm kullanıcılar)
                                 AnalyticsSleepTrendsSection(
                                     viewModel: viewModel,
                                     isPremiumUser: isPremiumUser,
@@ -56,88 +63,120 @@ public struct AnalyticsView: View {
                                 
                                 AnalyticsBestWorstDays(viewModel: viewModel)
                                 
-                                // Premium özellikler - kilitli gösterim
+                                // Adherence Detail Chart (Uyum detay)
+                                if !viewModel.adherenceData.isEmpty {
+                                    PSCard {
+                                        VStack(alignment: .leading, spacing: PSSpacing.lg) {
+                                            PSSectionHeader(
+                                                L("analytics.adherence.title", table: "Analytics"),
+                                                icon: "checkmark.circle.fill",
+                                                subtitle: L("analytics.adherence.subtitle", table: "Analytics")
+                                            )
+                                            AdherenceScoreChart(viewModel: viewModel)
+                                        }
+                                    }
+                                    .padding(.horizontal, PSSpacing.lg)
+                                }
+                                
+                                // ═══════════════════════════════════════
+                                // SECTION 2: PREMIUM — Gelişmiş Analizler
+                                // ═══════════════════════════════════════
+                                
                                 if isPremiumUser {
-                                    // ✅ DOĞRU VERİLERLE ÇALIŞAN GRAFİKLER
                                     AnalyticsQualityDistribution(viewModel: viewModel)
+                                    
                                     AnalyticsSleepBreakdown(
                                         viewModel: viewModel,
                                         selectedPieSlice: $selectedPieSlice,
                                         tooltipPosition: $tooltipPosition
                                     )
+                                    
+                                    // Sleep Debt (Uyku borcu)
+                                    if !viewModel.sleepDebtData.isEmpty {
+                                        AnalyticsSleepDebtSection(viewModel: viewModel)
+                                    }
+                                    
+                                    // Consistency Trend (Tutarlılık)
+                                    if !viewModel.consistencyTrendData.isEmpty {
+                                        AnalyticsConsistencyTrendSection(viewModel: viewModel)
+                                    }
+                                    
+                                    // HeatMap (Actogram)
+                                    AnalyticsHeatMapSection(viewModel: viewModel)
+                                    
                                     AnalyticsTimeGained(viewModel: viewModel)
                                     
-                                    // Uyku Düzenlilik Grafiği (Premium - HealthKit)
-                                    PSCard {
-                                        VStack(alignment: .leading, spacing: PSSpacing.lg) {
-                                            PSSectionHeader(
-                                                L("analytics.sleepRegularity.title", table: "Analytics"),
-                                                icon: "clock.badge.checkmark.fill",
-                                                subtitle: L("analytics.sleepRegularity.subtitle", table: "Analytics")
-                                            )
-                                            if !viewModel.sleepRegularityData.isEmpty {
-                                                SleepRegularityChart(viewModel: viewModel)
-                                            } else {
-                                                healthDataEmptyState
-                                            }
-                                        }
+                                    // Quality-Consistency Correlation
+                                    if !viewModel.qualityConsistencyData.isEmpty {
+                                        AnalyticsQualityConsistencyCorrelation(viewModel: viewModel)
                                     }
-                                    .padding(.horizontal, PSSpacing.lg)
                                     
-                                    // Apple Health Grafikleri (Premium + HealthKit)
-                                    if viewModel.hasHealthKitAccess {
-                                        // Kalp Hızı Grafiği
-                                        if !viewModel.heartRateData.isEmpty {
-                                            PSCard {
-                                                VStack(alignment: .leading, spacing: PSSpacing.lg) {
-                                                    PSSectionHeader(
-                                                        L("analytics.heartRate.title", table: "Analytics"),
-                                                        icon: "heart.fill",
-                                                        subtitle: L("analytics.heartRate.subtitle", table: "Analytics")
-                                                    )
-                                                    HeartRateChart(viewModel: viewModel)
-                                                }
+                                    // ═══════════════════════════════════════
+                                    // SECTION 3: PREMIUM + HEALTHKIT
+                                    // ═══════════════════════════════════════
+                                    
+                                    // Sleep Stages (Uyku evreleri)
+                                    if !viewModel.sleepStagesData.isEmpty {
+                                        PSCard {
+                                            VStack(alignment: .leading, spacing: PSSpacing.lg) {
+                                                PSSectionHeader(
+                                                    L("analytics.sleepStages.title", table: "Analytics"),
+                                                    icon: "moon.stars.fill",
+                                                    subtitle: L("analytics.sleepStages.subtitle", table: "Analytics")
+                                                )
+                                                SleepStagesChart(viewModel: viewModel)
                                             }
-                                            .padding(.horizontal, PSSpacing.lg)
                                         }
-                                        
-                                        // HRV Toparlanma Grafiği
-                                        if !viewModel.hrvData.isEmpty {
-                                            PSCard {
-                                                VStack(alignment: .leading, spacing: PSSpacing.lg) {
-                                                    PSSectionHeader(
-                                                        L("analytics.hrv.title", table: "Analytics"),
-                                                        icon: "waveform.path.ecg",
-                                                        subtitle: L("analytics.hrv.subtitle", table: "Analytics")
-                                                    )
-                                                    HRVRecoveryChart(viewModel: viewModel)
-                                                }
+                                        .padding(.horizontal, PSSpacing.lg)
+                                    }
+                                    
+                                    // Heart Rate
+                                    if !viewModel.heartRateData.isEmpty {
+                                        PSCard {
+                                            VStack(alignment: .leading, spacing: PSSpacing.lg) {
+                                                PSSectionHeader(
+                                                    L("analytics.heartRate.title", table: "Analytics"),
+                                                    icon: "heart.fill",
+                                                    subtitle: L("analytics.heartRate.subtitle", table: "Analytics")
+                                                )
+                                                HeartRateChart(viewModel: viewModel)
                                             }
-                                            .padding(.horizontal, PSSpacing.lg)
                                         }
-                                        
-                                        // Hiç Health verisi yoksa bilgi göster
-                                        if viewModel.heartRateData.isEmpty && viewModel.hrvData.isEmpty && !viewModel.isHealthDataLoading {
-                                            PSCard {
-                                                VStack(spacing: PSSpacing.md) {
-                                                    Image(systemName: "heart.text.clipboard")
-                                                        .font(.system(size: 32))
-                                                        .foregroundColor(.appTextSecondary)
-                                                    Text(L("analytics.health.noData.title", table: "Analytics"))
-                                                        .font(PSTypography.headline)
-                                                        .foregroundColor(.appText)
-                                                    Text(L("analytics.health.noData.message", table: "Analytics"))
-                                                        .font(PSTypography.body)
-                                                        .foregroundColor(.appTextSecondary)
-                                                        .multilineTextAlignment(.center)
-                                                }
-                                                .frame(maxWidth: .infinity)
-                                                .padding(.vertical, PSSpacing.lg)
+                                        .padding(.horizontal, PSSpacing.lg)
+                                    }
+                                    
+                                    // HRV Recovery
+                                    if !viewModel.hrvData.isEmpty {
+                                        PSCard {
+                                            VStack(alignment: .leading, spacing: PSSpacing.lg) {
+                                                PSSectionHeader(
+                                                    L("analytics.hrv.title", table: "Analytics"),
+                                                    icon: "waveform.path.ecg",
+                                                    subtitle: L("analytics.hrv.subtitle", table: "Analytics")
+                                                )
+                                                HRVRecoveryChart(viewModel: viewModel)
                                             }
-                                            .padding(.horizontal, PSSpacing.lg)
                                         }
-                                    } else if !viewModel.isHealthDataLoading {
-                                        // HealthKit erişimi yoksa
+                                        .padding(.horizontal, PSSpacing.lg)
+                                    }
+                                    
+                                    // Sleep Regularity
+                                    if !viewModel.sleepRegularityData.isEmpty {
+                                        PSCard {
+                                            VStack(alignment: .leading, spacing: PSSpacing.lg) {
+                                                PSSectionHeader(
+                                                    L("analytics.sleepRegularity.title", table: "Analytics"),
+                                                    icon: "clock.badge.checkmark.fill",
+                                                    subtitle: L("analytics.sleepRegularity.subtitle", table: "Analytics")
+                                                )
+                                                SleepRegularityChart(viewModel: viewModel)
+                                            }
+                                        }
+                                        .padding(.horizontal, PSSpacing.lg)
+                                    }
+                                    
+                                    // HealthKit erişimi yoksa bağlantı butonu göster
+                                    if !viewModel.hasHealthKitAccess && !viewModel.isHealthDataLoading {
                                         PSCard {
                                             VStack(spacing: PSSpacing.md) {
                                                 Image(systemName: "heart.circle")
@@ -160,12 +199,34 @@ public struct AnalyticsView: View {
                                         .padding(.horizontal, PSSpacing.lg)
                                     }
                                     
+                                    // HealthKit verisi yoksa bilgi
+                                    if viewModel.hasHealthKitAccess && viewModel.heartRateData.isEmpty && viewModel.hrvData.isEmpty && viewModel.sleepStagesData.isEmpty && !viewModel.isHealthDataLoading {
+                                        PSCard {
+                                            VStack(spacing: PSSpacing.md) {
+                                                Image(systemName: "heart.text.clipboard")
+                                                    .font(.system(size: 32))
+                                                    .foregroundColor(.appTextSecondary)
+                                                Text(L("analytics.health.noData.title", table: "Analytics"))
+                                                    .font(PSTypography.headline)
+                                                    .foregroundColor(.appText)
+                                                Text(L("analytics.health.noData.message", table: "Analytics"))
+                                                    .font(PSTypography.body)
+                                                    .foregroundColor(.appTextSecondary)
+                                                    .multilineTextAlignment(.center)
+                                            }
+                                            .frame(maxWidth: .infinity)
+                                            .padding(.vertical, PSSpacing.lg)
+                                        }
+                                        .padding(.horizontal, PSSpacing.lg)
+                                    }
+                                    
                                     if viewModel.isHealthDataLoading {
                                         ProgressView()
                                             .frame(maxWidth: .infinity)
                                             .padding(.vertical, PSSpacing.lg)
                                     }
                                 } else {
+                                    // Free kullanıcılar için premium upsell
                                     AnalyticsPremiumUpsell()
                                         .padding(.horizontal, PSSpacing.lg)
                                 }
@@ -266,6 +327,58 @@ public struct AnalyticsView: View {
         )
         .padding(.horizontal, PSSpacing.lg)
         .padding(.top, PSSpacing.xxl)
+    }
+    
+    private var adherenceSummaryCard: some View {
+        PSCard {
+            VStack(alignment: .leading, spacing: PSSpacing.md) {
+                PSSectionHeader(
+                    L("analytics.adherence.summary.title", table: "Analytics"),
+                    icon: "target",
+                    subtitle: L("analytics.adherence.summary.subtitle", table: "Analytics")
+                )
+                
+                HStack(spacing: PSSpacing.md) {
+                    // Uyum skoru
+                    VStack(spacing: PSSpacing.xs) {
+                        Text(String(format: "%.0f%%", viewModel.adherenceSummary.overallScore))
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundColor(AdherenceLevel.fromScore(viewModel.adherenceSummary.overallScore).color)
+                        Text(L("analytics.adherence.score", table: "Analytics"))
+                            .font(PSTypography.caption)
+                            .foregroundColor(.appTextSecondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                    Divider().frame(height: 40)
+                    
+                    // Ortalama gecikme
+                    VStack(spacing: PSSpacing.xs) {
+                        Text(String(format: "%.0f", viewModel.adherenceSummary.averageLateness) + " " + L("analytics.adherence.min", table: "Analytics"))
+                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .foregroundColor(.appText)
+                        Text(L("analytics.adherence.avgLateness", table: "Analytics"))
+                            .font(PSTypography.caption)
+                            .foregroundColor(.appTextSecondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                    
+                    Divider().frame(height: 40)
+                    
+                    // Tamamlanan bloklar
+                    VStack(spacing: PSSpacing.xs) {
+                        Text("\(viewModel.adherenceSummary.totalBlocksCompleted)")
+                            .font(.system(size: 20, weight: .bold, design: .rounded))
+                            .foregroundColor(.appText)
+                        Text(L("analytics.adherence.blocks", table: "Analytics"))
+                            .font(PSTypography.caption)
+                            .foregroundColor(.appTextSecondary)
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+            }
+        }
+        .padding(.horizontal, PSSpacing.lg)
     }
     
     private var healthDataEmptyState: some View {

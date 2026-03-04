@@ -221,6 +221,13 @@ class AnalyticsViewModel: ObservableObject {
     @Published var qualityConsistencyData: [QualityConsistencyData] = []
     @Published var qualityConsistencyCorrelation: CorrelationStats = CorrelationStats(slope: 0, intercept: 0, correlation: 0)
     
+    // Adherence verileri (Free)
+    @Published var adherenceData: [DailyAdherenceData] = []
+    @Published var adherenceSummary: AdherenceSummary = AdherenceSummary()
+    
+    // Sleep stages verileri (Premium + HealthKit)
+    @Published var sleepStagesData: [DailySleepStagesData] = []
+    
     // Apple Health verileri (Premium)
     @Published var heartRateData: [DailyHeartRateData] = []
     @Published var hrvData: [DailyHRVData] = []
@@ -279,12 +286,13 @@ class AnalyticsViewModel: ObservableObject {
             let endDate = Date()
             let startDate = Calendar.current.date(byAdding: .day, value: -selectedTimeRange.days, to: endDate) ?? endDate
             
-            // Paralel olarak HR ve HRV verilerini çek
+            // Paralel olarak HR, HRV ve Sleep Stages verilerini çek
             async let hrResult = healthKit.fetchHeartRateData(startDate: startDate, endDate: endDate)
             async let hrvResult = healthKit.fetchHRVData(startDate: startDate, endDate: endDate)
             async let restingHRResult = healthKit.fetchRestingHeartRate(startDate: startDate, endDate: endDate)
+            async let sleepResult = healthKit.fetchSleepAnalysis(startDate: startDate, endDate: endDate)
             
-            let (hrData, hrvRawData, restingHRData) = await (hrResult, hrvResult, restingHRResult)
+            let (hrData, hrvRawData, restingHRData, sleepData) = await (hrResult, hrvResult, restingHRResult, sleepResult)
             
             // Heart Rate verilerini günlük gruplara ayır
             if case .success(let samples) = hrData {
@@ -294,6 +302,11 @@ class AnalyticsViewModel: ObservableObject {
             // HRV verilerini günlük gruplara ayır
             if case .success(let samples) = hrvRawData {
                 self.hrvData = self.aggregateHRVByDay(samples)
+            }
+            
+            // Sleep stages verilerini günlük gruplara ayır
+            if case .success(let samples) = sleepData {
+                self.sleepStagesData = self.aggregateSleepStagesByDay(samples)
             }
             
             // Uyku düzenlilik verisini hesapla
@@ -358,6 +371,41 @@ class AnalyticsViewModel: ObservableObject {
                 score: regularityScore
             )
         }
+    }
+    
+    private func aggregateSleepStagesByDay(_ samples: [HealthKitSleepSample]) -> [DailySleepStagesData] {
+        let calendar = Calendar.current
+        let grouped = Dictionary(grouping: samples) { calendar.startOfDay(for: $0.startDate) }
+        
+        return grouped.compactMap { (day, daySamples) in
+            var remMinutes = 0.0
+            var coreMinutes = 0.0
+            var deepMinutes = 0.0
+            var awakeMinutes = 0.0
+            
+            for sample in daySamples {
+                let duration = sample.endDate.timeIntervalSince(sample.startDate) / 60.0
+                switch sample.type {
+                case .rem: remMinutes += duration
+                case .core, .asleep: coreMinutes += duration
+                case .deep: deepMinutes += duration
+                case .awake: awakeMinutes += duration
+                case .inBed: break
+                }
+            }
+            
+            let total = remMinutes + coreMinutes + deepMinutes + awakeMinutes
+            guard total > 0 else { return nil }
+            
+            return DailySleepStagesData(
+                date: day,
+                remMinutes: remMinutes,
+                coreMinutes: coreMinutes,
+                deepMinutes: deepMinutes,
+                awakeMinutes: awakeMinutes,
+                totalMinutes: total
+            )
+        }.sorted(by: { $0.date < $1.date })
     }
     
     // MARK: - Private Methods
@@ -445,7 +493,6 @@ class AnalyticsViewModel: ObservableObject {
     }
     
     private func resetAnalyticsData() {
-        // Tüm analytics verilerini sıfırla
         totalSleepHours = 0.0
         averageDailyHours = 0.0
         averageSleepScore = 0.0
@@ -457,6 +504,12 @@ class AnalyticsViewModel: ObservableObject {
         bestSleepDay = nil
         worstSleepDay = nil
         previousPeriodComparison = (0, 0)
+        consistencyTrendData = []
+        sleepDebtData = []
+        qualityConsistencyData = []
+        adherenceData = []
+        adherenceSummary = AdherenceSummary()
+        sleepStagesData = []
     }
     
     private func calculateStartDate(from endDate: Date) -> Date {
@@ -586,10 +639,14 @@ class AnalyticsViewModel: ObservableObject {
         createTrendData(fromSleepEntries: allSleepEntries, startDate: startDate, endDate: endDate)
         createBreakdownData(from: allSleepEntries, timeRangeDays: selectedTimeRange.days)
         
-        // ❌ YANILTICI ANALİZLER KALDIRILDI - Gelecek sürümlerde daha doğru verilerle eklenecek
-        // createConsistencyTrendData() - Bilinmeyen hedef saatler
-        // createSleepDebtData() - Yanlış 8 saat hedefi
-        // createQualityConsistencyData() - Yetersiz veri noktaları
+        // Adherence hesapla (Free tier)
+        createAdherenceData(fromSleepEntries: allSleepEntries, startDate: startDate, endDate: endDate)
+        
+        // Premium analizler — gerçek schedule verilerini kullanır
+        let scheduleInfo = fetchActiveScheduleInfo()
+        createConsistencyTrendData(fromSleepEntries: allSleepEntries, startDate: startDate, endDate: endDate, scheduleInfo: scheduleInfo)
+        createSleepDebtData(fromSleepEntries: allSleepEntries, startDate: startDate, endDate: endDate, targetSleepHours: scheduleInfo.targetSleepHours)
+        createQualityConsistencyData(fromSleepEntries: allSleepEntries, scheduleInfo: scheduleInfo)
     }
     
     private func compareToPreviousPeriod(currentModels: [HistoryModel], previousModels: [HistoryModel]) {
@@ -755,18 +812,125 @@ class AnalyticsViewModel: ObservableObject {
         sleepBreakdownData = [coreData, napData].filter { $0.hours > 0 } // Sadece saati olanları göster
     }
     
+    // MARK: - Schedule Info Helper
+    
+    private struct ScheduleInfo {
+        var targetSleepHours: Double = 6.0
+        var coreBlockStartHour: Int = 23
+        var coreBlockStartMinute: Int = 0
+    }
+    
+    private func fetchActiveScheduleInfo() -> ScheduleInfo {
+        guard let modelContext = modelContext else { return ScheduleInfo() }
+        var info = ScheduleInfo()
+        
+        do {
+            let predicate = #Predicate<UserSchedule> { $0.isActive == true }
+            let descriptor = FetchDescriptor(predicate: predicate)
+            if let activeSchedule = try modelContext.fetch(descriptor).first {
+                info.targetSleepHours = activeSchedule.totalSleepHours ?? 6.0
+                
+                // Core bloğun başlangıç saatini bul
+                if let coreBlock = activeSchedule.sleepBlocks?.first(where: { $0.isCore }) {
+                    let components = Calendar.current.dateComponents([.hour, .minute], from: coreBlock.startTime)
+                    info.coreBlockStartHour = components.hour ?? 23
+                    info.coreBlockStartMinute = components.minute ?? 0
+                }
+            }
+        } catch {
+            print("⚠️ Aktif schedule bilgisi alınamadı: \(error)")
+        }
+        
+        return info
+    }
+    
+    // MARK: - Adherence Methods
+    
+    private func createAdherenceData(fromSleepEntries entries: [SleepEntry], startDate: Date, endDate: Date) {
+        adherenceData = []
+        let calendar = Calendar.current
+        let maxDataPoints = selectedTimeRange.days
+        
+        guard let actualStartDate = calendar.date(byAdding: .day, value: -(maxDataPoints - 1), to: calendar.startOfDay(for: endDate)) else { return }
+        
+        var totalAdherence = 0.0
+        var totalLateness = 0.0
+        var adherentDays = 0
+        var totalBlocks = 0
+        var missedBlocks = 0
+        var daysWithEntries = 0
+        
+        for dayOffset in 0..<maxDataPoints {
+            guard let date = calendar.date(byAdding: .day, value: dayOffset, to: actualStartDate) else { continue }
+            
+            let dayEntries = entries.filter { calendar.isDate($0.date, inSameDayAs: date) }
+            guard !dayEntries.isEmpty else { continue }
+            
+            daysWithEntries += 1
+            var dayAdherenceSum = 0.0
+            var dayLatenessSum = 0.0
+            var dayBlockCount = 0
+            
+            for entry in dayEntries {
+                totalBlocks += 1
+                dayBlockCount += 1
+                
+                if let scheduledStart = entry.originalScheduledStartTime {
+                    let deviationMinutes = abs(entry.startTime.timeIntervalSince(scheduledStart)) / 60.0
+                    dayLatenessSum += deviationMinutes
+                    
+                    // ±15 dakika tolerans = tam uyum
+                    let blockAdherence = max(0, min(100, 100 - (deviationMinutes - 15) * (100.0 / 45.0)))
+                    dayAdherenceSum += deviationMinutes <= 15 ? 100.0 : blockAdherence
+                } else {
+                    // Zamanında kaydedildiyse uyumlu sayılır
+                    dayAdherenceSum += 80.0
+                }
+                
+                if entry.adjustmentInfo == .skipped {
+                    missedBlocks += 1
+                }
+            }
+            
+            let dayAdherence = dayBlockCount > 0 ? dayAdherenceSum / Double(dayBlockCount) : 0
+            let dayLateness = dayBlockCount > 0 ? dayLatenessSum / Double(dayBlockCount) : 0
+            
+            totalAdherence += dayAdherence
+            totalLateness += dayLateness
+            if dayAdherence >= 80 { adherentDays += 1 }
+            
+            adherenceData.append(DailyAdherenceData(
+                date: date,
+                adherenceScore: dayAdherence,
+                averageLateness: dayLateness,
+                blocksCompleted: dayBlockCount,
+                blocksMissed: dayEntries.filter({ $0.adjustmentInfo == .skipped }).count
+            ))
+        }
+        
+        adherenceData.sort(by: { $0.date < $1.date })
+        
+        adherenceSummary = AdherenceSummary(
+            overallScore: daysWithEntries > 0 ? totalAdherence / Double(daysWithEntries) : 0,
+            averageLateness: daysWithEntries > 0 ? totalLateness / Double(daysWithEntries) : 0,
+            totalBlocksCompleted: totalBlocks,
+            totalBlocksMissed: missedBlocks,
+            adherentDays: adherentDays,
+            totalDays: daysWithEntries
+        )
+    }
+    
     // MARK: - Premium Analytics Methods
     
-    private func createConsistencyTrendData(fromSleepEntries entries: [SleepEntry], startDate: Date, endDate: Date) {
+    private func createConsistencyTrendData(fromSleepEntries entries: [SleepEntry], startDate: Date, endDate: Date, scheduleInfo: ScheduleInfo) {
         consistencyTrendData = []
         let calendar = Calendar.current
         let maxDataPoints = selectedTimeRange.days
         
         guard let actualStartDate = calendar.date(byAdding: .day, value: -(maxDataPoints - 1), to: calendar.startOfDay(for: endDate)) else { return }
         
-        // Hedef uyku zamanı (23:00 gibi sabit bir zaman)
-        let targetHour = 23
-        let targetMinute = 0
+        let targetHour = scheduleInfo.coreBlockStartHour
+        let targetMinute = scheduleInfo.coreBlockStartMinute
         
         for dayOffset in 0..<maxDataPoints {
             guard let date = calendar.date(byAdding: .day, value: dayOffset, to: actualStartDate) else { continue }
@@ -799,11 +963,11 @@ class AnalyticsViewModel: ObservableObject {
         consistencyTrendData.sort(by: { $0.date < $1.date })
     }
     
-    private func createSleepDebtData(fromSleepEntries entries: [SleepEntry], startDate: Date, endDate: Date) {
+    private func createSleepDebtData(fromSleepEntries entries: [SleepEntry], startDate: Date, endDate: Date, targetSleepHours: Double) {
         sleepDebtData = []
         let calendar = Calendar.current
         let maxDataPoints = selectedTimeRange.days
-        let targetSleepHours = 8.0 // Hedef uyku süresi
+        let target = targetSleepHours > 0 ? targetSleepHours : 6.0
         
         guard let actualStartDate = calendar.date(byAdding: .day, value: -(maxDataPoints - 1), to: calendar.startOfDay(for: endDate)) else { return }
         
@@ -815,12 +979,12 @@ class AnalyticsViewModel: ObservableObject {
             let dayEntries = entries.filter { calendar.isDate($0.date, inSameDayAs: date) }
             let actualSleep = dayEntries.reduce(0.0) { $0 + $1.duration / 3600.0 }
             
-            let dailyDebt = targetSleepHours - actualSleep
+            let dailyDebt = target - actualSleep
             cumulativeDebt += dailyDebt
             
             let debtData = SleepDebtData(
                 date: date,
-                targetSleep: targetSleepHours,
+                targetSleep: target,
                 actualSleep: actualSleep,
                 dailyDebt: dailyDebt,
                 cumulativeDebt: cumulativeDebt
@@ -832,18 +996,16 @@ class AnalyticsViewModel: ObservableObject {
         sleepDebtData.sort(by: { $0.date < $1.date })
     }
     
-    private func createQualityConsistencyData(fromSleepEntries entries: [SleepEntry]) {
+    private func createQualityConsistencyData(fromSleepEntries entries: [SleepEntry], scheduleInfo: ScheduleInfo) {
         qualityConsistencyData = []
         let calendar = Calendar.current
         
-        // Günlük veriler topla
         let groupedByDay = Dictionary(grouping: entries) { entry in
             calendar.startOfDay(for: entry.date)
         }
         
-        // Hedef uyku zamanı (23:00)
-        let targetHour = 23
-        let targetMinute = 0
+        let targetHour = scheduleInfo.coreBlockStartHour
+        let targetMinute = scheduleInfo.coreBlockStartMinute
         
         for (date, dayEntries) in groupedByDay {
             let coreEntries = dayEntries.filter { $0.isCore }
@@ -1074,7 +1236,70 @@ struct SleepRegularityData: Identifiable {
     let date: Date
     let scheduledStartTime: Date?
     let actualStartTime: Date?
-    let deviationMinutes: Double // Planlanan vs gerçekleşen farkı (dakika)
+    let deviationMinutes: Double
     let totalSleepHours: Double
-    let score: Double // 0-100 arası düzenlilik skoru
+    let score: Double
+}
+
+// MARK: - Adherence Data Models
+
+struct DailyAdherenceData: Identifiable {
+    let id = UUID()
+    let date: Date
+    let adherenceScore: Double // 0-100
+    let averageLateness: Double // dakika
+    let blocksCompleted: Int
+    let blocksMissed: Int
+    
+    var adherenceLevel: AdherenceLevel {
+        AdherenceLevel.fromScore(adherenceScore)
+    }
+}
+
+struct AdherenceSummary {
+    var overallScore: Double = 0
+    var averageLateness: Double = 0
+    var totalBlocksCompleted: Int = 0
+    var totalBlocksMissed: Int = 0
+    var adherentDays: Int = 0
+    var totalDays: Int = 0
+}
+
+enum AdherenceLevel: String {
+    case excellent, good, fair, poor
+    
+    var color: Color {
+        switch self {
+        case .excellent: return .green
+        case .good: return .blue
+        case .fair: return .orange
+        case .poor: return .red
+        }
+    }
+    
+    static func fromScore(_ score: Double) -> AdherenceLevel {
+        switch score {
+        case 85...100: return .excellent
+        case 65..<85: return .good
+        case 40..<65: return .fair
+        default: return .poor
+        }
+    }
+}
+
+// MARK: - Sleep Stages Data Model
+
+struct DailySleepStagesData: Identifiable {
+    let id = UUID()
+    let date: Date
+    let remMinutes: Double
+    let coreMinutes: Double
+    let deepMinutes: Double
+    let awakeMinutes: Double
+    let totalMinutes: Double
+    
+    var remPercentage: Double { totalMinutes > 0 ? (remMinutes / totalMinutes) * 100 : 0 }
+    var corePercentage: Double { totalMinutes > 0 ? (coreMinutes / totalMinutes) * 100 : 0 }
+    var deepPercentage: Double { totalMinutes > 0 ? (deepMinutes / totalMinutes) * 100 : 0 }
+    var awakePercentage: Double { totalMinutes > 0 ? (awakeMinutes / totalMinutes) * 100 : 0 }
 }
