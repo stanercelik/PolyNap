@@ -1,5 +1,7 @@
 import SwiftUI
+#if canImport(SuperwallKit)
 import SuperwallKit
+#endif
 
 /// A view modifier that presents a Superwall paywall when a non-premium user tries to interact with the content.
 struct RequirePremiumViewModifier: ViewModifier {

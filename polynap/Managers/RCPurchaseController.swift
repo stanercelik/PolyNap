@@ -7,6 +7,7 @@
 //  syncs subscription status with Superwall.
 //
 
+#if canImport(SuperwallKit)
 import SuperwallKit
 import RevenueCat
 import StoreKit
@@ -83,3 +84,4 @@ final class RCPurchaseController: PurchaseController {
         }
     }
 }
+#endif

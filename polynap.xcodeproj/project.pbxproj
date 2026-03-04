@@ -291,6 +291,7 @@
 				206D2A9A2DF33CC40013D385 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 				20D266A82E113B9D001EA025 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				20D267112E197294001EA025 /* XCLocalSwiftPackageReference "PolyNapShared" */,
+				20DC94B42F58C64E00395DCB /* XCRemoteSwiftPackageReference "Superwall-iOS" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2032D6B12D1E9E2300170F56 /* Products */;
@@ -730,6 +731,14 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 11.15.0;
+			};
+		};
+		20DC94B42F58C64E00395DCB /* XCRemoteSwiftPackageReference "Superwall-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/superwall/Superwall-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.14.0;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */

@@ -1,7 +1,9 @@
 import Foundation
 import SwiftUI
 import RevenueCat
+#if canImport(SuperwallKit)
 import SuperwallKit
+#endif
 import Combine
 
 // MARK: - Paywall Trigger Types
@@ -57,7 +59,11 @@ final class PaywallManager: ObservableObject {
         print("📱 =========================================\n")
         
         // Superwall handles presentation, dismiss, and purchase flow
+        #if canImport(SuperwallKit)
         Superwall.shared.register(placement: placement)
+        #else
+        print("⚠️ SuperwallKit not available. Add the SPM package to enable paywalls.")
+        #endif
     }
     
     /// Resets paywall presentation history (debug/test).
