@@ -120,13 +120,13 @@ struct ChartColorUtils {
         // Gece uykusu saatleri (ana uyku)
         if (hour >= nightSleepStart || hour <= nightSleepEnd) && day.coreHours > 0 {
             let intensity = min(1.0, day.coreHours / 8.0) // 8 saate kadar yoğunluk
-            return .appPrimary.opacity(0.3 + intensity * 0.5)
+            return Color.appPrimary.opacity(0.3 + intensity * 0.5)
         }
         
         // Şekerleme saatleri
         if (hour == afternoonNap || hour == eveningNap) && day.napHours > 0 {
             let intensity = min(1.0, day.napHours / 2.0) // 2 saate kadar yoğunluk
-            return .appSecondary.opacity(0.3 + intensity * 0.4)
+            return Color.appSecondary.opacity(0.3 + intensity * 0.4)
         }
         
         // Uyanık zamanlar
@@ -164,7 +164,11 @@ struct ChartDataUtils {
     }
     
     static func findSelectedItem(at location: CGPoint, proxy: ChartProxy, geometry: GeometryProxy, in sleepBreakdownData: [SleepBreakdownData]) -> SleepBreakdownData? {
-        let plotFrame = geometry[proxy.plotAreaFrame]
+        guard let plotFrameAnchor = proxy.plotFrame else {
+            return nil
+        }
+
+        let plotFrame = geometry[plotFrameAnchor]
         let center = CGPoint(x: plotFrame.midX, y: plotFrame.midY)
         
         let dx = location.x - center.x

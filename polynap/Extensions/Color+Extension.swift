@@ -2,9 +2,7 @@ import SwiftUI
 
 extension Color {
     // Temel Eylemler
-    static let appPrimary = Color("PrimaryColor")
     static let appPrimaryVariant = Color("PrimaryVariantColor")
-    static let appSecondary = Color("SecondaryColor")
     static let appSecondaryVariant = Color("SecondaryVariantColor")
 
     // Arka Planlar ve Yüzeyler

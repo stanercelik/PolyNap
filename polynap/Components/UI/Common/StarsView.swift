@@ -12,7 +12,7 @@ struct StarsView: View {
         rating: Double,
         size: CGFloat = 16,
         maxRating: Int = 5,
-        primaryColor: Color = Color("SecondaryColor"),
+        primaryColor: Color = Color("AppSecondaryColor"),
         emptyColor: Color = Color.gray.opacity(0.3)
     ) {
         self.rating = rating

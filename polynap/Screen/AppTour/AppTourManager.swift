@@ -1,5 +1,4 @@
 import SwiftUI
-import StoreKit
 
 // MARK: - Tour Step Definition
 enum TourStep: Int, CaseIterable {
@@ -66,6 +65,7 @@ enum TourStep: Int, CaseIterable {
 }
 
 // MARK: - AppTourManager
+@MainActor
 final class AppTourManager: ObservableObject {
     static let shared = AppTourManager()
 
@@ -73,6 +73,7 @@ final class AppTourManager: ObservableObject {
     @Published var currentStepIndex: Int = 0
     @Published var navigateToSettingsForTour: Bool = false
     @Published var spotlightVisible: Bool = false
+    @Published var spotlightPulseToken: Int = 0
 
     private let completedKey = "hasCompletedAppTour"
 
@@ -99,6 +100,7 @@ final class AppTourManager: ObservableObject {
         currentStepIndex = 0
         navigateToSettingsForTour = false
         spotlightVisible = false
+        HapticFeedbackManager.shared.trigger(.strongCommit)
         withAnimation(.easeIn(duration: 0.3)) {
             isShowingTour = true
         }
@@ -106,6 +108,7 @@ final class AppTourManager: ObservableObject {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                 self.spotlightVisible = true
             }
+            self.pulseSpotlight()
         }
     }
 
@@ -114,6 +117,7 @@ final class AppTourManager: ObservableObject {
             completeTour()
             return
         }
+        HapticFeedbackManager.shared.trigger(.selection)
         withAnimation(.easeOut(duration: 0.2)) {
             spotlightVisible = false
         }
@@ -124,6 +128,24 @@ final class AppTourManager: ObservableObject {
             withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                 self.spotlightVisible = true
             }
+            self.pulseSpotlight()
+        }
+    }
+
+    func previousStep() {
+        guard currentStepIndex > 0 else { return }
+        HapticFeedbackManager.shared.trigger(.selection)
+        withAnimation(.easeOut(duration: 0.2)) {
+            spotlightVisible = false
+        }
+        currentStepIndex -= 1
+        updateSettingsNav()
+        let delay = currentStep.transitionDelay
+        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                self.spotlightVisible = true
+            }
+            self.pulseSpotlight()
         }
     }
 
@@ -143,6 +165,7 @@ final class AppTourManager: ObservableObject {
 
     private func completeTour() {
         hasCompletedTour = true
+        HapticFeedbackManager.shared.trigger(.success)
         withAnimation(.easeOut(duration: 0.25)) {
             spotlightVisible = false
         }
@@ -152,21 +175,13 @@ final class AppTourManager: ObservableObject {
             }
             self.navigateToSettingsForTour = false
         }
-        // Trigger native App Store review after tour completes
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.9) {
-            self.requestNativeReview()
-        }
-    }
-
-    @MainActor
-    private func requestNativeReview() {
-        guard let windowScene = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first else { return }
-        SKStoreReviewController.requestReview(in: windowScene)
     }
 
     private func updateSettingsNav() {
         navigateToSettingsForTour = currentStep.requiresSettingsNav
+    }
+
+    private func pulseSpotlight() {
+        spotlightPulseToken += 1
     }
 }

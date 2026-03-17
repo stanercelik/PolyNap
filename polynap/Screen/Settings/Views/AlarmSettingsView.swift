@@ -66,7 +66,8 @@ struct AlarmSettingsView: View {
                             Spacer()
                             Toggle("", isOn: $isEnabled)
                                 .labelsHidden()
-                                .onChange(of: isEnabled) { _ in
+                                .onChange(of: isEnabled) { _, _ in
+                                    HapticFeedbackManager.shared.trigger(.selection)
                                     scheduleSettingsSave()
                                 }
                         }
@@ -81,6 +82,7 @@ struct AlarmSettingsView: View {
                             Menu {
                                 ForEach(availableSounds, id: \.0) { sound, name in
                                     Button(action: {
+                                        HapticFeedbackManager.shared.trigger(.selection)
                                         selectedSound = sound
                                         scheduleSettingsSave()
                                         previewSound(sound)
@@ -131,7 +133,8 @@ struct AlarmSettingsView: View {
                                 Spacer()
                                 Toggle("", isOn: $vibrationEnabled)
                                     .labelsHidden()
-                                    .onChange(of: vibrationEnabled) { _ in
+                                    .onChange(of: vibrationEnabled) { _, _ in
+                                        HapticFeedbackManager.shared.trigger(.selection)
                                         scheduleSettingsSave()
                                     }
                             }
@@ -153,7 +156,8 @@ struct AlarmSettingsView: View {
                                 Spacer()
                                 Toggle("", isOn: $snoozeEnabled)
                                     .labelsHidden()
-                                    .onChange(of: snoozeEnabled) { _ in
+                                    .onChange(of: snoozeEnabled) { _, _ in
+                                        HapticFeedbackManager.shared.trigger(.selection)
                                         scheduleSettingsSave()
                                     }
                             }
@@ -166,6 +170,7 @@ struct AlarmSettingsView: View {
                                 Menu {
                                     ForEach(snoozeDurations, id: \.self) { duration in
                                         Button(L("alarmSettings.snooze.minutesFormat", table: "Settings").replacingOccurrences(of: "{duration}", with: "\(duration)")) {
+                                            HapticFeedbackManager.shared.trigger(.selection)
                                             snoozeDuration = duration
                                             scheduleSettingsSave()
                                         }
@@ -198,6 +203,7 @@ struct AlarmSettingsView: View {
                                 Menu {
                                     ForEach(maxSnoozeCounts, id: \.self) { count in
                                         Button(L("alarmSettings.snooze.timesFormat", table: "Settings").replacingOccurrences(of: "{count}", with: "\(count)")) {
+                                            HapticFeedbackManager.shared.trigger(.selection)
                                             maxSnoozeCount = count
                                             scheduleSettingsSave()
                                         }
@@ -510,9 +516,11 @@ struct AlarmSettingsView: View {
                 
                 try modelContext.save()
                 currentSettings = settings
+                HapticFeedbackManager.shared.trigger(.success)
                 print("✅ AlarmSettings başarıyla kaydedildi")
                 
             } catch {
+                HapticFeedbackManager.shared.trigger(.error)
                 print("❌ AlarmSettings kaydetme hatası: \(error)")
                 print("⚠️ Bu hata yeni entity migration sorunundan kaynaklanabilir")
                 // Fallback: UserDefaults kullan

@@ -82,8 +82,14 @@ struct ConsistencyTrendChart: View {
                     .fill(Color.clear)
                     .contentShape(Rectangle())
                     .onTapGesture { location in
-                        let xPosition = location.x - geometry[proxy.plotAreaFrame].origin.x
-                        guard xPosition >= 0, xPosition < proxy.plotAreaSize.width else {
+                        guard let plotFrameAnchor = proxy.plotFrame else {
+                            selectedDataPoint = nil
+                            return
+                        }
+
+                        let plotFrame = geometry[plotFrameAnchor]
+                        let xPosition = location.x - plotFrame.origin.x
+                        guard xPosition >= 0, xPosition < proxy.plotSize.width else {
                             selectedDataPoint = nil
                             return
                         }

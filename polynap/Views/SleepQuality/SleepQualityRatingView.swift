@@ -1,18 +1,15 @@
 import SwiftUI
-import SwiftData
 
 struct SleepQualityRatingView: View {
     let startTime: Date
     let endTime: Date
     @Binding var isPresented: Bool
     @State private var sliderValue: Double = 2 // 0-4 arası değer (5 emoji için)
-    @State private var isDeferredRating = false
     @State private var showSnackbar = false
     @State private var previousEmojiLabel: String = ""
     @State private var labelOffset: CGFloat = 0
-    @StateObject private var notificationManager = SleepQualityNotificationManager.shared
+    @ObservedObject private var notificationManager = SleepQualityNotificationManager.shared
     @ObservedObject var viewModel: MainScreenViewModel
-    @Environment(\.modelContext) private var modelContext
     @State private var emoji: String = "😐" // Varsayılan emoji
     
     private let emojis = ["😩", "😪", "😐", "😊", "😄"]
@@ -53,6 +50,7 @@ struct SleepQualityRatingView: View {
                 Spacer()
                 
                 Button(action: {
+                    HapticFeedbackManager.shared.trigger(.softCommit)
                     isPresented = false
                 }) {
                     Image(systemName: "xmark")
@@ -86,8 +84,7 @@ struct SleepQualityRatingView: View {
                     Slider(value: $sliderValue, in: 0...4, step: 0.5)
                         .tint(getSliderColor())
                         .onChange(of: sliderValue) { newValue in
-                            let generator = UIImpactFeedbackGenerator(style: .light)
-                            generator.impactOccurred()
+                            HapticFeedbackManager.shared.trigger(.selection)
                             emoji = currentEmoji
                         }
                     
@@ -109,6 +106,11 @@ struct SleepQualityRatingView: View {
             // Action Buttons - Kompakt
             HStack(spacing: 12) {
                 Button(action: {
+                    HapticFeedbackManager.shared.trigger(.softCommit)
+                    AnalyticsManager.shared.logNudgeActionTapped(
+                        type: "sleep_quality_prompt",
+                        action: "defer"
+                    )
                     viewModel.deferSleepQualityRating()
                     isPresented = false
                     
@@ -135,6 +137,11 @@ struct SleepQualityRatingView: View {
                 }
                 
                 Button(action: {
+                    HapticFeedbackManager.shared.trigger(.strongCommit)
+                    AnalyticsManager.shared.logNudgeActionTapped(
+                        type: "sleep_quality_prompt",
+                        action: "save"
+                    )
                     viewModel.markSleepQualityRatingAsCompleted()
                     isPresented = false
                     
@@ -166,75 +173,31 @@ struct SleepQualityRatingView: View {
     private func saveSleepQuality() {
         guard let lastBlock = viewModel.lastSleepBlock else {
             print("❌ Son uyku bloğu bulunamadı")
+            HapticFeedbackManager.shared.trigger(.error)
             return
         }
         
         let rating = Double(sliderValue + 1.0) // 1-5 arası puanlama (0.5 increment'li)
         print("💾 Uyku kalitesi kaydediliyor: \(rating)")
-        
-        // SleepEntry oluştur - History ile uyumlu
-        let calendar = Calendar.current
-        let entryDate = calendar.startOfDay(for: startTime)
-        
-        // Süreyi hesapla
-        let durationMinutes = Int(endTime.timeIntervalSince(startTime) / 60)
-        
-        let newEntry = SleepEntry(
-            date: entryDate,
-            startTime: startTime,
-            endTime: endTime,
-            durationMinutes: durationMinutes,
-            isCore: lastBlock.isCore,
-            blockId: lastBlock.id.uuidString,
-            emoji: currentEmoji,
-            rating: rating
-        )
-        
-        // ModelContext kullanarak kaydet
-        let context = modelContext
-        
-        do {
-            // HistoryModel'i bul veya oluştur
-            let predicate = #Predicate<HistoryModel> { $0.date == entryDate }
-            let descriptor = FetchDescriptor(predicate: predicate)
-            
-            var historyModel = try context.fetch(descriptor).first
-            
-            if historyModel == nil {
-                historyModel = HistoryModel(date: entryDate)
-                context.insert(historyModel!)
-                print("✅ Yeni HistoryModel oluşturuldu: \(entryDate)")
+
+        Task { @MainActor in
+            do {
+                try SleepQualityPersistenceService.shared.saveRating(
+                    rating: rating,
+                    startTime: startTime,
+                    endTime: endTime,
+                    isCore: lastBlock.isCore,
+                    blockId: lastBlock.id.uuidString,
+                    source: "sheet_prompt"
+                )
+                print("✅ Uyku girdisi başarıyla kaydedildi - Rating: \(rating), Emoji: \(currentEmoji)")
+                HapticFeedbackManager.shared.trigger(.success)
+                notificationManager.removePendingRating(startTime: startTime, endTime: endTime)
+            } catch {
+                print("❌ SleepEntry kaydedilirken hata: \(error.localizedDescription)")
+                HapticFeedbackManager.shared.trigger(.error)
             }
-            
-            // SleepEntry'yi ekle
-            newEntry.historyDay = historyModel
-            historyModel?.sleepEntries?.append(newEntry)
-            context.insert(newEntry)
-            
-            try context.save()
-            print("✅ Uyku girdisi başarıyla kaydedildi - Rating: \(rating), Emoji: \(currentEmoji)")
-            
-            // Repository'ye de kaydet (senkronizasyon için)
-            Task {
-                do {
-                    _ = try await Repository.shared.addSleepEntry(
-                        blockId: lastBlock.id.uuidString,
-                        emoji: currentEmoji,
-                        rating: rating,
-                        date: startTime
-                    )
-                    print("✅ Repository'ye de kaydedildi")
-                } catch {
-                    print("❌ Repository'ye kaydederken hata: \(error.localizedDescription)")
-                }
-            }
-            
-        } catch {
-            print("❌ SleepEntry kaydedilirken hata: \(error.localizedDescription)")
         }
-        
-        // Bekleyen bildirimi kaldır
-        notificationManager.removePendingRating(startTime: startTime, endTime: endTime)
     }
     
     private func getSliderColor() -> Color {

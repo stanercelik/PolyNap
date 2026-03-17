@@ -30,8 +30,7 @@ struct CategoryCard: View {
 }
 
 // MARK: - Preview
-#Preview {
+#Preview(traits: .sizeThatFitsLayout) {
     CategoryCard(category: .basics) {}
         .padding()
-        .previewLayout(.sizeThatFits)
-} 
+}

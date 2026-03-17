@@ -267,6 +267,7 @@ struct ConfettiView: View {
                 }
             }
             .onAppear {
+                HapticFeedbackManager.shared.trigger(.success)
                 createParticles(in: geo.size)
                 animateParticles(in: geo.size)
             }

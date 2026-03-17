@@ -3,12 +3,13 @@ import UserNotifications
 
 class SleepQualityNotificationManager: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
     static let shared = SleepQualityNotificationManager()
+    static let ratingCategoryIdentifier = "SLEEP_RATING_CATEGORY"
     
     @Published var pendingRatings: [(startTime: Date, endTime: Date)] = []
     
     private let notificationCenter = UNUserNotificationCenter.current()
     private let ratingActions = ["😩", "😪", "😐", "😊", "😄"]
-    private let ratingCategories = "SLEEP_RATING_CATEGORY"
+    private let analyticsManager = AnalyticsManager.shared
     
     private override init() {
         super.init()
@@ -31,7 +32,7 @@ class SleepQualityNotificationManager: NSObject, ObservableObject, UNUserNotific
         
         // Kategoriyi oluştur ve kaydet
         let category = UNNotificationCategory(
-            identifier: ratingCategories,
+            identifier: Self.ratingCategoryIdentifier,
             actions: actions,
             intentIdentifiers: [],
             options: []
@@ -67,12 +68,13 @@ class SleepQualityNotificationManager: NSObject, ObservableObject, UNUserNotific
         content.title = NSLocalizedString("sleepQuality.notification.title", tableName: "MainScreen", comment: "")
         content.body = NSLocalizedString("sleepQuality.question", tableName: "MainScreen", comment: "")
         content.sound = .default
-        content.categoryIdentifier = ratingCategories
+        content.categoryIdentifier = Self.ratingCategoryIdentifier
         
         // Bildirim için özel veri ekle
         content.userInfo = [
             "startTime": startTime.timeIntervalSince1970,
-            "endTime": endTime.timeIntervalSince1970
+            "endTime": endTime.timeIntervalSince1970,
+            "nudgeType": "sleep_quality_prompt"
         ]
         
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 1, repeats: false)
@@ -87,29 +89,62 @@ class SleepQualityNotificationManager: NSObject, ObservableObject, UNUserNotific
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
+        handleNotificationResponse(response)
+        completionHandler()
+    }
+
+    func handleNotificationResponse(_ response: UNNotificationResponse) {
         let userInfo = response.notification.request.content.userInfo
         
         guard let startTimeInterval = userInfo["startTime"] as? TimeInterval,
               let endTimeInterval = userInfo["endTime"] as? TimeInterval else {
-            completionHandler()
             return
         }
         
         let startTime = Date(timeIntervalSince1970: startTimeInterval)
         let endTime = Date(timeIntervalSince1970: endTimeInterval)
+        analyticsManager.logNotificationOpened(notificationType: "sleep_quality")
+        analyticsManager.logNudgeOpened(type: "sleep_quality_prompt")
         
         if response.actionIdentifier.starts(with: "RATE_"),
            let ratingString = response.actionIdentifier.split(separator: "_").last,
            let rating = Int(ratingString) {
-            saveSleepQuality(rating: rating, startTime: startTime, endTime: endTime)
+            let normalizedRating = min(max(rating + 1, 1), ratingActions.count)
+            analyticsManager.logNudgeActionTapped(
+                type: "sleep_quality_prompt",
+                action: "rate_\(normalizedRating)"
+            )
+            saveSleepQuality(rating: normalizedRating, startTime: startTime, endTime: endTime)
+        } else if response.actionIdentifier == UNNotificationDismissActionIdentifier {
+            analyticsManager.logNudgeActionTapped(
+                type: "sleep_quality_prompt",
+                action: "dismiss"
+            )
+            analyticsManager.logNudgeOutcome(
+                type: "sleep_quality_prompt",
+                outcome: "dismissed",
+                completionDelayMinutes: nil
+            )
         }
-        
-        completionHandler()
     }
     
     private func saveSleepQuality(rating: Int, startTime: Date, endTime: Date) {
-        // TODO: Implement actual save functionality
-        print("Sleep quality saved from notification: \(rating)")
-        removePendingRating(startTime: startTime, endTime: endTime)
+        Task { @MainActor in
+            do {
+                let isCoreBlock = endTime.timeIntervalSince(startTime) >= 90 * 60
+                try SleepQualityPersistenceService.shared.saveRating(
+                    rating: Double(rating),
+                    startTime: startTime,
+                    endTime: endTime,
+                    isCore: isCoreBlock,
+                    blockId: nil,
+                    source: "notification_prompt"
+                )
+                print("Sleep quality saved from notification: \(rating)")
+                removePendingRating(startTime: startTime, endTime: endTime)
+            } catch {
+                print("❌ Sleep quality notification save failed: \(error.localizedDescription)")
+            }
+        }
     }
 }

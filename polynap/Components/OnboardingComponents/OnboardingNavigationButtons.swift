@@ -20,7 +20,7 @@ struct OnboardingNavigationButtons: View {
                         Text("onboarding.back", tableName: "Onboarding")
                             .font(.body.weight(.semibold))
                     }
-                    .foregroundStyle(Color("PrimaryColor"))
+                    .foregroundStyle(Color("AppPrimaryColor"))
                     .frame(minWidth: 44, minHeight: 44)
                     .contentShape(Rectangle())
                 }
@@ -46,7 +46,7 @@ struct OnboardingNavigationButtons: View {
                 .frame(minWidth: 44, minHeight: 44)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(canMoveNext ? Color("PrimaryColor") : Color("PrimaryColor").opacity(0.5))
+                        .fill(canMoveNext ? Color("AppPrimaryColor") : Color("AppPrimaryColor").opacity(0.5))
                 )
                 .foregroundColor(Color("TextOnPrimaryColor"))
                 .contentShape(Rectangle())

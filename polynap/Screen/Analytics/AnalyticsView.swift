@@ -254,6 +254,18 @@ public struct AnalyticsView: View {
                 viewModel.loadHealthData()
             }
         }
+        .onChange(of: selectedTrendDataPoint?.id) { _, newId in
+            guard newId != nil else { return }
+            HapticFeedbackManager.shared.trigger(.softCommit)
+        }
+        .onChange(of: selectedBarDataPoint?.id) { _, newId in
+            guard newId != nil else { return }
+            HapticFeedbackManager.shared.trigger(.softCommit)
+        }
+        .onChange(of: selectedPieSlice?.id) { _, newId in
+            guard newId != nil else { return }
+            HapticFeedbackManager.shared.trigger(.softCommit)
+        }
 
         .id(languageManager.currentLanguage)
     }
@@ -264,7 +276,7 @@ public struct AnalyticsView: View {
         HStack(spacing: PSSpacing.sm) {
             ForEach(TimeRange.allCases) { range in
                 Button(action: {
-                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    HapticFeedbackManager.shared.trigger(.selection)
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                         viewModel.changeTimeRange(to: range)
                     }
@@ -407,4 +419,3 @@ public struct AnalyticsView: View {
 #Preview {
     AnalyticsView()
 }
-

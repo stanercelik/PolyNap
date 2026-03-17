@@ -6,6 +6,18 @@ Analytics-Implementation-TODO.md
 Analytics-Strategy.md
 GoogleService-Info.plist
 
+# Xcode / SwiftPM build outputs
+.build/
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+.swiftpm/
+*/.swiftpm/
+*.xcbkptlist
+
 # Secret Keys
 Keys.xcconfig
 CLAUDE.md
@@ -21,3 +33,4 @@ AppleWatchDocs/apple-watch-rules.mdc
 .claude/settings.local.json
 .gemini/settings.json
 .gitignore
+.github/mcp-config.json

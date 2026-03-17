@@ -1,5 +1,19 @@
 import SwiftUI
 
+private struct PSPressableButtonStyle: ButtonStyle {
+    let pressedScale: CGFloat
+
+    init(pressedScale: CGFloat = 0.97) {
+        self.pressedScale = pressedScale
+    }
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? pressedScale : 1.0)
+            .animation(.spring(response: 0.18, dampingFraction: 0.75), value: configuration.isPressed)
+    }
+}
+
 // MARK: - PolyNap Design System
 /**
  PolyNap Tasarım Sistemi
@@ -101,6 +115,7 @@ struct PSPrimaryButton: View {
     let isLoading: Bool
     let destructive: Bool
     let customBackgroundColor: Color?
+    let haptic: HapticIntent
     let action: () -> Void
     
     init(
@@ -109,6 +124,7 @@ struct PSPrimaryButton: View {
         isLoading: Bool = false,
         destructive: Bool = false,
         customBackgroundColor: Color? = nil,
+        haptic: HapticIntent = .softCommit,
         action: @escaping () -> Void
     ) {
         self.title = title
@@ -116,6 +132,7 @@ struct PSPrimaryButton: View {
         self.isLoading = isLoading
         self.destructive = destructive
         self.customBackgroundColor = customBackgroundColor
+        self.haptic = haptic
         self.action = action
     }
     
@@ -127,7 +144,10 @@ struct PSPrimaryButton: View {
     }
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            HapticFeedbackManager.shared.trigger(haptic)
+            action()
+        }) {
             HStack(spacing: PSSpacing.sm) {
                 if isLoading {
                     ProgressView()
@@ -147,6 +167,7 @@ struct PSPrimaryButton: View {
             .background(currentBackgroundColor, in: RoundedRectangle(cornerRadius: PSCornerRadius.button))
         }
         .disabled(isLoading)
+        .buttonStyle(PSPressableButtonStyle())
     }
 }
 
@@ -154,20 +175,26 @@ struct PSPrimaryButton: View {
 struct PSSecondaryButton: View {
     let title: String
     let icon: String?
+    let haptic: HapticIntent
     let action: () -> Void
     
     init(
         _ title: String,
         icon: String? = nil,
+        haptic: HapticIntent = .softCommit,
         action: @escaping () -> Void
     ) {
         self.title = title
         self.icon = icon
+        self.haptic = haptic
         self.action = action
     }
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            HapticFeedbackManager.shared.trigger(haptic)
+            action()
+        }) {
             HStack(spacing: PSSpacing.sm) {
                 if let icon = icon {
                     Image(systemName: icon)
@@ -185,6 +212,7 @@ struct PSSecondaryButton: View {
                     .stroke(Color.appPrimary, lineWidth: 1.5)
             )
         }
+        .buttonStyle(PSPressableButtonStyle())
     }
 }
 
@@ -192,20 +220,26 @@ struct PSSecondaryButton: View {
 struct PSTertiaryButton: View {
     let title: String
     let icon: String?
+    let haptic: HapticIntent
     let action: () -> Void
     
     init(
         _ title: String,
         icon: String? = nil,
+        haptic: HapticIntent = .softCommit,
         action: @escaping () -> Void
     ) {
         self.title = title
         self.icon = icon
+        self.haptic = haptic
         self.action = action
     }
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            HapticFeedbackManager.shared.trigger(haptic)
+            action()
+        }) {
             HStack(spacing: PSSpacing.sm) {
                 if let icon = icon {
                     Image(systemName: icon)
@@ -217,6 +251,7 @@ struct PSTertiaryButton: View {
             }
             .foregroundColor(.appPrimary)
         }
+        .buttonStyle(PSPressableButtonStyle())
     }
 }
 
@@ -226,6 +261,7 @@ struct PSIconButton: View {
     let size: CGFloat
     let backgroundColor: Color
     let foregroundColor: Color
+    let haptic: HapticIntent
     let action: () -> Void
     
     init(
@@ -233,24 +269,29 @@ struct PSIconButton: View {
         size: CGFloat = 32,
         backgroundColor: Color = Color.appPrimary.opacity(0.15),
         foregroundColor: Color = .appPrimary,
+        haptic: HapticIntent = .softCommit,
         action: @escaping () -> Void
     ) {
         self.icon = icon
         self.size = size
         self.backgroundColor = backgroundColor
         self.foregroundColor = foregroundColor
+        self.haptic = haptic
         self.action = action
     }
     
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            HapticFeedbackManager.shared.trigger(haptic)
+            action()
+        }) {
             Image(systemName: icon)
                 .font(.system(size: size * 0.5, weight: .medium))
                 .foregroundColor(foregroundColor)
                 .frame(width: size, height: size)
                 .background(backgroundColor, in: Circle())
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PSPressableButtonStyle())
     }
 }
 

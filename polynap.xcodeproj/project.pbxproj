@@ -7,13 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2012314E2F6A0FC000C05038 /* PostHog in Frameworks */ = {isa = PBXBuildFile; productRef = 2012314D2F6A0FC000C05038 /* PostHog */; };
 		206D2A9C2DF33CC40013D385 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = 206D2A9B2DF33CC40013D385 /* RevenueCat */; };
 		206D2A9E2DF33CC40013D385 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 206D2A9D2DF33CC40013D385 /* RevenueCatUI */; settings = {ATTRIBUTES = (Required, ); }; };
 		206D5B062DF357EC00366C90 /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 206D5B052DF357EC00366C90 /* StoreKit.framework */; };
 		206DE0792DF195E7007EE33B /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 206DE0782DF195E7007EE33B /* Lottie */; };
-		20D266AA2E113B9D001EA025 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 20D266A92E113B9D001EA025 /* FirebaseAnalytics */; };
-		20D266AC2E113B9D001EA025 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 20D266AB2E113B9D001EA025 /* FirebaseCrashlytics */; };
 		20D267132E197294001EA025 /* PolyNapShared in Frameworks */ = {isa = PBXBuildFile; productRef = 20D267122E197294001EA025 /* PolyNapShared */; };
+		20DC94B92F58E43900395DCB /* SuperwallKit in Frameworks */ = {isa = PBXBuildFile; productRef = 20DC94B82F58E43900395DCB /* SuperwallKit */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -105,9 +105,9 @@
 				20D267132E197294001EA025 /* PolyNapShared in Frameworks */,
 				206D5B062DF357EC00366C90 /* StoreKit.framework in Frameworks */,
 				206D2A9C2DF33CC40013D385 /* RevenueCat in Frameworks */,
+				20DC94B92F58E43900395DCB /* SuperwallKit in Frameworks */,
 				206D2A9E2DF33CC40013D385 /* RevenueCatUI in Frameworks */,
-				20D266AC2E113B9D001EA025 /* FirebaseCrashlytics in Frameworks */,
-				20D266AA2E113B9D001EA025 /* FirebaseAnalytics in Frameworks */,
+				2012314E2F6A0FC000C05038 /* PostHog in Frameworks */,
 				206DE0792DF195E7007EE33B /* Lottie in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -190,9 +190,9 @@
 				206DE0782DF195E7007EE33B /* Lottie */,
 				206D2A9B2DF33CC40013D385 /* RevenueCat */,
 				206D2A9D2DF33CC40013D385 /* RevenueCatUI */,
-				20D266A92E113B9D001EA025 /* FirebaseAnalytics */,
-				20D266AB2E113B9D001EA025 /* FirebaseCrashlytics */,
 				20D267122E197294001EA025 /* PolyNapShared */,
+				20DC94B82F58E43900395DCB /* SuperwallKit */,
+				2012314D2F6A0FC000C05038 /* PostHog */,
 			);
 			productName = polynap;
 			productReference = 2032D6B02D1E9E2300170F56 /* polynap.app */;
@@ -289,9 +289,9 @@
 			packageReferences = (
 				206DE0772DF195E7007EE33B /* XCRemoteSwiftPackageReference "lottie-ios" */,
 				206D2A9A2DF33CC40013D385 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
-				20D266A82E113B9D001EA025 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				20D267112E197294001EA025 /* XCLocalSwiftPackageReference "PolyNapShared" */,
-				20DC94B42F58C64E00395DCB /* XCRemoteSwiftPackageReference "Superwall-iOS" */,
+				20DC94B72F58E43900395DCB /* XCRemoteSwiftPackageReference "Superwall-iOS" */,
+				2012314C2F6A0FC000C05038 /* XCRemoteSwiftPackageReference "posthog-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2032D6B12D1E9E2300170F56 /* Products */;
@@ -709,6 +709,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		2012314C2F6A0FC000C05038 /* XCRemoteSwiftPackageReference "posthog-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/PostHog/posthog-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.47.0;
+			};
+		};
 		206D2A9A2DF33CC40013D385 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RevenueCat/purchases-ios-spm.git";
@@ -725,15 +733,7 @@
 				minimumVersion = 4.5.2;
 			};
 		};
-		20D266A82E113B9D001EA025 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 11.15.0;
-			};
-		};
-		20DC94B42F58C64E00395DCB /* XCRemoteSwiftPackageReference "Superwall-iOS" */ = {
+		20DC94B72F58E43900395DCB /* XCRemoteSwiftPackageReference "Superwall-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/superwall/Superwall-iOS";
 			requirement = {
@@ -744,6 +744,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		2012314D2F6A0FC000C05038 /* PostHog */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2012314C2F6A0FC000C05038 /* XCRemoteSwiftPackageReference "posthog-ios" */;
+			productName = PostHog;
+		};
 		206D2A9B2DF33CC40013D385 /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 206D2A9A2DF33CC40013D385 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */;
@@ -759,20 +764,15 @@
 			package = 206DE0772DF195E7007EE33B /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
 		};
-		20D266A92E113B9D001EA025 /* FirebaseAnalytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 20D266A82E113B9D001EA025 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalytics;
-		};
-		20D266AB2E113B9D001EA025 /* FirebaseCrashlytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 20D266A82E113B9D001EA025 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCrashlytics;
-		};
 		20D267122E197294001EA025 /* PolyNapShared */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 20D267112E197294001EA025 /* XCLocalSwiftPackageReference "PolyNapShared" */;
 			productName = PolyNapShared;
+		};
+		20DC94B82F58E43900395DCB /* SuperwallKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 20DC94B72F58E43900395DCB /* XCRemoteSwiftPackageReference "Superwall-iOS" */;
+			productName = SuperwallKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

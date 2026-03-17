@@ -232,6 +232,8 @@ class AnalyticsViewModel: ObservableObject {
     @Published var heartRateData: [DailyHeartRateData] = []
     @Published var hrvData: [DailyHRVData] = []
     @Published var sleepRegularityData: [SleepRegularityData] = []
+    @Published var recoveryScore: Double = 0
+    @Published var recoveryState: BehavioralRecoverySnapshot.RecoveryState = .stable
     @Published var isHealthDataLoading: Bool = false
     @Published var hasHealthKitAccess: Bool = false
     
@@ -244,6 +246,7 @@ class AnalyticsViewModel: ObservableObject {
     
     private var modelContext: ModelContext?
     private let minimumRequiredDays = 2  // Daha az veri gereksinimi
+    private let analyticsManager = AnalyticsManager.shared
     
     // MARK: - Public Methods
     
@@ -311,6 +314,13 @@ class AnalyticsViewModel: ObservableObject {
             
             // Uyku düzenlilik verisini hesapla
             self.calculateSleepRegularity()
+            if let modelContext = self.modelContext {
+                let descriptor = FetchDescriptor<HistoryModel>(
+                    sortBy: [SortDescriptor(\HistoryModel.date, order: .forward)]
+                )
+                let historyModels = (try? modelContext.fetch(descriptor)) ?? []
+                self.updateRecoveryInsights(historyModels: historyModels)
+            }
             
             self.isHealthDataLoading = false
         }
@@ -510,6 +520,8 @@ class AnalyticsViewModel: ObservableObject {
         adherenceData = []
         adherenceSummary = AdherenceSummary()
         sleepStagesData = []
+        recoveryScore = 0
+        recoveryState = .stable
     }
     
     private func calculateStartDate(from endDate: Date) -> Date {
@@ -641,6 +653,7 @@ class AnalyticsViewModel: ObservableObject {
         
         // Adherence hesapla (Free tier)
         createAdherenceData(fromSleepEntries: allSleepEntries, startDate: startDate, endDate: endDate)
+        updateRecoveryInsights(historyModels: historyModels)
         
         // Premium analizler — gerçek schedule verilerini kullanır
         let scheduleInfo = fetchActiveScheduleInfo()
@@ -918,6 +931,48 @@ class AnalyticsViewModel: ObservableObject {
             adherentDays: adherentDays,
             totalDays: daysWithEntries
         )
+    }
+
+    private func updateRecoveryInsights(historyModels: [HistoryModel]) {
+        let snapshot = BehavioralNudgeEngine.recoverySnapshot(
+            preferences: fetchUserPreferences(),
+            historyModels: historyModels,
+            externalRecoverySignal: recentHRVRecoverySignal()
+        )
+
+        recoveryScore = snapshot.score
+        recoveryState = snapshot.state
+
+        if snapshot.state == .guarded {
+            analyticsManager.logRecoveryGuardrailTriggered(
+                hrvDelta: recentHRVDelta(),
+                adherence3d: snapshot.adherence3DayScore,
+                quality3d: snapshot.quality3DayScore
+            )
+        }
+    }
+
+    private func fetchUserPreferences() -> UserPreferences? {
+        guard let modelContext else { return nil }
+        let descriptor = FetchDescriptor<UserPreferences>()
+        return try? modelContext.fetch(descriptor).first
+    }
+
+    private func recentHRVRecoverySignal() -> Double? {
+        let recentSamples = hrvData.sorted(by: { $0.date > $1.date }).prefix(3)
+        guard !recentSamples.isEmpty else { return nil }
+        let scoreSum = recentSamples.reduce(0.0) { $0 + $1.recoveryScore }
+        return scoreSum / Double(recentSamples.count)
+    }
+
+    private func recentHRVDelta() -> Double? {
+        let recentSamples = hrvData.sorted(by: { $0.date < $1.date }).suffix(3)
+        guard let first = recentSamples.first,
+              let last = recentSamples.last,
+              recentSamples.count > 1 else {
+            return nil
+        }
+        return last.averageSDNN - first.averageSDNN
     }
     
     // MARK: - Premium Analytics Methods

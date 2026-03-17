@@ -21,6 +21,7 @@ extension View {
 struct AppTourOverlayView: View {
     @EnvironmentObject private var tourManager: AppTourManager
     @EnvironmentObject private var languageManager: LanguageManager
+    @State private var spotlightPulseInset: CGFloat = 0
 
     let anchors: [String: Anchor<CGRect>]
 
@@ -42,6 +43,16 @@ struct AppTourOverlayView: View {
             }
             .opacity(tourManager.isShowingTour ? 1 : 0)
             .animation(.easeInOut(duration: 0.25), value: tourManager.spotlightVisible)
+            .onChange(of: tourManager.spotlightPulseToken) { _, _ in
+                withAnimation(.easeOut(duration: 0.14)) {
+                    spotlightPulseInset = 8
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.16) {
+                    withAnimation(.spring(response: 0.32, dampingFraction: 0.76)) {
+                        spotlightPulseInset = 0
+                    }
+                }
+            }
         }
         .ignoresSafeArea()
     }
@@ -75,7 +86,10 @@ struct AppTourOverlayView: View {
             Color.black.opacity(0.78)
                 .overlay {
                     RoundedRectangle(cornerRadius: 18, style: .continuous)
-                        .frame(width: frame.width + 28, height: frame.height + 40)
+                        .frame(
+                            width: frame.width + 28 + spotlightPulseInset,
+                            height: frame.height + 40 + spotlightPulseInset
+                        )
                         .position(x: frame.midX, y: frame.midY + 8)
                         .blendMode(.destinationOut)
                 }
@@ -140,13 +154,25 @@ struct AppTourOverlayView: View {
 
             // Controls row
             HStack(alignment: .center, spacing: 0) {
-                // Skip button
-                Button {
-                    tourManager.skipTour()
-                } label: {
-                    Text(L("tour.skip", table: "Tour"))
-                        .font(.system(size: 15, weight: .medium, design: .rounded))
-                        .foregroundColor(Color(.secondaryLabel))
+                // Back / Skip actions
+                HStack(spacing: 14) {
+                    if tourManager.currentStepIndex > 0 {
+                        Button {
+                            tourManager.previousStep()
+                        } label: {
+                            Text(L("tour.back", table: "Tour"))
+                                .font(.system(size: 15, weight: .medium, design: .rounded))
+                                .foregroundColor(Color(.secondaryLabel))
+                        }
+                    }
+
+                    Button {
+                        tourManager.skipTour()
+                    } label: {
+                        Text(L("tour.skip", table: "Tour"))
+                            .font(.system(size: 15, weight: .medium, design: .rounded))
+                            .foregroundColor(Color(.secondaryLabel))
+                    }
                 }
 
                 Spacer()

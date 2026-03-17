@@ -54,4 +54,12 @@ extension AppConfiguration {
             fatalError("Superwall API Key not found in Info.plist. Error: \(error)")
         }
     }
+    
+    static var posthogAPIKey: String {
+        do {
+            return try value(for: "PosthogAPIKey")
+        } catch {
+            fatalError("Posthog API Key not found in Info.plist. Error: \(error)")
+        }
+    }
 }

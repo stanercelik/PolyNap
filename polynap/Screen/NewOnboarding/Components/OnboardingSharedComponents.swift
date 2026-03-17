@@ -48,7 +48,7 @@ struct OBButton: View {
     
     var body: some View {
         Button(action: {
-            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            HapticFeedbackManager.shared.trigger(.softCommit)
             action()
         }) {
             Text(title)
@@ -103,7 +103,7 @@ struct TapToContinue: View {
     
     var body: some View {
         Button(action: {
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            HapticFeedbackManager.shared.trigger(.selection)
             action()
         }) {
             Text(text)
@@ -127,7 +127,7 @@ struct OBSelectionCard: View {
     
     var body: some View {
         Button(action: {
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            HapticFeedbackManager.shared.trigger(.selection)
             action()
         }) {
             HStack(spacing: OBSpacing.md) {
@@ -322,6 +322,9 @@ struct AgeSlider: View {
         self.onChanged = onChanged
     }
     
+    private let thumbDiameter: CGFloat = 30
+    private let trackHeight: CGFloat = 6
+    
     var body: some View {
         let displayAge = Int(value.rounded())
         
@@ -333,8 +336,53 @@ struct AgeSlider: View {
                 .animation(.snappy(duration: 0.3), value: displayAge)
             
             VStack(spacing: OBSpacing.sm) {
-                Slider(value: $value, in: range)
-                    .tint(OBColors.primaryColor)
+                GeometryReader { geo in
+                    let width = geo.size.width
+                    let usableWidth = width - thumbDiameter
+                    let rawProgress = (value - range.lowerBound) / (range.upperBound - range.lowerBound)
+                    let progress = CGFloat(max(0, min(1, rawProgress)))
+                    let thumbX = progress * usableWidth
+                    
+                    ZStack(alignment: .leading) {
+                        // Track background
+                        Capsule()
+                            .fill(OBColors.primaryColor.opacity(0.12))
+                            .frame(height: trackHeight)
+                            .padding(.horizontal, thumbDiameter / 2)
+                        
+                        // Filled portion
+                        Capsule()
+                            .fill(OBColors.primaryColor.opacity(0.5))
+                            .frame(width: max(trackHeight, thumbDiameter / 2 + thumbX), height: trackHeight)
+                        
+                        // Thumb
+                        Circle()
+                            .fill(.white)
+                            .frame(width: thumbDiameter, height: thumbDiameter)
+                            .shadow(color: OBColors.primaryColor.opacity(0.25), radius: 6, x: 0, y: 3)
+                            .overlay(
+                                Circle()
+                                    .fill(OBColors.primaryColor)
+                                    .padding(8)
+                            )
+                            .offset(x: thumbX)
+                    }
+                    .frame(height: thumbDiameter)
+                    .contentShape(Rectangle())
+                    .gesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { drag in
+                                guard usableWidth > 0 else { return }
+                                let rawX = drag.location.x - thumbDiameter / 2
+                                let clampedX = max(0, min(usableWidth, rawX))
+                                let newProgress = Double(clampedX / usableWidth)
+                                let rawValue = range.lowerBound + newProgress * (range.upperBound - range.lowerBound)
+                                let stepped = (rawValue / step).rounded() * step
+                                value = max(range.lowerBound, min(range.upperBound, stepped))
+                            }
+                    )
+                }
+                .frame(height: thumbDiameter)
                 
                 HStack {
                     Text("\(Int(range.lowerBound))")
@@ -349,7 +397,7 @@ struct AgeSlider: View {
         }
         .padding(OBSpacing.lg)
         .onChange(of: displayAge) { _, newAge in
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            HapticFeedbackManager.shared.trigger(.selection)
             onChanged(Double(newAge))
         }
     }
@@ -393,7 +441,10 @@ struct TestimonialCard: View {
         .scaleEffect(appeared ? 1 : 0.8)
         .opacity(appeared ? 1 : 0)
         .animation(.spring(response: 0.6, dampingFraction: 0.65).delay(delay), value: appeared)
-        .onAppear { appeared = true }
+        .onAppear {
+            appeared = true
+            HapticFeedbackManager.shared.trigger(.selection)
+        }
     }
 }
 
@@ -434,6 +485,7 @@ struct RingProgress: View {
     let lineWidth: CGFloat
     let size: CGFloat
     let gradientColors: [Color]
+    @State private var hasPlayedCompletionHaptic = false
     
     init(progress: Double, lineWidth: CGFloat = 8, size: CGFloat = 120, gradientColors: [Color] = [OBColors.accentBlue, OBColors.primaryColor]) {
         self.progress = progress
@@ -462,6 +514,14 @@ struct RingProgress: View {
                 .animation(.easeInOut(duration: 0.8), value: progress)
         }
         .frame(width: size, height: size)
+        .onChange(of: progress) { _, newProgress in
+            if newProgress >= 1.0, !hasPlayedCompletionHaptic {
+                hasPlayedCompletionHaptic = true
+                HapticFeedbackManager.shared.trigger(.strongCommit)
+            } else if newProgress < 1.0 {
+                hasPlayedCompletionHaptic = false
+            }
+        }
     }
 }
 

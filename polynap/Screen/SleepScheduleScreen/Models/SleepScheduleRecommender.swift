@@ -48,9 +48,9 @@ public struct SleepScheduleRecommendation {
 // MARK: - SleepScheduleRecommender Servisi
 final class SleepScheduleRecommender {
     // Basit bir başlatıcı
-    private let repository: Repository
+    private let repository: Repository?
     
-    init(repository: Repository = Repository.shared) {
+    init(repository: Repository? = nil) {
         self.repository = repository
     }
     
@@ -250,8 +250,15 @@ final class SleepScheduleRecommender {
     private func loadUserFactorsFromLocalDatabase() async throws -> [String: String]? {
         // Repository'den onboarding cevaplarını al
         do {
+            let resolvedRepository: Repository
+            if let repository {
+                resolvedRepository = repository
+            } else {
+                resolvedRepository = await MainActor.run { Repository.shared }
+            }
+
             // Repository'den cevapları al (artık Repository kendi ModelContext'ini yönetebiliyor)
-            let onboardingAnswers = try await repository.getOnboardingAnswers()
+            let onboardingAnswers = try await resolvedRepository.getOnboardingAnswers()
             
             // Sonuçların boş olup olmadığını kontrol et
             print("🗂️ \(onboardingAnswers.count) onboarding cevabı getirildi")

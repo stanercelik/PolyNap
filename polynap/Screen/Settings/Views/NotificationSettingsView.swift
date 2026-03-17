@@ -46,6 +46,9 @@ struct NotificationSettingsView: View {
                         Slider(value: $reminderTime, in: 0...120, step: 1)
                             .accentColor(.appPrimary)
                             .onChange(of: reminderTime) { oldValue, newValue in
+                                if Int(oldValue) != Int(newValue) {
+                                    HapticFeedbackManager.shared.trigger(.selection)
+                                }
                                 saveReminderTime(minutes: Int(newValue))
                             }
 
@@ -127,6 +130,7 @@ struct NotificationSettingsView: View {
         
         do {
             try modelContext.save()
+            HapticFeedbackManager.shared.trigger(.success)
             print("✅ Hatırlatma süresi güncellendi: \(minutes) dakika. Bildirimler yeniden planlanıyor...")
             
             // Async işlemi Task içinde yap
@@ -134,6 +138,7 @@ struct NotificationSettingsView: View {
                 await updateNotificationsForActiveSchedule()
             }
         } catch {
+            HapticFeedbackManager.shared.trigger(.error)
             print("❌ Hatırlatma süresi kaydedilemedi: \(error)")
         }
     }
@@ -238,6 +243,7 @@ struct QuickTimeButton: View {
 
     var body: some View {
         Button(action: {
+            HapticFeedbackManager.shared.trigger(.selection)
             withAnimation(.easeInOut(duration: 0.2)) {
                 currentTime = Double(time)
             }

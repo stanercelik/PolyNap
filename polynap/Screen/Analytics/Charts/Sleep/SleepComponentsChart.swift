@@ -39,7 +39,7 @@ struct SleepComponentsChart: View {
                         y: .value("Nap 2", day.nap2Hours),
                         stacking: .standard
                     )
-                    .foregroundStyle(Color("SecondaryColor"))
+                    .foregroundStyle(Color("AppSecondaryColor"))
                     .cornerRadius(4)
                     
                     // Uyku skorunu nokta olarak ekle (sadece veri olan günler için)
@@ -65,7 +65,7 @@ struct SleepComponentsChart: View {
             .chartForegroundStyleScale([
                 L("analytics.sleepComponentsTrend.core", table: "Analytics"): Color("AccentColor"),
                 L("analytics.sleepComponentsTrend.nap1", table: "Analytics"): .appPrimary,
-                L("analytics.sleepComponentsTrend.nap2", table: "Analytics"): Color("SecondaryColor"),
+                L("analytics.sleepComponentsTrend.nap2", table: "Analytics"): Color("AppSecondaryColor"),
                 L("analytics.chart.sleepScoreLabel", table: "Analytics"): Color.yellow
             ])
             .chartLegend(position: .bottom, alignment: .center, spacing: 10) {

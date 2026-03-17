@@ -931,7 +931,7 @@ struct AnalyticsSleepComponentsPreview: View {
                             
                             // Şekerleme 2
                             Rectangle()
-                                .fill(Color("SecondaryColor"))
+                                .fill(Color("AppSecondaryColor"))
                                 .frame(height: CGFloat.random(in: 8...20))
                             
                             // Şekerleme 1
@@ -1034,7 +1034,7 @@ struct AnalyticsSleepBreakdownPreview: View {
                     
                     Circle()
                         .trim(from: 0, to: 0.15)
-                        .fill(Color("SecondaryColor"))
+                        .fill(Color("AppSecondaryColor"))
                         .frame(width: 120, height: 120)
                         .rotationEffect(.degrees(198))
                 }
@@ -1062,7 +1062,7 @@ struct AnalyticsSleepBreakdownPreview: View {
                     
                     HStack {
                         Circle()
-                            .fill(Color("SecondaryColor"))
+                            .fill(Color("AppSecondaryColor"))
                             .frame(width: 12, height: 12)
                         Text(String(format: L("analytics.sleepBreakdown.nap2", table: "Analytics"), 5))
                             .font(.system(size: 14))
@@ -1093,7 +1093,7 @@ struct AnalyticsConsistencyPreview: View {
                     
                     Circle()
                         .trim(from: 0, to: 0.75)
-                        .stroke(Color("SecondaryColor"), style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                        .stroke(Color("AppSecondaryColor"), style: StrokeStyle(lineWidth: 10, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                         .frame(width: 100, height: 100)
                     
@@ -1136,16 +1136,16 @@ struct AnalyticsTimeGainedPreview: View {
             HStack {
                 ZStack {
                     Circle()
-                        .fill(Color("SecondaryColor").opacity(0.1))
+                        .fill(Color("AppSecondaryColor").opacity(0.1))
                         .frame(width: 80, height: 80)
                     
                     VStack {
                         Text("2.5")
                             .font(.system(size: 24, weight: .bold))
-                            .foregroundColor(Color("SecondaryColor"))
+                            .foregroundColor(Color("AppSecondaryColor"))
                         Text(L("analytics.timeGained.hoursUnit", table: "Analytics"))
                             .font(.system(size: 12))
-                            .foregroundColor(Color("SecondaryColor"))
+                            .foregroundColor(Color("AppSecondaryColor"))
                     }
                 }
                 

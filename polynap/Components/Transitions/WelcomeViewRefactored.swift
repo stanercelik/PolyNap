@@ -99,7 +99,7 @@ struct WelcomeViewRefactored: View {
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
-        .onChange(of: viewModel.currentPageIndex) { _ in
+        .onChange(of: viewModel.currentPageIndex) {
             viewModel.fadeOutAnimations()
         }
         .padding(.horizontal, PSSpacing.sm)
@@ -136,7 +136,7 @@ struct WelcomeViewRefactored: View {
                             y: frame.midY
                         )
                     }
-                    .onChange(of: proxy.frame(in: .global)) { frame in
+                    .onChange(of: proxy.frame(in: .global)) { _, frame in
                         buttonCenter = CGPoint(
                             x: frame.midX,
                             y: frame.midY
@@ -276,7 +276,7 @@ struct WelcomeViewWithTransitionButton: View {
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
-        .onChange(of: viewModel.currentPageIndex) { _ in
+        .onChange(of: viewModel.currentPageIndex) {
             viewModel.fadeOutAnimations()
         }
         .padding(.horizontal, PSSpacing.sm)

@@ -207,7 +207,7 @@ struct CommitmentScreen: View {
                                 let frame = geo.frame(in: .named("commitmentSpace"))
                                 buttonCenter = CGPoint(x: frame.midX, y: frame.midY)
                             }
-                            .onChange(of: geo.size) { _ in
+                            .onChange(of: geo.size) { _, _ in
                                 let frame = geo.frame(in: .named("commitmentSpace"))
                                 buttonCenter = CGPoint(x: frame.midX, y: frame.midY)
                             }

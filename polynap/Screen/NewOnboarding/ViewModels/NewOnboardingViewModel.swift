@@ -233,7 +233,10 @@ final class NewOnboardingViewModel: ObservableObject {
     }
     
     var experienceInfoText: String {
-        switch previousSleepExperience {
+        guard let experience = previousSleepExperience else {
+            return L("newOnboarding.experienceInfo.moderate", table: "Onboarding")
+        }
+        switch experience {
         case .none:
             return L("newOnboarding.experienceInfo.none", table: "Onboarding")
         case .some:
@@ -301,6 +304,8 @@ final class NewOnboardingViewModel: ObservableObject {
         withAnimation(.easeInOut(duration: 0.45)) {
             currentScreenIndex = nextIndex
         }
+
+        triggerTransitionHaptic(targetScreenIndex: nextIndex, direction: .forward)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.isTransitioning = false
@@ -320,6 +325,8 @@ final class NewOnboardingViewModel: ObservableObject {
         withAnimation(.easeInOut(duration: 0.45)) {
             currentScreenIndex = prevIndex
         }
+
+        triggerTransitionHaptic(targetScreenIndex: prevIndex, direction: .backward)
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.isTransitioning = false
@@ -338,6 +345,16 @@ final class NewOnboardingViewModel: ObservableObject {
             next += 1
         }
         
+        // chartReview sayfası kaldırıldı, atla
+        if OnboardingScreen(rawValue: next) == .chartReview {
+            next += 1
+        }
+        
+        // trustScreen sayfası kaldırıldı, atla
+        if OnboardingScreen(rawValue: next) == .trustScreen {
+            next += 1
+        }
+        
         return next
     }
     
@@ -353,7 +370,38 @@ final class NewOnboardingViewModel: ObservableObject {
             prev -= 1
         }
         
+        // chartReview sayfası kaldırıldı, atla
+        if OnboardingScreen(rawValue: prev) == .chartReview {
+            prev -= 1
+        }
+        
+        // trustScreen sayfası kaldırıldı, atla
+        if OnboardingScreen(rawValue: prev) == .trustScreen {
+            prev -= 1
+        }
+        
         return max(prev, 0)
+    }
+
+    private func triggerTransitionHaptic(targetScreenIndex: Int, direction: NavigationDirection) {
+        guard let targetScreen = OnboardingScreen(rawValue: targetScreenIndex) else {
+            HapticFeedbackManager.shared.trigger(.softCommit)
+            return
+        }
+
+        if direction == .backward {
+            HapticFeedbackManager.shared.trigger(.selection)
+            return
+        }
+
+        switch targetScreen {
+        case .resultIntro, .firstBadge, .timeline24h, .commitment:
+            HapticFeedbackManager.shared.trigger(.strongCommit)
+        case .final_:
+            HapticFeedbackManager.shared.trigger(.success)
+        default:
+            HapticFeedbackManager.shared.trigger(.softCommit)
+        }
     }
     
     var canProceed: Bool {
@@ -570,9 +618,17 @@ final class NewOnboardingViewModel: ObservableObject {
             }
             
             let prefDescriptor = FetchDescriptor<UserPreferences>()
-            if let prefs = try modelContext.fetch(prefDescriptor).first {
-                prefs.userName = userName
+            let preferences: UserPreferences
+            if let existingPreferences = try modelContext.fetch(prefDescriptor).first {
+                preferences = existingPreferences
+            } else {
+                let newPreferences = UserPreferences(userName: userName)
+                modelContext.insert(newPreferences)
+                preferences = newPreferences
             }
+
+            preferences.userName = userName
+            applyBehavioralNudgeProfile(to: preferences)
             
             try modelContext.save()
             AuthManager.shared.updateDisplayName(userName)
@@ -660,6 +716,36 @@ final class NewOnboardingViewModel: ObservableObject {
         showLoadingView = false
         isLoadingRecommendation = false
     }
+
+    private func applyBehavioralNudgeProfile(to preferences: UserPreferences) {
+        guard let chronotype,
+              let lifestyle,
+              let healthStatus,
+              let motivationLevel,
+              let sleepGoal,
+              let socialObligations,
+              let disruptionTolerance,
+              let knowledgeLevel,
+              let workSchedule,
+              let napEnvironment else {
+            return
+        }
+
+        let input = OnboardingNudgeProfileInput(
+            chronotype: chronotype,
+            lifestyle: lifestyle,
+            healthStatus: healthStatus,
+            motivationLevel: motivationLevel,
+            sleepGoal: sleepGoal,
+            socialObligations: socialObligations,
+            disruptionTolerance: disruptionTolerance,
+            knowledgeLevel: knowledgeLevel,
+            workSchedule: workSchedule,
+            napEnvironment: napEnvironment
+        )
+
+        BehavioralNudgeEngine.bootstrap(preferences: preferences, input: input)
+    }
     
     func completeOnboarding() async {
         guard let modelContext = self.modelContext else { return }
@@ -671,6 +757,7 @@ final class NewOnboardingViewModel: ObservableObject {
                 prefs.hasCompletedQuestions = true
                 prefs.hasSkippedOnboarding = false
                 prefs.userName = userName
+                applyBehavioralNudgeProfile(to: prefs)
                 try modelContext.save()
                 AuthManager.shared.updateDisplayName(userName)
             } else {
@@ -680,6 +767,7 @@ final class NewOnboardingViewModel: ObservableObject {
                     hasSkippedOnboarding: false,
                     userName: userName
                 )
+                applyBehavioralNudgeProfile(to: newPrefs)
                 modelContext.insert(newPrefs)
                 try modelContext.save()
                 AuthManager.shared.updateDisplayName(userName)
@@ -703,11 +791,13 @@ final class NewOnboardingViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Post-Onboarding Rating & Paywall
+    // MARK: - Post-Onboarding Paywall
     private func requestPostOnboardingRating() {
-        RatingManager.shared.requestRating {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                PaywallManager.shared.presentPaywall(trigger: .onboardingComplete)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            PaywallManager.shared.presentPaywall(trigger: .onboardingComplete) {
+                // Paywall tamamlandı olarak işaretle ve tanıtımı başlat
+                UserDefaults.standard.set(true, forKey: "onboardingPaywallCompleted")
+                AppTourManager.shared.startTourIfNeeded()
             }
         }
     }

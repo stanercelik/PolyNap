@@ -7,8 +7,7 @@ import RevenueCat
 #if canImport(SuperwallKit)
 import SuperwallKit
 #endif
-import FirebaseCore
-import FirebaseAnalytics
+import PostHog
 import PolyNapShared
 
 // Uygulama içi iletişim için özel bildirim adları
@@ -73,6 +72,9 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         // Uygulama her aktif olduğunda sayacı temizle
         application.applicationIconBadgeNumber = 0
         
+        // Günlük ilk açılışta indirim drawer kontrolü
+        PaywallManager.shared.checkFirstDailyOpen()
+        
         // YENİ: Automatic pending alarm handling kaldırıldı - sadece SwiftUI observer üzerinden kontrole bırakıldı
         print("🔍 AppDelegate: Pending alarm kontrolü SwiftUI observer'a bırakıldı")
     }
@@ -80,6 +82,10 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
     func applicationWillEnterForeground(_ application: UIApplication) {
         print("🔄 AppDelegate: applicationWillEnterForeground çağrıldı")
         print("🔍 AppDelegate: applicationWillEnterForeground - Pending alarm durumu: \(pendingAlarmTrigger != nil ? "VAR" : "YOK")")
+    }
+
+    func applicationWillTerminate(_ application: UIApplication) {
+        PostHogSDK.shared.flush()
     }
     
     // YENİ: SwiftUI'den çağrılacak pending alarm handler
@@ -197,6 +203,19 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
         print("📋 AppDelegate: Content title: \(content.title)")
         print("📋 AppDelegate: Content body: \(content.body)")
         print("🕐 AppDelegate: Current time: \(Date())")
+
+        if content.categoryIdentifier == SleepQualityNotificationManager.ratingCategoryIdentifier {
+            SleepQualityNotificationManager.shared.handleNotificationResponse(response)
+            completionHandler()
+            return
+        }
+
+        if content.categoryIdentifier == AlarmService.reminderCategoryIdentifier {
+            AnalyticsManager.shared.logNotificationOpened(notificationType: "sleep_reminder")
+            AnalyticsManager.shared.logNudgeOpened(type: "sleep_reminder")
+            completionHandler()
+            return
+        }
         
         // Sadece kendi alarm bildirimlerimizi işle
         guard content.categoryIdentifier == AlarmService.alarmCategoryIdentifier else {
@@ -212,18 +231,21 @@ class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDele
             
         case "SNOOZE_ACTION":
             print("▶️ EYLEM: Kullanıcı alarmı ERTELEMEYİ seçti.")
+            AnalyticsManager.shared.logNudgeActionTapped(type: "alarm", action: "snooze")
             Task {
                 await AlarmService.shared.snoozeAlarm(from: response.notification)
             }
             
         case "STOP_ACTION":
             print("🛑 EYLEM: Kullanıcı alarmı DURDURMAYI seçti.")
+            AnalyticsManager.shared.logNudgeActionTapped(type: "alarm", action: "stop")
             // Alarm sesi otomatik olarak durur.
             NotificationCenter.default.post(name: .stopAlarm, object: nil)
 
         case UNNotificationDefaultActionIdentifier:
             // Bu durum, kullanıcı bildirim gövdesine dokunduğunda tetiklenir.
             print("▶️ EYLEM: Kullanıcı bildirime dokundu.")
+            AnalyticsManager.shared.logNotificationOpened(notificationType: "alarm")
             print("📱 AppDelegate: App state check - \(UIApplication.shared.applicationState.rawValue)")
             print("📱 AppDelegate: App state details - active: \(UIApplication.shared.applicationState == .active), inactive: \(UIApplication.shared.applicationState == .inactive), background: \(UIApplication.shared.applicationState == .background)")
             
@@ -281,7 +303,33 @@ struct polynapApp: App {
         purchaseController.syncSubscriptionStatus()
         #endif
         
-        FirebaseApp.configure()
+        let posthogAPIKey = AppConfiguration.posthogAPIKey
+        let posthogConfig = PostHogConfig(
+            apiKey: posthogAPIKey,
+            host: "https://us.i.posthog.com"
+        )
+        posthogConfig.captureScreenViews = false
+        posthogConfig.captureApplicationLifecycleEvents = false
+        #if DEBUG
+        posthogConfig.debug = true
+        posthogConfig.flushAt = 1
+        posthogConfig.flushIntervalSeconds = 1
+        #else
+        posthogConfig.flushAt = 20
+        posthogConfig.flushIntervalSeconds = 30
+        #endif
+        PostHogSDK.shared.setup(posthogConfig)
+        #if DEBUG
+        PostHogSDK.shared.debug(true)
+        let keyPrefix = posthogAPIKey.prefix(12)
+        let keyValid = posthogAPIKey.hasPrefix("phc_")
+        print("🔑 PostHog key: \(keyPrefix)... valid=\(keyValid)")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            PostHogSDK.shared.capture("app_debug_ping")
+            PostHogSDK.shared.flush()
+            print("🔁 PostHog: test ping + flush tetiklendi")
+        }
+        #endif
 
         do {
             // MIGRATION FİX: Güvenli ModelContainer initialization
@@ -414,7 +462,6 @@ struct polynapApp: App {
                     watchSyncBridge.configureModelContext(modelContainer.mainContext)
                     print("📱 polynapApp: WatchSyncBridge başlatıldı")
                     
-                    // 📊 Analytics: App açılış event'ı
                     analyticsManager.logAppOpen()
                     #if DEBUG
                     analyticsManager.enableDebugMode()
@@ -425,7 +472,6 @@ struct polynapApp: App {
                     print("🔍 SwiftUI: App became active, checking for pending alarms...")
                     print("🔍 SwiftUI: Current AlarmManager state: isAlarmFiring = \(AlarmManager.shared.isAlarmFiring)")
                     
-                    // 📊 Analytics: App foreground event'ı
                     analyticsManager.logAppForeground()
                     
                     // CRITICAL FIX: Multiple timing attempts for better reliability
@@ -443,7 +489,6 @@ struct polynapApp: App {
                     }
                 }
                 .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
-                    // 📊 Analytics: App background event'ı
                     analyticsManager.logAppBackground()
                 }
                 .onOpenURL { url in

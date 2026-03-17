@@ -1,498 +1,785 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "alarm.action.snooze" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Schlummern"
+  "sourceLanguage": "en",
+  "strings": {
+    "alarm.action.snooze": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schlummern"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Snooze"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Snooze"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "スヌーズ"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "スヌーズ"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tunda"
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tunda"
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "เลื่อน"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "เลื่อน"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ertele"
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ertele"
           }
         }
       }
     },
-    "alarm.action.stop" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stoppen"
+    "alarm.action.stop": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stoppen"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stop"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stop"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "停止"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "停止"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Henti"
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Henti"
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "หยุด"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "หยุด"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Kapat"
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kapat"
           }
         }
       }
     },
-    "alarm.sleep.reminder.body" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "'%@' Programm bei %@ Schlaf steht kurz bevor."
+    "alarm.sleep.reminder.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@' Programm bei %@ Schlaf steht kurz bevor."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "'%@' schedule %@ sleep is about to start."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@' schedule %@ sleep is about to start."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "'%@'スケジュールの%@睡眠が始まります。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@'スケジュールの%@睡眠が始まります。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Jadual '%@' tidur %@ akan bermula."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jadual '%@' tidur %@ akan bermula."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ตารางเวลา '%@' การนอน %@ กำลังจะเริ่ม"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ตารางเวลา '%@' การนอน %@ กำลังจะเริ่ม"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "'%@' programındaki %@ uykunuz başlamak üzere."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@' programındaki %@ uykunuz başlamak üzere."
           }
         }
       }
     },
-    "alarm.sleep.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ Schlafzeit"
+    "alarm.sleep.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ Schlafzeit"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ Sleep Time"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ Sleep Time"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ 睡眠時間"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ 睡眠時間"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ Masa Tidur"
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ Masa Tidur"
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ เวลานอน"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ เวลานอน"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ Uyku Zamanı"
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ Uyku Zamanı"
           }
         }
       }
     },
-    "alarm.snoozed.body" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zeit zum Aufwachen!"
+    "alarm.snoozed.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zeit zum Aufwachen!"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Time to wake up!"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time to wake up!"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "起きる時間です！"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "起きる時間です！"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Masa untuk bangun!"
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Masa untuk bangun!"
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ถึงเวลาตื่นแล้ว!"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ถึงเวลาตื่นแล้ว!"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uyanma zamanı geldi!"
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uyanma zamanı geldi!"
           }
         }
       }
     },
-    "alarm.snoozed.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "😴 Verschobener Alarm"
+    "alarm.snoozed.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "😴 Verschobener Alarm"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "😴 Snoozed Alarm"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "😴 Snoozed Alarm"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "😴 スヌーズアラーム"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "😴 スヌーズアラーム"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "😴 Penggera Ditunda"
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "😴 Penggera Ditunda"
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "😴 นาฬิกาปลุกที่เลื่อน"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "😴 นาฬิกาปลุกที่เลื่อน"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "😴 Ertelenmiş Alarm"
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "😴 Ertelenmiş Alarm"
           }
         }
       }
     },
-    "alarm.test.body" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dies ist eine Testbenachrichtigung für Ihre Alarmeinstellungen. Tippen Sie auf die Benachrichtigung, um die App zu öffnen!"
+    "alarm.test.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dies ist eine Testbenachrichtigung für Ihre Alarmeinstellungen. Tippen Sie auf die Benachrichtigung, um die App zu öffnen!"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "This is a test notification for your alarm settings. Tap the notification to open the app!"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This is a test notification for your alarm settings. Tap the notification to open the app!"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "これはアラーム設定のテスト通知です。通知をタップしてアプリを開いてください！"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "これはアラーム設定のテスト通知です。通知をタップしてアプリを開いてください！"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ini adalah pemberitahuan ujian untuk tetapan penggera anda. Ketik pemberitahuan untuk membuka aplikasi!"
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ini adalah pemberitahuan ujian untuk tetapan penggera anda. Ketik pemberitahuan untuk membuka aplikasi!"
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "นี่เป็นการแจ้งเตือนทดสอบสำหรับการตั้งค่าปลุกของคุณ แตะการแจ้งเตือนเพื่อเปิดแอป!"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "นี่เป็นการแจ้งเตือนทดสอบสำหรับการตั้งค่าปลุกของคุณ แตะการแจ้งเตือนเพื่อเปิดแอป!"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Bu, alarm ayarlarınız için bir test bildirimidir. Bildirime dokunarak uygulamayı açın!"
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bu, alarm ayarlarınız için bir test bildirimidir. Bildirime dokunarak uygulamayı açın!"
           }
         }
       }
     },
-    "alarm.test.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🔔 Test-Alarm"
+    "alarm.test.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔔 Test-Alarm"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🔔 Test Alarm"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔔 Test Alarm"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🔔 テストアラーム"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔔 テストアラーム"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🔔 Penggera Ujian"
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔔 Penggera Ujian"
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🔔 นาฬิกาปลุกทดสอบ"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔔 นาฬิกาปลุกทดสอบ"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🔔 Test Alarmı"
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔔 Test Alarmı"
           }
         }
       }
     },
-    "alarm.wake.body" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ihr Schlafzeitraum ist beendet. Zeit aufzustehen!"
+    "alarm.wake.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ihr Schlafzeitraum ist beendet. Zeit aufzustehen!"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your sleep period is complete. Time to get up!"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your sleep period is complete. Time to get up!"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "睡眠期間が終了しました。起きる時間です！"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "睡眠期間が終了しました。起きる時間です！"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tempoh tidur anda telah selesai. Masa untuk bangun!"
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tempoh tidur anda telah selesai. Masa untuk bangun!"
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ช่วงการนอนของคุณเสร็จสิ้นแล้ว ถึงเวลาตื่นแล้ว!"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ช่วงการนอนของคุณเสร็จสิ้นแล้ว ถึงเวลาตื่นแล้ว!"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uyku periyodunuz tamamlandı. Haydi güne başla!"
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uyku periyodunuz tamamlandı. Haydi güne başla!"
           }
         }
       }
     },
-    "alarm.wake.scheduled.body" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ihr Schlafblock ist beendet. Guten Morgen!"
+    "alarm.wake.scheduled.body": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ihr Schlafblock ist beendet. Guten Morgen!"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your sleep block has ended. Good morning!"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your sleep block has ended. Good morning!"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "睡眠ブロックが終了しました。おはようございます！"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "睡眠ブロックが終了しました。おはようございます！"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Blok tidur anda telah berakhir. Selamat pagi!"
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blok tidur anda telah berakhir. Selamat pagi!"
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ช่วงการนอนของคุณจบแล้ว สวัสดีตอนเช้า!"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ช่วงการนอนของคุณจบแล้ว สวัสดีตอนเช้า!"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Uyku bloğunuz sona erdi. Günaydın!"
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uyku bloğunuz sona erdi. Günaydın!"
           }
         }
       }
     },
-    "alarm.wake.scheduled.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚨 Aufwachzeit!"
+    "alarm.wake.scheduled.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚨 Aufwachzeit!"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚨 Wake Up Time!"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚨 Wake Up Time!"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚨 起床時間！"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚨 起床時間！"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚨 Masa Bangun!"
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚨 Masa Bangun!"
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚨 เวลาตื่น!"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚨 เวลาตื่น!"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚨 Uyanma Zamanı!"
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚨 Uyanma Zamanı!"
           }
         }
       }
     },
-    "alarm.wake.title" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ Aufwachzeit!"
+    "alarm.wake.title": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ Aufwachzeit!"
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ Wake Up Time!"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ Wake Up Time!"
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ 起床時間！"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ 起床時間！"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ Masa Bangun!"
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ Masa Bangun!"
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ เวลาตื่น!"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ เวลาตื่น!"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ Uyanma Zamanı!"
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ Uyanma Zamanı!"
+          }
+        }
+      }
+    },
+    "alarm.sleep.reminder.default.supportive": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your '%@' block starts at %@. Just protect this one block."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your '%@' block starts at %@. Just protect this one block."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your '%@' block starts at %@. Just protect this one block."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your '%@' block starts at %@. Just protect this one block."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your '%@' block starts at %@. Just protect this one block."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "'%@' bloğun %@'de başlıyor. Bugün sadece bu bloğu koruman yeterli."
+          }
+        }
+      }
+    },
+    "alarm.sleep.reminder.default.direct": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ starts at %@. Start on time and keep the streak alive."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ starts at %@. Start on time and keep the streak alive."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ starts at %@. Start on time and keep the streak alive."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ starts at %@. Start on time and keep the streak alive."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ starts at %@. Start on time and keep the streak alive."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ planı %@'de başlıyor. Zamanında başla ve seriyi koru."
+          }
+        }
+      }
+    },
+    "alarm.sleep.reminder.default.celebratory": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ starts at %@. One clean block keeps today's momentum going."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ starts at %@. One clean block keeps today's momentum going."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ starts at %@. One clean block keeps today's momentum going."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ starts at %@. One clean block keeps today's momentum going."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ starts at %@. One clean block keeps today's momentum going."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ planı %@'de başlıyor. Bugün ivmeyi korumak için tek temiz blok yeter."
+          }
+        }
+      }
+    },
+    "alarm.sleep.reminder.late.supportive": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You were %d min late recently. Today just start at %@ on time."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You were %d min late recently. Today just start at %@ on time."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You were %d min late recently. Today just start at %@ on time."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You were %d min late recently. Today just start at %@ on time."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You were %d min late recently. Today just start at %@ on time."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Son günlerde %d dk geç kaldın. Bugün sadece %@ bloğuna zamanında başla."
+          }
+        }
+      }
+    },
+    "alarm.sleep.reminder.late.direct": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent delay: %d min. Be ready for %@ and start exactly then."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent delay: %d min. Be ready for %@ and start exactly then."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent delay: %d min. Be ready for %@ and start exactly then."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent delay: %d min. Be ready for %@ and start exactly then."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recent delay: %d min. Be ready for %@ and start exactly then."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Son gecikme: %d dk. %@ için hazır ol ve tam saatinde başla."
+          }
+        }
+      }
+    },
+    "alarm.sleep.reminder.deferred_quality": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Before %@, rate your last sleep and then start this block."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Before %@, rate your last sleep and then start this block."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Before %@, rate your last sleep and then start this block."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Before %@, rate your last sleep and then start this block."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Before %@, rate your last sleep and then start this block."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ öncesinde son uykunu puanla, sonra bu bloğa başla."
+          }
+        }
+      }
+    },
+    "alarm.sleep.reminder.low_recovery": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery looks low. Keep %@ gentle and protect this block."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery looks low. Keep %@ gentle and protect this block."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery looks low. Keep %@ gentle and protect this block."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery looks low. Keep %@ gentle and protect this block."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recovery looks low. Keep %@ gentle and protect this block."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toparlanma düşük görünüyor. %@ bloğunu nazik tut ve bunu koru."
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

@@ -50,7 +50,7 @@ struct AlarmFiringView: View {
             startPoint: .topLeading,
             endPoint: .bottomTrailing
         )
-        .edgesIgnoringSafeArea(.all)
+        .ignoresSafeArea()
     }
     
     private var animatedCircles: some View {

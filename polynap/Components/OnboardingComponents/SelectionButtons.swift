@@ -28,10 +28,10 @@ struct SelectionButton: View {
             .frame(minHeight: 44)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color("PrimaryColor") : .clear)
+                    .fill(isSelected ? Color("AppPrimaryColor") : .clear)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color("PrimaryColor"), lineWidth: isSelected ? 0 : 2)
+                            .stroke(Color("AppPrimaryColor"), lineWidth: isSelected ? 0 : 2)
                     )
             )
             .contentShape(Rectangle())
@@ -72,10 +72,10 @@ struct MultiSelectionButton: View {
             .frame(minHeight: 44)
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(isSelected ? Color("PrimaryColor") : .clear)
+                    .fill(isSelected ? Color("AppPrimaryColor") : .clear)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(Color("PrimaryColor"), lineWidth: isSelected ? 0 : 2)
+                            .stroke(Color("AppPrimaryColor"), lineWidth: isSelected ? 0 : 2)
                     )
             )
             .contentShape(Rectangle())

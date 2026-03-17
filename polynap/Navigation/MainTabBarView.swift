@@ -16,6 +16,7 @@ struct MainTabBarView: View {
     @State private var earnedBadgeForModal: BadgeDefinition? = nil
     @State private var pendingOnboardingBadge: BadgeDefinition? = nil
     @AppStorage("hasShownOnboardingBadgeModal") private var hasShownOnboardingBadgeModal: Bool = false
+    @AppStorage("onboardingPaywallCompleted") private var onboardingPaywallCompleted: Bool = false
     
     init() {
         self._mainScreenViewModel = StateObject(wrappedValue: MainScreenViewModel(languageManager: LanguageManager.shared))
@@ -62,10 +63,13 @@ struct MainTabBarView: View {
             .onAppear {
                 // 📊 Analytics: İlk tab screen view
                 logTabScreenView(selectedTab)
+                HapticFeedbackManager.shared.prepareGenerators()
                 mainScreenViewModel.setModelContext(modelContext)
                 checkAndTriggerOnboardingPaywall()
-                // Start app tour if needed
-                tourManager.startTourIfNeeded()
+                // Tanıtımı yalnızca paywall gösterildiyse başlat (yeni onboarding = paywall önce çıkar, sonra tanıtım)
+                if onboardingPaywallCompleted || tourManager.hasCompletedTour {
+                    tourManager.startTourIfNeeded()
+                }
                 
                 // Badge modal: starter badge onboarding sırasında kazanıldıysa ama modal gösterilmediyse
                 if !hasShownOnboardingBadgeModal && BadgeManager.shared.earnedBadgeIds.contains("badge-starter") {
@@ -89,6 +93,8 @@ struct MainTabBarView: View {
                 }
             }
             .onChange(of: selectedTab) { oldValue, newValue in
+                guard oldValue != newValue else { return }
+                HapticFeedbackManager.shared.trigger(.softCommit)
                 // 📊 Analytics: Tab değişikliği tracking
                 logTabScreenView(newValue)
                 analyticsManager.logFeatureUsed(featureName: "tab_navigation", action: "tab_changed")
@@ -106,7 +112,14 @@ struct MainTabBarView: View {
             // Global badge earned modal
             if let badge = earnedBadgeForModal {
                 BadgeCelebrationModal(badge: badge) {
+                    let isStarterBadge = badge.id == "badge-starter"
                     earnedBadgeForModal = nil
+                    if isStarterBadge {
+                        // Tanıtım → badge → rating sırası: badge kapanınca rating sor
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            RatingManager.shared.requestRating {}
+                        }
+                    }
                 }
                 .zIndex(100)
             }
@@ -142,6 +155,10 @@ struct MainTabBarView: View {
             }
         }
         .onChange(of: tourManager.isShowingTour) { _, isShowing in
+            if isShowing {
+                // Tanıtım her zaman ana sayfadan (overview) başlasın
+                withAnimation { selectedTab = 0 }
+            }
             if !isShowing, let pending = pendingOnboardingBadge, !hasShownOnboardingBadgeModal {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     earnedBadgeForModal = pending

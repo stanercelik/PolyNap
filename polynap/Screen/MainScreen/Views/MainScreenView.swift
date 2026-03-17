@@ -215,7 +215,7 @@ struct MainScreenView: View {
         .sheet(isPresented: $viewModel.showAddBlockSheet) {
             AddSleepBlockSheet(viewModel: viewModel)
         }
-        .onChange(of: viewModel.showAddBlockSheet) { isPresented in
+        .onChange(of: viewModel.showAddBlockSheet) { _, isPresented in
             if isPresented {
                 analyticsManager.logFeatureUsed(featureName: "add_sleep_block", action: "sheet_opened")
             }

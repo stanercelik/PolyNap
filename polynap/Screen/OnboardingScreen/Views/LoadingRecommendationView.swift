@@ -152,7 +152,7 @@ struct LoadingRecommendationView: View {
                 glowOpacity = 0.4
             }
         }
-        .onChange(of: isComplete) { newValue in
+        .onChange(of: isComplete) { _, newValue in
             if newValue {
                 // Yükleme tamamlandığında ek animasyon
                 withAnimation(.spring(duration: 0.6)) {

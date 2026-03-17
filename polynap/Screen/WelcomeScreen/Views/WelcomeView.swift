@@ -157,7 +157,7 @@ struct WelcomeView: View {
             }
         }
         .tabViewStyle(.page(indexDisplayMode: .never))
-        .onChange(of: viewModel.currentPageIndex) { _ in
+        .onChange(of: viewModel.currentPageIndex) {
             viewModel.fadeOutAnimations()
         }
         .padding(.horizontal, PSSpacing.sm)

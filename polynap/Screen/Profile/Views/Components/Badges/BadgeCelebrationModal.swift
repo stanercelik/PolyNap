@@ -68,7 +68,7 @@ struct BadgeCelebrationModal: View {
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                Button(action: { dismiss() }) {
+                Button(action: { dismiss(triggerButtonHaptic: true) }) {
                     Text(L("badge.earned.cta", table: "Profile"))
                         .font(.system(.headline, design: .rounded, weight: .semibold))
                         .foregroundColor(.white)
@@ -93,6 +93,7 @@ struct BadgeCelebrationModal: View {
             .scaleEffect(contentScale)
             .opacity(appeared ? 1 : 0)
             .onAppear {
+                HapticFeedbackManager.shared.trigger(.celebrationPulse)
                 withAnimation(.spring(response: 0.5, dampingFraction: 0.65)) {
                     appeared = true
                     contentScale = 1.0
@@ -101,7 +102,10 @@ struct BadgeCelebrationModal: View {
         }
     }
 
-    private func dismiss() {
+    private func dismiss(triggerButtonHaptic: Bool = false) {
+        if triggerButtonHaptic {
+            HapticFeedbackManager.shared.trigger(.softCommit)
+        }
         withAnimation(.easeOut(duration: 0.2)) {
             appeared = false
             contentScale = 0.85

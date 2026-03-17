@@ -12,6 +12,7 @@ final class AlarmService: ObservableObject {
     
     private let notificationCenter = UNUserNotificationCenter.current()
     private let calendar = Calendar.current
+    private let analyticsManager = AnalyticsManager.shared
     
     // iOS'in izin verdiği maksimum bildirim sayısı 64'tür, güvenli bir sınır olarak 60 kullanıyoruz.
     private let notificationLimit = 60
@@ -56,8 +57,8 @@ final class AlarmService: ObservableObject {
     /// Kullanıcıdan bildirim izni ister.
     func requestAuthorization() async {
         do {
-            // Alarmların zamanında teslim edilmesi için .timeSensitive önemlidir.
-            let granted = try await notificationCenter.requestAuthorization(options: [.alert, .sound, .badge, .timeSensitive])
+            // Time-sensitive davranis entitlement ile saglanir; izin istegi standart notification izinlerini kapsar.
+            let granted = try await notificationCenter.requestAuthorization(options: [.alert, .sound, .badge])
             if granted {
                 print("✅ AlarmService: Bildirim izni verildi.")
             } else {
@@ -110,6 +111,13 @@ final class AlarmService: ObservableObject {
     
     /// AlarmKit ile alarmları planlar (iOS 26+)
     private func rescheduleWithAlarmKit(modelContext: ModelContext) async {
+        // İzin verilmemişse alarm planlamayı atla — izin AlarmPrimerScreen'de istenir
+        let authState = await AlarmKitService.shared.checkAuthorizationStatus()
+        guard authState == .authorized else {
+            print("⚠️ AlarmService: AlarmKit izni yok, alarm planlanmıyor.")
+            return
+        }
+
         guard let activeSchedule = try? getActiveSchedule(context: modelContext) else {
             print("ℹ️ AlarmService: Aktif program bulunamadı. Tüm alarmlar iptal ediliyor.")
             await AlarmKitService.shared.cancelAllAlarms()
@@ -150,11 +158,21 @@ final class AlarmService: ObservableObject {
             }
             
             // UserNotifications ile uyku hatırlatıcısı planla
-            let leadTime = userPreferences.reminderLeadTimeInMinutes
+            let nudgePlan = buildNudgePlan(
+                preferences: userPreferences,
+                context: modelContext,
+                block: blockInstance
+            )
+            let leadTime = nudgePlan.adjustedLeadTimeMinutes
             if leadTime > 0 {
                 let reminderDate = blockInstance.startDate.addingTimeInterval(-Double(leadTime * 60))
                 if reminderDate > Date() && reminderCount < notificationLimit {
-                    await scheduleReminder(at: reminderDate, for: blockInstance)
+                    await scheduleReminder(
+                        at: reminderDate,
+                        for: blockInstance,
+                        leadTime: leadTime,
+                        plan: nudgePlan
+                    )
                     reminderCount += 1
                 }
             }
@@ -199,12 +217,22 @@ final class AlarmService: ObservableObject {
             }
             
             // 5. HATIRLATICI BİLDİRİMİNİ PLANLA (eğer hatırlatma süresi 0'dan büyükse)
-            let leadTime = userPreferences.reminderLeadTimeInMinutes
+            let nudgePlan = buildNudgePlan(
+                preferences: userPreferences,
+                context: modelContext,
+                block: blockInstance
+            )
+            let leadTime = nudgePlan.adjustedLeadTimeMinutes
             if leadTime > 0 {
                 let reminderDate = blockInstance.startDate.addingTimeInterval(-Double(leadTime * 60))
                 // Sadece gelecekteki hatırlatıcıları planla
                 if reminderDate > Date() {
-                    await scheduleReminder(at: reminderDate, for: blockInstance)
+                    await scheduleReminder(
+                        at: reminderDate,
+                        for: blockInstance,
+                        leadTime: leadTime,
+                        plan: nudgePlan
+                    )
                     scheduledCount += 1
                 }
             }
@@ -219,7 +247,7 @@ final class AlarmService: ObservableObject {
     /// Bir uyku bloğu bittiğinde senaryolara göre anında alarmı tetikler.
     /// - `MainScreenViewModel`'den çağrılır.
     func triggerAlarmForEndedBlock(block: SleepBlock, settings: AlarmSettings) async {
-        let applicationState = await UIApplication.shared.applicationState
+        let applicationState = UIApplication.shared.applicationState
         
         // Duplicate alarm check - aynı block için zaten scheduled alarm var mı?
         let blockEndTime = Date() // Şu an bitiş zamanı
@@ -305,26 +333,50 @@ final class AlarmService: ObservableObject {
         catch { print("🚨 AlarmService: Alarm planlanamadı: \(error.localizedDescription)") }
     }
     
-    private func scheduleReminder(at date: Date, for block: BlockInstance) async {
+    private func scheduleReminder(
+        at date: Date,
+        for block: BlockInstance,
+        leadTime: Int,
+        plan: BehavioralNudgePlan
+    ) async {
         let content = UNMutableNotificationContent()
         content.title = L("alarm.sleep.title", table: "Alarms")
         
-        // 24 saatlik format için DateFormatter kullan
-        let timeFormatter = DateFormatter()
-        timeFormatter.dateFormat = "HH:mm"
-        timeFormatter.locale = Locale(identifier: "en_GB")
-        let startTimeFormatted = timeFormatter.string(from: block.startDate)
-        
-        content.body = String(format: L("alarm.sleep.reminder.body", table: "Alarms"), block.scheduleName, startTimeFormatted)
+        content.body = String(
+            format: L(plan.messageKey, table: "Alarms"),
+            arguments: plan.messageArguments
+        )
         content.categoryIdentifier = Self.reminderCategoryIdentifier
         content.sound = .default
+        content.userInfo = [
+            "nudgeType": "sleep_reminder",
+            "recommendedAction": plan.recommendedAction,
+            "nudgeReason": plan.reason,
+            "nudgeConfidence": plan.confidence,
+            "leadTime": leadTime
+        ]
         
         let components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second], from: date)
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
         let request = UNNotificationRequest(identifier: "reminder-\(date.timeIntervalSince1970)", content: content, trigger: trigger)
 
-        do { try await notificationCenter.add(request) }
-        catch { print("🚨 AlarmService: Hatırlatıcı planlanamadı: \(error.localizedDescription)") }
+        do {
+            try await notificationCenter.add(request)
+            analyticsManager.logNudgeGenerated(
+                type: "sleep_reminder",
+                reason: plan.reason,
+                confidence: plan.confidence,
+                recommendedAction: plan.recommendedAction
+            )
+            analyticsManager.logNudgeDelivered(
+                channel: "local_notification",
+                localTime: formatTime(date),
+                leadTime: leadTime,
+                type: "sleep_reminder"
+            )
+        } catch {
+            print("🚨 AlarmService: Hatırlatıcı planlanamadı: \(error.localizedDescription)")
+        }
     }
 
     // MARK: - Veri Çekme ve Hesaplama
@@ -383,9 +435,7 @@ final class AlarmService: ObservableObject {
 
     /// Erteleme için tek seferlik bir alarm planlar.
     func snoozeAlarm(from notification: UNNotification) async {
-        // Erteleme süresini ayarlardan al (veya varsayılan kullan).
-        // Basitlik için burada 5 dakika kullanıyoruz.
-        let snoozeMinutes = 5
+        let snoozeMinutes = resolveSnoozeDurationMinutes()
         let snoozeDate = Date().addingTimeInterval(TimeInterval(snoozeMinutes * 60))
         
         let content = notification.request.content.mutableCopy() as! UNMutableNotificationContent
@@ -406,9 +456,7 @@ final class AlarmService: ObservableObject {
     /// Planlanmış tüm alarm bildirimlerini iptal eder.
     func cancelAllNotifications() async {
         notificationCenter.removeAllPendingNotificationRequests()
-        await MainActor.run {
-            UIApplication.shared.applicationIconBadgeNumber = 0
-        }
+        await clearBadgeCount()
         print("🗑️ AlarmService: Tüm bekleyen bildirimler iptal edildi.")
     }
 
@@ -471,5 +519,62 @@ final class AlarmService: ObservableObject {
             }
             print("---------------------------------")
         }
+    }
+
+    private func buildNudgePlan(
+        preferences: UserPreferences,
+        context: ModelContext,
+        block: BlockInstance
+    ) -> BehavioralNudgePlan {
+        let historyModels = BehavioralNudgeEngine.recentHistoryModels(context: context, lastDays: 7)
+
+        return BehavioralNudgeEngine.buildPlan(
+            preferences: preferences,
+            historyModels: historyModels,
+            baseLeadTimeMinutes: preferences.reminderLeadTimeInMinutes,
+            scheduleName: block.scheduleName,
+            startDate: block.startDate
+        )
+    }
+
+    private func resolveSnoozeDurationMinutes() -> Int {
+        guard let context = Repository.shared.getModelContext() else {
+            return 5
+        }
+
+        let resolvedSettings: AlarmSettings?
+        do {
+            resolvedSettings = try getAlarmSettings(context: context)
+        } catch {
+            return 5
+        }
+
+        guard let resolvedSettings else {
+            return 5
+        }
+
+        return max(resolvedSettings.snoozeDurationMinutes, 1)
+    }
+
+    private func clearBadgeCount() async {
+        if #available(iOS 17.0, *) {
+            await withCheckedContinuation { continuation in
+                notificationCenter.setBadgeCount(0) { error in
+                    if let error {
+                        print("🚨 AlarmService: Badge temizlenemedi: \(error.localizedDescription)")
+                    }
+                    continuation.resume()
+                }
+            }
+        } else {
+            UIApplication.shared.applicationIconBadgeNumber = 0
+        }
+    }
+
+    private func formatTime(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        formatter.locale = Locale(identifier: "en_GB")
+        return formatter.string(from: date)
     }
 }

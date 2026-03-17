@@ -9,6 +9,8 @@ struct SettingsView: View {
     @AppStorage("coreNotificationTime") private var coreNotificationTime: Double = 30 // Dakika
     @AppStorage("napNotificationTime") private var napNotificationTime: Double = 15 // Dakika
     @AppStorage("showRatingNotification") private var showRatingNotification = true
+    @AppStorage("app_haptics_enabled") private var appHapticsEnabled = true
+    @AppStorage("app_sound_effects_enabled") private var appSoundEffectsEnabled = false
     @EnvironmentObject private var languageManager: LanguageManager
     @Environment(\.dismiss) private var dismiss
     @State private var showLanguagePicker = false
@@ -65,6 +67,20 @@ struct SettingsView: View {
 
                 // General Settings Section
                 SettingsGroup(title: L("settings.general.title", table: "Profile")) {
+                    SettingsToggleRow(
+                        icon: "iphone.radiowaves.left.and.right",
+                        title: L("settings.haptics.title", table: "Settings"),
+                        description: L("settings.haptics.description", table: "Settings"),
+                        isOn: $appHapticsEnabled
+                    )
+                    SettingsRowDivider()
+                    SettingsToggleRow(
+                        icon: "speaker.wave.2",
+                        title: L("settings.sounds.title", table: "Settings"),
+                        description: L("settings.sounds.description", table: "Settings"),
+                        isOn: $appSoundEffectsEnabled
+                    )
+                    SettingsRowDivider()
                     SettingsActionRow(
                         icon: "moon",
                         title: L("settings.general.theme", table: "Profile"),
@@ -143,38 +159,61 @@ struct SettingsView: View {
         }
         .confirmationDialog(L("settings.general.selectTheme", table: "Profile"), isPresented: $showThemePicker, titleVisibility: .visible) {
             Button(L("settings.general.theme.system", table: "Profile")) {
+                HapticFeedbackManager.shared.trigger(.selection)
                 userSelectedTheme = nil
             }
             Button(L("settings.general.theme.light", table: "Profile")) {
+                HapticFeedbackManager.shared.trigger(.selection)
                 userSelectedTheme = false
             }
             Button(L("settings.general.theme.dark", table: "Profile")) {
+                HapticFeedbackManager.shared.trigger(.selection)
                 userSelectedTheme = true
             }
             Button(L("general.cancel", table: "Profile"), role: .cancel) { }
         }
         .confirmationDialog(L("settings.general.selectLanguage", table: "Profile"), isPresented: $showLanguagePicker, titleVisibility: .visible) {
             Button(L("settings.language.turkish", table: "Profile")) {
+                HapticFeedbackManager.shared.trigger(.selection)
                 languageManager.changeLanguage(to: "tr")
             }
             Button(L("settings.language.english", table: "Profile")) {
+                HapticFeedbackManager.shared.trigger(.selection)
                 languageManager.changeLanguage(to: "en")
             }
             Button(L("settings.language.japanese", table: "Profile")) {
+                HapticFeedbackManager.shared.trigger(.selection)
                 languageManager.changeLanguage(to: "ja")
             }
             Button(L("settings.language.german", table: "Profile")) {
+                HapticFeedbackManager.shared.trigger(.selection)
                 languageManager.changeLanguage(to: "de")
             }
             Button(L("settings.language.malay", table: "Profile")) {
+                HapticFeedbackManager.shared.trigger(.selection)
                 languageManager.changeLanguage(to: "ms")
             }
             Button(L("settings.language.thai", table: "Profile")) {
+                HapticFeedbackManager.shared.trigger(.selection)
                 languageManager.changeLanguage(to: "th")
             }
             Button(L("general.cancel", table: "Profile"), role: .cancel) { }
         }
         .environment(\.locale, Locale(identifier: languageManager.currentLanguage))
+        .onChange(of: appHapticsEnabled) { _, isEnabled in
+            HapticFeedbackManager.shared.setEnabled(isEnabled)
+            HapticFeedbackManager.shared.trigger(.selection)
+        }
+        .onChange(of: appSoundEffectsEnabled) { _, isEnabled in
+            SoundEffectManager.shared.setEnabled(isEnabled)
+            if isEnabled {
+                SoundEffectManager.shared.play(.click)
+            }
+        }
+        .onAppear {
+            HapticFeedbackManager.shared.setEnabled(appHapticsEnabled)
+            SoundEffectManager.shared.setEnabled(appSoundEffectsEnabled)
+        }
         } // end ScrollViewReader
     }
     
@@ -274,6 +313,11 @@ struct SettingsNavRow<Destination: View>: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .simultaneousGesture(
+            TapGesture().onEnded {
+                HapticFeedbackManager.shared.trigger(.softCommit)
+            }
+        )
     }
 }
 
@@ -295,7 +339,10 @@ struct SettingsActionRow: View {
     }
 
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            HapticFeedbackManager.shared.trigger(.softCommit)
+            action()
+        }) {
             HStack(spacing: 12) {
                 Image(systemName: icon)
                     .font(.system(size: 18, weight: .regular))
@@ -321,6 +368,54 @@ struct SettingsActionRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+}
+
+struct SettingsToggleRow: View {
+    let icon: String
+    let iconColor: Color
+    let title: String
+    let description: String?
+    @Binding var isOn: Bool
+
+    init(icon: String, iconColor: Color = .appPrimary, title: String, description: String? = nil, isOn: Binding<Bool>) {
+        self.icon = icon
+        self.iconColor = iconColor
+        self.title = title
+        self.description = description
+        self._isOn = isOn
+    }
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 18, weight: .regular))
+                .foregroundColor(iconColor)
+                .frame(width: 24, height: 24)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.system(.body, design: .rounded, weight: .medium))
+                    .foregroundColor(.appText)
+
+                if let description, !description.isEmpty {
+                    Text(description)
+                        .font(.system(size: 12, design: .rounded))
+                        .foregroundColor(.appTextSecondary)
+                }
+            }
+
+            Spacer()
+
+            Toggle("", isOn: $isOn)
+                .labelsHidden()
+                .onChange(of: isOn) { _, _ in
+                    HapticFeedbackManager.shared.trigger(.selection)
+                }
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 13)
+        .contentShape(Rectangle())
     }
 }
 
@@ -407,10 +502,12 @@ struct AdaptationUndoRow: View {
     private func handleUndoTap() {
         // Premium kontrolü
         if revenueCatManager.userState != .premium {
+            HapticFeedbackManager.shared.trigger(.warning)
             paywallManager.presentPaywall(trigger: .premiumFeatureAccess)
             return
         }
-        
+
+        HapticFeedbackManager.shared.trigger(.warning)
         showingUndoAlert = true
     }
     
@@ -421,10 +518,12 @@ struct AdaptationUndoRow: View {
             do {
                 try await viewModel.undoScheduleChange()
                 await MainActor.run {
+                    HapticFeedbackManager.shared.trigger(.success)
                     isUndoing = false
                 }
             } catch {
                 await MainActor.run {
+                    HapticFeedbackManager.shared.trigger(.error)
                     undoError = error.localizedDescription
                     isUndoing = false
                 }
@@ -694,10 +793,12 @@ struct RestartOnboardingRow: View {
     private func handleRestartTap() {
         // Check if premium is required and user is not premium
         if isPremiumRequired && revenueCatManager.userState != .premium {
+            HapticFeedbackManager.shared.trigger(.warning)
             paywallManager.presentPaywall(trigger: .premiumFeatureAccess)
             return
         }
-        
+
+        HapticFeedbackManager.shared.trigger(.warning)
         showingRestartAlert = true
     }
     
@@ -713,6 +814,7 @@ struct RestartOnboardingRow: View {
         
         // Dismiss settings and trigger onboarding restart
         await MainActor.run {
+            HapticFeedbackManager.shared.trigger(.success)
             dismiss()
             
             // Trigger onboarding restart by posting notification
@@ -768,6 +870,7 @@ struct RestartTourRow: View {
 
     var body: some View {
         Button {
+            HapticFeedbackManager.shared.trigger(.softCommit)
             dismiss()
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
                 tourManager.restartTour()

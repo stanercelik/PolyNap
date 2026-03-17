@@ -1,4 +1,0 @@
-module PolyNapShared {
-header "PolyNapShared-Swift.h"
-export *
-}

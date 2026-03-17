@@ -108,8 +108,6 @@ class MainScreenViewModel: ObservableObject {
     // MARK: - Arc Drag Haptic Tracking
     private var lastHapticSnappedTime: String = ""
     private var recentlyDragged: Bool = false
-    private let selectionFeedback = UISelectionFeedbackGenerator()
-    private let mediumImpact = UIImpactFeedbackGenerator(style: .medium)
     
     // MARK: - Chart Block Tap Edit
     @Published var showChartBlockEditSheet: Bool = false
@@ -259,7 +257,10 @@ class MainScreenViewModel: ObservableObject {
     
     /// Günlük ipucunu döndürür
     var dailyTip: LocalizedStringKey {
-        return DailyTipManager.getDailyTip()
+        DailyTipManager.getDailyTip(
+            preferences: userPreferences,
+            modelContext: modelContext
+        )
     }
     
     /// Program açıklamasını mevcut dilde döndürür
@@ -725,24 +726,15 @@ class MainScreenViewModel: ObservableObject {
 
     
     private func saveSleepQuality(rating: Double, startTime: Date, endTime: Date) {
-        // Repository kullanarak uyku girdisini kaydet
-        Task {
+        Task { @MainActor in
             do {
-                // lastSleepBlock?.id UUID tipinde, bunu String'e dönüştürüyoruz
-                let blockIdString: String
-                if let sleepBlock = lastSleepBlock {
-                    blockIdString = sleepBlock.id.uuidString // UUID'yi String'e dönüştür
-                } else {
-                    blockIdString = UUID().uuidString // Yeni bir UUID oluştur ve String'e dönüştür
-                }
-                
-                let emoji = rating >= 4 ? "😄" : (rating >= 3 ? "😊" : (rating >= 2 ? "😐" : (rating >= 1 ? "😪" : "😩")))
-                
-                _ = try await Repository.shared.addSleepEntry(
-                    blockId: blockIdString, // String olarak gönderiyoruz
-                    emoji: emoji,
+                try SleepQualityPersistenceService.shared.saveRating(
                     rating: rating,
-                    date: startTime
+                    startTime: startTime,
+                    endTime: endTime,
+                    isCore: lastSleepBlock?.isCore ?? false,
+                    blockId: lastSleepBlock?.id.uuidString,
+                    source: "main_screen_prompt"
                 )
                 print("✅ Uyku girdisi bildirimden başarıyla kaydedildi, rating: \(rating)")
             } catch {
@@ -774,6 +766,11 @@ class MainScreenViewModel: ObservableObject {
         
         // Bu bloğu ertelenmiş bloklar listesine ekle
         addBlockToDeferredList(startTime: lastBlock.startTime, endTime: lastBlock.endTime)
+        analyticsManager.logNudgeOutcome(
+            type: "sleep_quality_prompt",
+            outcome: "partial",
+            completionDelayMinutes: nil
+        )
         
         showSleepQualityRating = false
         print("⏸️ Uyku bloğu \(lastBlock.startTime)-\(lastBlock.endTime) değerlendirmesi ertelendi.")
@@ -1490,7 +1487,7 @@ class MainScreenViewModel: ObservableObject {
     
     /// Grafik düzenleme modunu başlatır
     func startChartEdit() {
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        HapticFeedbackManager.shared.trigger(.strongCommit)
         tempScheduleBlocks = model.schedule.schedule
         initialDragState = Dictionary(uniqueKeysWithValues: tempScheduleBlocks.map { ($0.id, (startTime: $0.startTime, duration: $0.duration)) })
         isChartEditMode = true
@@ -1516,6 +1513,8 @@ class MainScreenViewModel: ObservableObject {
         Task {
             await saveSchedule()
         }
+
+        HapticFeedbackManager.shared.trigger(.success)
         
         analyticsManager.logFeatureUsed(featureName: "chart_edit_mode_saved", action: "edit_saved")
     }
@@ -1545,7 +1544,7 @@ class MainScreenViewModel: ObservableObject {
             comps.hour = h; comps.minute = m
         }
         chartEditEndDate = cal.date(from: comps) ?? Date()
-        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        HapticFeedbackManager.shared.trigger(.selection)
         showChartBlockEditSheet = true
     }
 
@@ -1558,13 +1557,27 @@ class MainScreenViewModel: ObservableObject {
         let eh = cal.component(.hour, from: chartEditEndDate)
         let em = cal.component(.minute, from: chartEditEndDate)
         let newStart = String(format: "%02d:%02d", sh, sm)
+        let newEnd = String(format: "%02d:%02d", eh, em)
         let endTotal = eh * 60 + em
         let startTotal = sh * 60 + sm
         var dur = endTotal - startTotal
         if dur <= 0 { dur += 24 * 60 }
+
+        if dur < 15 {
+            showEditFeedback(message: "En az 15 dakika olmalı", type: .tooShort, duration: 1.5)
+            HapticFeedbackManager.shared.trigger(.warning)
+            return
+        }
+
+        if hasCollisionInTemp(blockId: block.id, startTime: newStart, endTime: newEnd) {
+            showEditFeedback(message: "Bloklar çakışamaz", type: .collision, duration: 1.5)
+            HapticFeedbackManager.shared.trigger(.warning)
+            return
+        }
+
         let updated = SleepBlock(startTime: newStart, duration: dur, type: block.type, isCore: block.isCore)
         tempScheduleBlocks[idx] = updated
-        UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+        HapticFeedbackManager.shared.trigger(.strongCommit)
         showChartBlockEditSheet = false
         chartEditingBlock = nil
     }
@@ -1572,7 +1585,7 @@ class MainScreenViewModel: ObservableObject {
     func deleteChartBlock() {
         guard let block = chartEditingBlock else { return }
         tempScheduleBlocks.removeAll { $0.id == block.id }
-        UINotificationFeedbackGenerator().notificationOccurred(.warning)
+        HapticFeedbackManager.shared.trigger(.warning)
         showChartBlockEditSheet = false
         chartEditingBlock = nil
     }
@@ -1697,6 +1710,9 @@ class MainScreenViewModel: ObservableObject {
         // Kısıtlamaları kontrol et
         let minDuration = 15
         if newDuration < minDuration {
+            if editFeedbackType != .tooShort {
+                HapticFeedbackManager.shared.trigger(.warning)
+            }
             showEditFeedback(message: "En az 15 dakika olmalı", type: .tooShort, duration: 1.5)
             // Hatalı durumu kullanıcıya göstermek için belki UI'da bir değişiklik yapılabilir
             // Şimdilik güncellemeyi durduruyoruz.
@@ -1704,6 +1720,9 @@ class MainScreenViewModel: ObservableObject {
         }
         
         if hasCollisionInTemp(blockId: blockId, startTime: newStartTime, endTime: newEndTime) {
+            if editFeedbackType != .collision {
+                HapticFeedbackManager.shared.trigger(.warning)
+            }
             showEditFeedback(message: "Bloklar çakışamaz", type: .collision, duration: 1.5)
             // Çakışma durumunda da güncellemeyi durdur.
             return
@@ -1745,6 +1764,7 @@ class MainScreenViewModel: ObservableObject {
                     // Değişiklik varsa başlangıç durumunu güncelle
                     initialDragState[blockId] = (startTime: block.startTime, duration: block.duration)
                     showEditFeedback(message: "Blok güncellendi", type: .success, duration: 1.5)
+                    HapticFeedbackManager.shared.trigger(.success)
                 }
             }
         }
@@ -1774,9 +1794,9 @@ class MainScreenViewModel: ObservableObject {
         lastHapticSnappedTime = time
         let parts = time.split(separator: ":").compactMap { Int($0) }
         if parts.count == 2 && parts[1] == 0 {
-            mediumImpact.impactOccurred()
+            HapticFeedbackManager.shared.trigger(.strongCommit)
         } else {
-            selectionFeedback.selectionChanged()
+            HapticFeedbackManager.shared.trigger(.selection)
         }
     }
 
@@ -1896,8 +1916,7 @@ class MainScreenViewModel: ObservableObject {
                 canSnapToChart = false
                 
                 // Chart'tan çıkma haptic feedback
-                let impactFeedback = UIImpactFeedbackGenerator(style: .light)
-                impactFeedback.impactOccurred()
+                HapticFeedbackManager.shared.trigger(.softCommit)
             }
         }
     }
@@ -1912,22 +1931,19 @@ class MainScreenViewModel: ObservableObject {
             // Trash zone'a bırakıldı - sil
             deleteBlockFromTemp(block.id)
             
-            let notificationFeedback = UINotificationFeedbackGenerator()
-            notificationFeedback.notificationOccurred(.warning)
+            HapticFeedbackManager.shared.trigger(.warning)
             
             resetFloatingBlockState()
             return .deleted
         } else if canSnapToChart {
             // Chart'a snap et
-            let successFeedback = UINotificationFeedbackGenerator()
-            successFeedback.notificationOccurred(.success)
+            HapticFeedbackManager.shared.trigger(.success)
             
             resetFloatingBlockState()
             return .snappedToChart
         } else if isBlockFloating {
             // Chart dışında bırakıldı - orijinal yerine döndür
-            let errorFeedback = UINotificationFeedbackGenerator()
-            errorFeedback.notificationOccurred(.error)
+            HapticFeedbackManager.shared.trigger(.error)
             
             resetFloatingBlockState()
             return .snappedBack
@@ -1955,8 +1971,7 @@ class MainScreenViewModel: ObservableObject {
         
         // Trash zone'a girme haptic feedback
         if isInTrashZone && !previousTrashZone {
-            let impactFeedback = UIImpactFeedbackGenerator(style: .heavy)
-            impactFeedback.impactOccurred()
+            HapticFeedbackManager.shared.triggerWarningBoundary()
         }
     }
     
@@ -1988,8 +2003,7 @@ class MainScreenViewModel: ObservableObject {
         // showTrashArea = true // Already visible in edit mode
         
         // Haptic feedback
-        let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-        impactFeedback.impactOccurred()
+        HapticFeedbackManager.shared.trigger(.strongCommit)
         
         // 45 dakikalık varsayılan block oluştur
         let currentTime = getCurrentTimeFromPosition(position, center: center)
@@ -2102,6 +2116,7 @@ class MainScreenViewModel: ObservableObject {
             if let block = blockToAdd {
                 // Chart'a başarıyla eklendi
                 tempScheduleBlocks.append(block)
+                HapticFeedbackManager.shared.trigger(.success)
                 analyticsManager.logFeatureUsed(featureName: "plus_button_drag_completed", action: "block_added")
                 
                 // Yeni eklenen block'ı hemen sürüklenebilir hale getir
@@ -2140,8 +2155,7 @@ class MainScreenViewModel: ObservableObject {
         
         // Trash zone'a ilk giriş için haptic feedback
         if isInTrashZone && !previousTrashZone {
-            let impactFeedback = UIImpactFeedbackGenerator(style: .heavy)
-            impactFeedback.impactOccurred()
+            HapticFeedbackManager.shared.triggerWarningBoundary()
         }
     }
     
@@ -2151,8 +2165,7 @@ class MainScreenViewModel: ObservableObject {
             deleteBlockFromTemp(blockId)
             
             // Delete haptic feedback
-            let notificationFeedback = UINotificationFeedbackGenerator()
-            notificationFeedback.notificationOccurred(.warning)
+            HapticFeedbackManager.shared.trigger(.warning)
             
             analyticsManager.logFeatureUsed(featureName: "drag_to_trash_completed", action: "block_deleted")
             return true

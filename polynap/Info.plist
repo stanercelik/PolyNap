@@ -54,6 +54,8 @@
 	<string>$(REVENUECAT_API_KEY)</string>
 	<key>SuperwallAPIKey</key>
 	<string>$(SUPERWALL_API_KEY)</string>
+	<key>PosthogAPIKey</key>
+	<string>$(POSTHOG_API_KEY)</string>
 	<key>UIAppFonts</key>
 	<array/>
 	<key>UIBackgroundModes</key>

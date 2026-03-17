@@ -11,8 +11,8 @@ struct SleepExperienceScreen: View {
             question: String(format: L("newOnboarding.sleepExperience.question", table: "Onboarding"), viewModel.displayName),
             microcopy: L("newOnboarding.sleepExperience.microcopy", table: "Onboarding")
         ) {
-            OBSelectionCard(emoji: "😴", text: L("newOnboarding.sleepExperience.option.none", table: "Onboarding"), isSelected: viewModel.previousSleepExperience == .none) {
-                viewModel.previousSleepExperience = .none
+            OBSelectionCard(emoji: "😴", text: L("newOnboarding.sleepExperience.option.none", table: "Onboarding"), isSelected: viewModel.previousSleepExperience == PreviousSleepExperience.none) {
+                viewModel.previousSleepExperience = PreviousSleepExperience.none
             }
             OBSelectionCard(emoji: "🙂", text: L("newOnboarding.sleepExperience.option.some", table: "Onboarding"), isSelected: viewModel.previousSleepExperience == .some) {
                 viewModel.previousSleepExperience = .some

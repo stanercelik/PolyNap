@@ -1,1236 +1,1441 @@
 {
-  "sourceLanguage" : "en",
-  "strings" : {
-    "tip.sleep.adaptation" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎯 Obwohl polyphasischer Schlaf während der Anpassung Kopfschmerzen oder einen erhöhten Koffeinbedarf verursachen kann, nehmen diese Effekte ab, sobald die Routine etabliert ist."
+  "sourceLanguage": "en",
+  "strings": {
+    "tip.sleep.adaptation": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎯 Obwohl polyphasischer Schlaf während der Anpassung Kopfschmerzen oder einen erhöhten Koffeinbedarf verursachen kann, nehmen diese Effekte ab, sobald die Routine etabliert ist."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎯 Although polyphasic sleep may cause headaches or increased caffeine needs during adaptation, these effects decrease once the routine is established."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎯 Although polyphasic sleep may cause headaches or increased caffeine needs during adaptation, these effects decrease once the routine is established."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎯 多相睡眠は、慣れるまで頭痛がしたりカフェインがもっと必要になったりすることがあるけど、習慣になればそういった影響は減っていくよ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎯 多相睡眠は、慣れるまで頭痛がしたりカフェインがもっと必要になったりすることがあるけど、習慣になればそういった影響は減っていくよ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎯 Walaupun tidur polifasa mungkin menyebabkan sakit kepala atau peningkatan keperluan kafein semasa penyesuaian, kesan ini berkurangan sebaik sahaja rutin mantap."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎯 Walaupun tidur polifasa mungkin menyebabkan sakit kepala atau peningkatan keperluan kafein semasa penyesuaian, kesan ini berkurangan sebaik sahaja rutin mantap."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎯 แม้ว่าการนอนหลับแบบหลายเฟสอาจทำให้ปวดศีรษะหรือต้องการคาเฟอีนเพิ่มขึ้นในระหว่างการปรับตัว, แต่ผลกระทบเหล่านี้จะลดลงเมื่อสร้างกิจวัตรได้แล้ว"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎯 แม้ว่าการนอนหลับแบบหลายเฟสอาจทำให้ปวดศีรษะหรือต้องการคาเฟอีนเพิ่มขึ้นในระหว่างการปรับตัว, แต่ผลกระทบเหล่านี้จะลดลงเมื่อสร้างกิจวัตรได้แล้ว"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎯 Polifazik uyku, adaptasyon sürecinde baş ağrısı veya kafein ihtiyacı artışı yaratabilse de düzene girildiğinde bu etkiler azalır."
-          }
-        }
-      }
-    },
-    "tip.sleep.alertness" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚀 Polyphasischer Schlaf kann die Häufigkeit des Gähnens im Laufe der Zeit reduzieren und ein „Ich bin jederzeit wach und bereit!“-Gefühl erzeugen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚀 Polyphasic sleep can reduce the frequency of yawning over time and create an 'I'm awake and ready at any moment!' feeling."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚀 多相睡眠を続けると、あくびの回数がだんだん減って、「いつでも起きてて準備万端！」って気分になれるかも。"
-          }
-        },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚀 Tidur polifasa boleh mengurangkan kekerapan menguap dari semasa ke semasa dan mewujudkan perasaan 'Saya terjaga dan bersedia pada bila-bila masa!'."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚀 การนอนหลับแบบหลายเฟสสามารถลดความถี่ของการหาวเมื่อเวลาผ่านไปและสร้างความรู้สึก 'ฉันตื่นและพร้อมทุกเมื่อ!'"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚀 Polifazik uyku, zamanla esneme sıklığını azaltıp 'Her an uyanık ve hazırım!' hissi yaşatabilir."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎯 Polifazik uyku, adaptasyon sürecinde baş ağrısı veya kafein ihtiyacı artışı yaratabilse de düzene girildiğinde bu etkiler azalır."
           }
         }
       }
     },
-    "tip.sleep.ancient" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏺 Polyphasischer Schlaf ist eine in der Antike nachgewiesene Praxis und wurde von Weisen während intensiver Meditationsprozesse bevorzugt."
+    "tip.sleep.alertness": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚀 Polyphasischer Schlaf kann die Häufigkeit des Gähnens im Laufe der Zeit reduzieren und ein „Ich bin jederzeit wach und bereit!“-Gefühl erzeugen."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏺 Polyphasic sleep is a practice detected in ancient times and was preferred by sages during intense meditation processes."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚀 Polyphasic sleep can reduce the frequency of yawning over time and create an 'I'm awake and ready at any moment!' feeling."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏺 多相睡眠は昔からあるやり方で、賢者たちが集中して瞑想するときなんかに好んで使ってたんだ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚀 多相睡眠を続けると、あくびの回数がだんだん減って、「いつでも起きてて準備万端！」って気分になれるかも。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏺 Tidur polifasa adalah amalan yang dikesan pada zaman purba dan lebih disukai oleh orang bijak pandai semasa proses meditasi yang intensif."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚀 Tidur polifasa boleh mengurangkan kekerapan menguap dari semasa ke semasa dan mewujudkan perasaan 'Saya terjaga dan bersedia pada bila-bila masa!'."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏺 การนอนหลับแบบหลายเฟสเป็นวิธีปฏิบัติที่พบในสมัยโบราณและเป็นที่นิยมของปราชญ์ในระหว่างกระบวนการทำสมาธิอย่างเข้มข้น"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚀 การนอนหลับแบบหลายเฟสสามารถลดความถี่ของการหาวเมื่อเวลาผ่านไปและสร้างความรู้สึก 'ฉันตื่นและพร้อมทุกเมื่อ!'"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏺 Polifazik uyku, antik dönemde de tespit edilen bir uygulama olup, bilgeler tarafından yoğun meditasyon süreçlerinde tercih edilmiştir."
-          }
-        }
-      }
-    },
-    "tip.sleep.animals" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🐱 Polyphasischer Schlaf ist ein natürlicher Ruhezyklus, der bei vielen Tieren wie Katzen und Elefanten beobachtet wird."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🐱 Polyphasic sleep is a natural rest cycle observed in many animals, such as cats and elephants."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🐱 多相睡眠は、猫や象みたいに、たくさんの動物に見られる自然な休憩サイクルなんだ。"
-          }
-        },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🐱 Tidur polifasa adalah kitaran rehat semula jadi yang diperhatikan pada banyak haiwan, seperti kucing dan gajah."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🐱 การนอนหลับแบบหลายเฟสเป็นวงจรการพักผ่อนตามธรรมชาติที่พบในสัตว์หลายชนิด เช่น แมวและช้าง"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🐱 Polifazik uyku, kediler ve filler gibi pek çok hayvanda gözlemlenen doğal bir dinlenme döngüsüdür."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚀 Polifazik uyku, zamanla esneme sıklığını azaltıp 'Her an uyanık ve hazırım!' hissi yaşatabilir."
           }
         }
       }
     },
-    "tip.sleep.athletes" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏃‍♂️ Polyphasischer Schlaf kann den Erholungsprozess für Sportler beschleunigen, die den ganzen Tag über aktiv bleiben müssen."
+    "tip.sleep.ancient": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏺 Polyphasischer Schlaf ist eine in der Antike nachgewiesene Praxis und wurde von Weisen während intensiver Meditationsprozesse bevorzugt."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏃‍♂️ Polyphasic sleep can speed up the recovery process for athletes and athletes who need to stay active throughout the day."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏺 Polyphasic sleep is a practice detected in ancient times and was preferred by sages during intense meditation processes."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏃‍♂️ 一日中アクティブでいる必要があるアスリートにとって、多相睡眠は回復を早めるのに役立つことがあるよ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏺 多相睡眠は昔からあるやり方で、賢者たちが集中して瞑想するときなんかに好んで使ってたんだ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏃‍♂️ Tidur polifasa boleh mempercepatkan proses pemulihan untuk atlet dan atlet yang perlu kekal aktif sepanjang hari."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏺 Tidur polifasa adalah amalan yang dikesan pada zaman purba dan lebih disukai oleh orang bijak pandai semasa proses meditasi yang intensif."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏃‍♂️ การนอนหลับแบบหลายเฟสสามารถเร่งกระบวนการฟื้นตัวสำหรับนักกีฬาที่ต้องการความกระตือรือร้นตลอดทั้งวัน"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏺 การนอนหลับแบบหลายเฟสเป็นวิธีปฏิบัติที่พบในสมัยโบราณและเป็นที่นิยมของปราชญ์ในระหว่างกระบวนการทำสมาธิอย่างเข้มข้น"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏃‍♂️ Polifazik uyku, gün içinde sürekli aktif kalmaya ihtiyaç duyan sporcular ve atletler için toparlanma sürecini hızlandırabilir."
-          }
-        }
-      }
-    },
-    "tip.sleep.bat" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🦇 Polyphasischer Schlaf weckt Interesse, da er den kurzen Ruhemustern von Fledermäusen ähnelt, die im Dunkeln die Echoortung nutzen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🦇 Polyphasic sleep attracts interest as it resembles the short rest patterns of bats that use echolocation in the dark."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🦇 多相睡眠が面白いのは、暗闇で反響定位を使うコウモリの短い休息パターンに似ているからなんだ。"
-          }
-        },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🦇 Tidur polifasa menarik minat kerana ia menyerupai corak rehat pendek kelawar yang menggunakan ekolokasi dalam gelap."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🦇 การนอนหลับแบบหลายเฟสดึงดูดความสนใจเนื่องจากคล้ายกับรูปแบบการพักผ่อนสั้นๆ ของค้างคาวที่ใช้การสะท้อนของเสียงในความมืด"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🦇 Polifazik uyku, karanlıkta ekolokasyon yapan yarasaların kısa dinlenme patternlerine benzerlik göstermesiyle de ilgi uyandırır."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏺 Polifazik uyku, antik dönemde de tespit edilen bir uygulama olup, bilgeler tarafından yoğun meditasyon süreçlerinde tercih edilmiştir."
           }
         }
       }
     },
-    "tip.sleep.biological" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧬 Polyphasischer Schlaf führt eine Person über die Definitionen von „Nachteule“ oder „Morgenmensch“ hinaus und ermutigt zur Erkundung der eigenen biologischen Grenzen."
+    "tip.sleep.animals": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🐱 Polyphasischer Schlaf ist ein natürlicher Ruhezyklus, der bei vielen Tieren wie Katzen und Elefanten beobachtet wird."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧬 Polyphasic sleep takes a person beyond the definitions of 'night owl' or 'morning person' and encourages exploring their biological limits."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🐱 Polyphasic sleep is a natural rest cycle observed in many animals, such as cats and elephants."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧬 多相睡眠は、「夜型」とか「朝型」っていう枠を超えて、自分の生物学的な限界を探求するきっかけをくれるんだ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🐱 多相睡眠は、猫や象みたいに、たくさんの動物に見られる自然な休憩サイクルなんだ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧬 Tidur polifasa membawa seseorang melangkaui definisi 'burung hantu malam' atau 'orang pagi' dan menggalakkan penerokaan had biologi mereka."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🐱 Tidur polifasa adalah kitaran rehat semula jadi yang diperhatikan pada banyak haiwan, seperti kucing dan gajah."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧬 การนอนหลับแบบหลายเฟสพาบุคคลไปไกลกว่าคำจำกัดความของ 'คนนอนดึก' หรือ 'คนตื่นเช้า' และส่งเสริมการสำรวจขีดจำกัดทางชีวภาพของตนเอง"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🐱 การนอนหลับแบบหลายเฟสเป็นวงจรการพักผ่อนตามธรรมชาติที่พบในสัตว์หลายชนิด เช่น แมวและช้าง"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧬 Polifazik uyku, kişiyi 'gece kuşu' veya 'sabah insanı' tanımlarının ötesine taşıyıp kendi biyolojik sınırlarını keşfetmeye teşvik eder."
-          }
-        }
-      }
-    },
-    "tip.sleep.brain_cycles" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🔄 Polyphasischer Schlaf erhöht das Potenzial, ohne acht Stunden Nachtschlaf wach zu bleiben, indem er die Schlafzyklen des Gehirns intensiviert und verkürzt."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🔄 Polyphasic sleep increases the potential to stay alive without sleeping eight hours at night by intensifying and shortening the brain's sleep cycles."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🔄 多相睡眠は、脳の睡眠サイクルを濃縮して短くすることで、夜8時間寝なくても元気に過ごせる可能性を高めてくれるよ。"
-          }
-        },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🔄 Tidur polifasa meningkatkan potensi untuk terus hidup tanpa tidur lapan jam pada waktu malam dengan menggiatkan dan memendekkan kitaran tidur otak."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🔄 การนอนหลับแบบหลายเฟสเพิ่มศักยภาพในการตื่นโดยไม่ต้องนอนแปดชั่วโมงตอนกลางคืนโดยการทำให้วงจรการนอนของสมองเข้มข้นขึ้นและสั้นลง"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🔄 Polifazik uyku, beynin uyku döngülerini sıklaştırıp kısaltarak, gece boyunca sekiz saat uyunmadan da canlı kalma potansiyelini artırır."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🐱 Polifazik uyku, kediler ve filler gibi pek çok hayvanda gözlemlenen doğal bir dinlenme döngüsüdür."
           }
         }
       }
     },
-    "tip.sleep.chess" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "♟️ Polyphasischer Schlaf wurde mit Mini-Pausen als „Gehirndoping“ in Strategiespielen oder Schachturnieren ausprobiert."
+    "tip.sleep.athletes": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏃‍♂️ Polyphasischer Schlaf kann den Erholungsprozess für Sportler beschleunigen, die den ganzen Tag über aktiv bleiben müssen."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "♟️ Polyphasic sleep has been tried with mini-breaks as 'brain doping' in strategy games or chess tournaments."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏃‍♂️ Polyphasic sleep can speed up the recovery process for athletes and athletes who need to stay active throughout the day."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "♟️ 多相睡眠は、戦略ゲームやチェスの大会で「脳のドーピング」として、短い休憩を挟む形で試されたことがあるんだ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏃‍♂️ 一日中アクティブでいる必要があるアスリートにとって、多相睡眠は回復を早めるのに役立つことがあるよ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "♟️ Tidur polifasa telah dicuba dengan rehat mini sebagai 'doping otak' dalam permainan strategi atau kejohanan catur."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏃‍♂️ Tidur polifasa boleh mempercepatkan proses pemulihan untuk atlet dan atlet yang perlu kekal aktif sepanjang hari."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "♟️ การนอนหลับแบบหลายเฟสถูกลองใช้ด้วยการพักสั้นๆ เป็น 'การโด๊ปสมอง' ในเกมวางแผนหรือการแข่งขันหมากรุก"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏃‍♂️ การนอนหลับแบบหลายเฟสสามารถเร่งกระบวนการฟื้นตัวสำหรับนักกีฬาที่ต้องการความกระตือรือร้นตลอดทั้งวัน"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "♟️ Polifazik uyku, strateji oyunlarında veya satranç turnuvalarında 'beyin doping' niyetine mini aralarla denenmiştir."
-          }
-        }
-      }
-    },
-    "tip.sleep.creativity_boost" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎨 Polyphasischer Schlaf kann das kreative Denken und die Problemlösungsfähigkeiten fördern, da die REM-Phase häufiger erreicht wird."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎨 Polyphasic sleep can nourish creative thinking and problem-solving skills as REM phase is entered more frequently."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎨 多相睡眠ではレム睡眠に頻繁に入るから、創造的な思考や問題解決能力を育てることができるんだ。"
-          }
-        },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎨 Tidur polifasa boleh menyuburkan pemikiran kreatif dan kemahiran menyelesaikan masalah kerana fasa REM dimasuki dengan lebih kerap."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎨 การนอนหลับแบบหลายเฟสสามารถบำรุงการคิดเชิงสร้างสรรค์และทักษะการแก้ปัญหาเนื่องจากมีการเข้าสู่ระยะ REM บ่อยขึ้น"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎨 Polifazik uyku, REM fazına daha sık girildiğinden yaratıcı düşünceyi ve problem çözme becerisini besleyebilir."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏃‍♂️ Polifazik uyku, gün içinde sürekli aktif kalmaya ihtiyaç duyan sporcular ve atletler için toparlanma sürecini hızlandırabilir."
           }
         }
       }
     },
-    "tip.sleep.dreams" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "💭 Polyphasischer Schlaf kann es erleichtern, sich klarer an Träume zu erinnern und manchmal durch häufige Schlafintervalle luzides Träumen ermöglichen."
+    "tip.sleep.bat": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🦇 Polyphasischer Schlaf weckt Interesse, da er den kurzen Ruhemustern von Fledermäusen ähnelt, die im Dunkeln die Echoortung nutzen."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "💭 Polyphasic sleep can make it easier to remember dreams more clearly and sometimes facilitate lucid dreaming with frequent sleep intervals."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🦇 Polyphasic sleep attracts interest as it resembles the short rest patterns of bats that use echolocation in the dark."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "💭 頻繁に眠ることで、多相睡眠は夢をはっきり覚えやすくしたり、時には明晰夢を見やすくしたりすることもあるよ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🦇 多相睡眠が面白いのは、暗闇で反響定位を使うコウモリの短い休息パターンに似ているからなんだ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "💭 Tidur polifasa boleh memudahkan untuk mengingati mimpi dengan lebih jelas dan kadangkala memudahkan mimpi jernih dengan selang tidur yang kerap."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🦇 Tidur polifasa menarik minat kerana ia menyerupai corak rehat pendek kelawar yang menggunakan ekolokasi dalam gelap."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "💭 การนอนหลับแบบหลายเฟสสามารถทำให้จำความฝันได้ชัดเจนขึ้นและบางครั้งช่วยให้เกิดการฝันรู้ตัวด้วยช่วงการนอนที่บ่อยครั้ง"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🦇 การนอนหลับแบบหลายเฟสดึงดูดความสนใจเนื่องจากคล้ายกับรูปแบบการพักผ่อนสั้นๆ ของค้างคาวที่ใช้การสะท้อนของเสียงในความมืด"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "💭 Polifazik uyku, rüyaları daha net hatırlamayı ve bazen de lusid rüya görmeyi kolaylaştırabilir."
-          }
-        }
-      }
-    },
-    "tip.sleep.eeg" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧠 Polyphasischer Schlaf wird mit EEG-Studien untersucht und erregt aufgrund erhöhter Tiefschlafsegmente wissenschaftliche Aufmerksamkeit."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧠 Polyphasic sleep is being studied with EEG studies and attracts scientific attention due to increased deep rest segments."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧠 多相睡眠は脳波（EEG）の研究対象にもなっていて、深い休息部分が増えることから科学的にも注目されてるんだ。"
-          }
-        },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧠 Tidur polifasa sedang dikaji dengan kajian EEG dan menarik perhatian saintifik kerana peningkatan segmen rehat yang mendalam."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧠 การนอนหลับแบบหลายเฟสกำลังถูกศึกษาด้วยการศึกษา EEG และดึงดูดความสนใจทางวิทยาศาสตร์เนื่องจากมีส่วนของการพักผ่อนลึกที่เพิ่มขึ้น"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧠 Polifazik uyku, EEG çalışmalarıyla da incelenmekte ve sıklaşan derin dinlenme bölümleri sayesinde bilimin dikkatini çekmektedir."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🦇 Polifazik uyku, karanlıkta ekolokasyon yapan yarasaların kısa dinlenme patternlerine benzerlik göstermesiyle de ilgi uyandırır."
           }
         }
       }
     },
-    "tip.sleep.energy" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚡ Polyphasischer Schlaf kann Burnout bei langfristigen Aufgaben verzögern, indem der Körper Energie in kleinen Portionen verbraucht."
+    "tip.sleep.biological": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧬 Polyphasischer Schlaf führt eine Person über die Definitionen von „Nachteule“ oder „Morgenmensch“ hinaus und ermutigt zur Erkundung der eigenen biologischen Grenzen."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚡ Polyphasic sleep can delay burnout in long-term tasks by having the body use energy in small portions."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧬 Polyphasic sleep takes a person beyond the definitions of 'night owl' or 'morning person' and encourages exploring their biological limits."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚡ 多相睡眠は、体がエネルギーを小分けにして使うようになるから、長丁場のタスクでも燃え尽きにくくなるよ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧬 多相睡眠は、「夜型」とか「朝型」っていう枠を超えて、自分の生物学的な限界を探求するきっかけをくれるんだ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚡ Tidur polifasa boleh melambatkan keletihan dalam tugas jangka panjang dengan membiarkan badan menggunakan tenaga dalam bahagian kecil."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧬 Tidur polifasa membawa seseorang melangkaui definisi 'burung hantu malam' atau 'orang pagi' dan menggalakkan penerokaan had biologi mereka."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚡ การนอนหลับแบบหลายเฟสสามารถชะลอการหมดไฟในงานระยะยาวโดยทำให้ร่างกายใช้พลังงานเป็นส่วนเล็กๆ"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧬 การนอนหลับแบบหลายเฟสพาบุคคลไปไกลกว่าคำจำกัดความของ 'คนนอนดึก' หรือ 'คนตื่นเช้า' และส่งเสริมการสำรวจขีดจำกัดทางชีวภาพของตนเอง"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚡ Polifazik uyku, vücudun enerjiyi küçük parçalara bölerek kullanması sayesinde uzun süreli görevlerde tükenmişliği geciktirebilir."
-          }
-        }
-      }
-    },
-    "tip.sleep.esports" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎮 Polyphasischer Schlaf wurde unter E-Sport-Spielern zur Vorbereitung auf Turniere getestet, die eine intensive Konzentration erfordern."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎮 Polyphasic sleep has been tested among e-Sports players in preparation for tournaments requiring intense focus."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎮 eスポーツ選手の間で、集中力が必要な大会の準備として多相睡眠が試されたことがあるんだ。"
-          }
-        },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎮 Tidur polifasa telah diuji di kalangan pemain e-Sukan sebagai persediaan untuk kejohanan yang memerlukan tumpuan yang tinggi."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎮 การนอนหลับแบบหลายเฟสได้รับการทดสอบในหมู่นักกีฬาอีสปอร์ตเพื่อเตรียมพร้อมสำหรับการแข่งขันที่ต้องการสมาธิอย่างเข้มข้น"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎮 Polifazik uyku, e-Spor oyuncuları arasında yoğun odaklanma gerektiren turnuvalara hazırlık amacıyla test edilmiştir."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧬 Polifazik uyku, kişiyi 'gece kuşu' veya 'sabah insanı' tanımlarının ötesine taşıyıp kendi biyolojik sınırlarını keşfetmeye teşvik eder."
           }
         }
       }
     },
-    "tip.sleep.famous" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎯 Polyphasischer Schlaf ist als ein Muster bekannt, das den Schlafplänen von Genies wie Leonardo da Vinci und Nikola Tesla zugeschrieben wird."
+    "tip.sleep.brain_cycles": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔄 Polyphasischer Schlaf erhöht das Potenzial, ohne acht Stunden Nachtschlaf wach zu bleiben, indem er die Schlafzyklen des Gehirns intensiviert und verkürzt."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎯 Polyphasic sleep is known as a pattern attributed to the sleep schedules of geniuses like Leonardo da Vinci and Nikola Tesla."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔄 Polyphasic sleep increases the potential to stay alive without sleeping eight hours at night by intensifying and shortening the brain's sleep cycles."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎯 多相睡眠は、レオナルド・ダ・ヴィンチやニコラ・テスラみたいな天才たちの睡眠パターンとして知られているよ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔄 多相睡眠は、脳の睡眠サイクルを濃縮して短くすることで、夜8時間寝なくても元気に過ごせる可能性を高めてくれるよ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎯 Tidur polifasa dikenali sebagai corak yang dikaitkan dengan jadual tidur orang genius seperti Leonardo da Vinci dan Nikola Tesla."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔄 Tidur polifasa meningkatkan potensi untuk terus hidup tanpa tidur lapan jam pada waktu malam dengan menggiatkan dan memendekkan kitaran tidur otak."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎯 การนอนหลับแบบหลายเฟสเป็นที่รู้จักในฐานะรูปแบบที่เชื่อว่าเป็นตารางการนอนของอัจฉริยะเช่น เลโอนาร์โด ดา วินชี และ นิโคลา เทสลา"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔄 การนอนหลับแบบหลายเฟสเพิ่มศักยภาพในการตื่นโดยไม่ต้องนอนแปดชั่วโมงตอนกลางคืนโดยการทำให้วงจรการนอนของสมองเข้มข้นขึ้นและสั้นลง"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎯 Polifazik uyku, Leonardo da Vinci ve Nikola Tesla gibi dahilerin uyku programlarına atfedilen bir düzen olarak bilinir."
-          }
-        }
-      }
-    },
-    "tip.sleep.farmer" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🌾 Polyphasischer Schlaf wurde in der Vergangenheit von einigen Landwirten übernommen, um sich zu verschiedenen Zeiten um die Tiere zu kümmern."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🌾 Polyphasic sleep has been adopted by some farmers in the past to care for animals at different hours."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🌾 昔は、違う時間に動物の世話をするために、一部の農家で多相睡眠が取り入れられていたんだ。"
-          }
-        },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🌾 Tidur polifasa telah diamalkan oleh sesetengah petani pada masa lalu untuk menjaga haiwan pada waktu yang berbeza."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🌾 การนอนหลับแบบหลายเฟสถูกนำมาใช้โดยเกษตรกรบางคนในอดีตเพื่อดูแลสัตว์ในเวลาที่แตกต่างกัน"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🌾 Polifazik uyku, geçmişte bazı çiftçiler tarafından farklı saatlerde hayvan bakımı yapabilmek için benimsenmiştir."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🔄 Polifazik uyku, beynin uyku döngülerini sıklaştırıp kısaltarak, gece boyunca sekiz saat uyunmadan da canlı kalma potansiyelini artırır."
           }
         }
       }
     },
-    "tip.sleep.history" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚔️ Polyphasischer Schlaf wurde im Laufe der Geschichte verwendet, um die Ausdauer bei langen Feldzügen und unter harten Bedingungen zu erhöhen, von den römischen Legionen bis zu den Samurai."
+    "tip.sleep.chess": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "♟️ Polyphasischer Schlaf wurde mit Mini-Pausen als „Gehirndoping“ in Strategiespielen oder Schachturnieren ausprobiert."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚔️ Polyphasic sleep has been used throughout history to increase endurance in long campaigns and harsh conditions, from Roman legions to Samurai."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "♟️ Polyphasic sleep has been tried with mini-breaks as 'brain doping' in strategy games or chess tournaments."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚔️ 歴史上、ローマ軍団から侍まで、厳しい状況下での長期間の活動で体力を維持するために多相睡眠が使われてきたんだ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "♟️ 多相睡眠は、戦略ゲームやチェスの大会で「脳のドーピング」として、短い休憩を挟む形で試されたことがあるんだ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚔️ Tidur polifasa telah digunakan sepanjang sejarah untuk meningkatkan daya tahan dalam kempen yang panjang dan keadaan yang teruk, dari legiun Rom hingga Samurai."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "♟️ Tidur polifasa telah dicuba dengan rehat mini sebagai 'doping otak' dalam permainan strategi atau kejohanan catur."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚔️ การนอนหลับแบบหลายเฟสถูกใช้ตลอดประวัติศาสตร์เพื่อเพิ่มความทนทานในการรบที่ยาวนานและสภาวะที่โหดร้าย ตั้งแต่กองทหารโรมันไปจนถึงซามูไร"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "♟️ การนอนหลับแบบหลายเฟสถูกลองใช้ด้วยการพักสั้นๆ เป็น 'การโด๊ปสมอง' ในเกมวางแผนหรือการแข่งขันหมากรุก"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⚔️ Polifazik uyku, geçmişte uzun seferlerde ve zorlu koşullarda dayanıklılığı artırmak için Roma lejyonlarından Samuraylara kadar kullanılmıştır."
-          }
-        }
-      }
-    },
-    "tip.sleep.japanese" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎌 Polyphasischer Schlaf zeigt Ähnlichkeit mit einer in der japanischen Kultur sozial akzeptierten Ruheform namens „Inemuri“ mit sofortigen Nickerchen."
-          }
-        },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎌 Polyphasic sleep shows similarity to a socially accepted rest method in Japanese culture called 'inemuri' with instant naps."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎌 日本の「居眠り」文化みたいに、多相睡眠も社会的に受け入れられている短い休息方法と似ているところがあるね。"
-          }
-        },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎌 Tidur polifasa menunjukkan persamaan dengan kaedah rehat yang diterima secara sosial dalam budaya Jepun yang dipanggil 'inemuri' dengan tidur sebentar segera."
-          }
-        },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎌 การนอนหลับแบบหลายเฟสมีความคล้ายคลึงกับวิธีการพักผ่อนที่ยอมรับในสังคมญี่ปุ่นที่เรียกว่า 'อิเนะมุริ' ด้วยการงีบหลับทันที"
-          }
-        },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🎌 Polifazik uyku, Japon kültüründe 'inemuri' şeklinde anlık şekerlemelerle benzerlik göstererek sosyal kabul görmüş bir dinlenme yöntemiyle örtüşür."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "♟️ Polifazik uyku, strateji oyunlarında veya satranç turnuvalarında 'beyin doping' niyetine mini aralarla denenmiştir."
           }
         }
       }
     },
-    "tip.sleep.melatonin" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🌙 Polyphasischer Schlaf kann helfen, ein neues Gleichgewicht im Schlaf-Wach-Zyklus herzustellen, indem der Melatonin-Freisetzungsrhythmus des Körpers in Teile aufgeteilt wird."
+    "tip.sleep.creativity_boost": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎨 Polyphasischer Schlaf kann das kreative Denken und die Problemlösungsfähigkeiten fördern, da die REM-Phase häufiger erreicht wird."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🌙 Polyphasic sleep can help establish a new balance in the sleep-wake cycle by dividing the body's melatonin release rhythm into parts."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎨 Polyphasic sleep can nourish creative thinking and problem-solving skills as REM phase is entered more frequently."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🌙 多相睡眠は、体のメラトニン分泌リズムを分けることで、睡眠と覚醒のサイクルに新しいバランスをもたらす手助けをしてくれるよ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎨 多相睡眠ではレム睡眠に頻繁に入るから、創造的な思考や問題解決能力を育てることができるんだ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🌙 Tidur polifasa boleh membantu mewujudkan keseimbangan baru dalam kitaran tidur-bangun dengan membahagikan irama pelepasan melatonin badan kepada bahagian-bahagian."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎨 Tidur polifasa boleh menyuburkan pemikiran kreatif dan kemahiran menyelesaikan masalah kerana fasa REM dimasuki dengan lebih kerap."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🌙 การนอนหลับแบบหลายเฟสสามารถช่วยสร้างสมดุลใหม่ในวงจรการนอน-ตื่นโดยการแบ่งจังหวะการหลั่งเมลาโทนินของร่างกายออกเป็นส่วนๆ"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎨 การนอนหลับแบบหลายเฟสสามารถบำรุงการคิดเชิงสร้างสรรค์และทักษะการแก้ปัญหาเนื่องจากมีการเข้าสู่ระยะ REM บ่อยขึ้น"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🌙 Polifazik uyku, bedenin melatonin salınım ritmini parçalara ayırarak uyku-uyanıklık döngüsünde yeni bir denge kurmaya yardımcı olabilir."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎨 Polifazik uyku, REM fazına daha sık girildiğinden yaratıcı düşünceyi ve problem çözme becerisini besleyebilir."
           }
         }
       }
     },
-    "tip.sleep.memory_boost" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧠 Polyphasischer Schlaf bietet die Möglichkeit, das Gedächtnis zu stärken und Informationen zu festigen, da das Gehirn durch kurze Schlafperioden schnell die REM-Phase erreicht."
+    "tip.sleep.dreams": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💭 Polyphasischer Schlaf kann es erleichtern, sich klarer an Träume zu erinnern und manchmal durch häufige Schlafintervalle luzides Träumen ermöglichen."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧠 Polyphasic sleep offers the opportunity to strengthen memory and consolidate information as the brain quickly reaches REM stage through short sleep periods."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💭 Polyphasic sleep can make it easier to remember dreams more clearly and sometimes facilitate lucid dreaming with frequent sleep intervals."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧠 短い睡眠を繰り返す多相睡眠は、脳がすぐにレム睡眠に入って情報を定着させるから、記憶力を高めるチャンスだよ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💭 頻繁に眠ることで、多相睡眠は夢をはっきり覚えやすくしたり、時には明晰夢を見やすくしたりすることもあるよ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧠 Tidur polifasa menawarkan peluang untuk menguatkan ingatan dan menyatukan maklumat kerana otak cepat mencapai peringkat REM melalui tempoh tidur yang singkat."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💭 Tidur polifasa boleh memudahkan untuk mengingati mimpi dengan lebih jelas dan kadangkala memudahkan mimpi jernih dengan selang tidur yang kerap."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧠 การนอนหลับแบบหลายเฟสเปิดโอกาสให้เสริมสร้างความจำและรวบรวมข้อมูลเนื่องจากสมองเข้าถึงระยะ REM ได้อย่างรวดเร็วผ่านช่วงการนอนสั้นๆ"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💭 การนอนหลับแบบหลายเฟสสามารถทำให้จำความฝันได้ชัดเจนขึ้นและบางครั้งช่วยให้เกิดการฝันรู้ตัวด้วยช่วงการนอนที่บ่อยครั้ง"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🧠 Polifazik uyku, kısa uyku periyotları sayesinde beynin REM evresine hızla ulaşıp bilgileri pekiştirme ve hafızayı güçlendirme olanağı sunar."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💭 Polifazik uyku, rüyaları daha net hatırlamayı ve bazen de lusid rüya görmeyi kolaylaştırabilir."
           }
         }
       }
     },
-    "tip.sleep.metabolism" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏃 Polyphasischer Schlaf kann durch Forschungen, die zeigen, dass kurze Nickerchen den Stoffwechsel ausgleichen, positiv zur körperlichen Gesundheit beitragen."
+    "tip.sleep.eeg": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧠 Polyphasischer Schlaf wird mit EEG-Studien untersucht und erregt aufgrund erhöhter Tiefschlafsegmente wissenschaftliche Aufmerksamkeit."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏃 Polyphasic sleep can contribute positively to physical health through research showing that short sleeps balance metabolism."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧠 Polyphasic sleep is being studied with EEG studies and attracts scientific attention due to increased deep rest segments."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏃 短い睡眠が代謝のバランスを整えるという研究もあって、多相睡眠は体の健康にも良い影響を与える可能性があるんだ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧠 多相睡眠は脳波（EEG）の研究対象にもなっていて、深い休息部分が増えることから科学的にも注目されてるんだ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏃 Tidur polifasa boleh menyumbang secara positif kepada kesihatan fizikal melalui penyelidikan yang menunjukkan bahawa tidur singkat mengimbangi metabolisme."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧠 Tidur polifasa sedang dikaji dengan kajian EEG dan menarik perhatian saintifik kerana peningkatan segmen rehat yang mendalam."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏃 การนอนหลับแบบหลายเฟสสามารถส่งผลดีต่อสุขภาพร่างกายผ่านการวิจัยที่แสดงว่าการนอนสั้นๆ ช่วยปรับสมดุลการเผาผลาญ"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧠 การนอนหลับแบบหลายเฟสกำลังถูกศึกษาด้วยการศึกษา EEG และดึงดูดความสนใจทางวิทยาศาสตร์เนื่องจากมีส่วนของการพักผ่อนลึกที่เพิ่มขึ้น"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🏃 Polifazik uyku, kısa uykuların metabolizmayı dengelediğini gösteren araştırmalar sayesinde fiziksel sağlığa da olumlu katkıda bulunabilir."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧠 Polifazik uyku, EEG çalışmalarıyla da incelenmekte ve sıklaşan derin dinlenme bölümleri sayesinde bilimin dikkatini çekmektedir."
           }
         }
       }
     },
-    "tip.sleep.mountaineer" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⛰️ Genau wie Bergsteiger, die sich an große Höhen anpassen müssen, braucht dein Körper Zeit, sich an einen neuen Schlafplan zu gewöhnen. Sei geduldig und konsequent!"
+    "tip.sleep.energy": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚡ Polyphasischer Schlaf kann Burnout bei langfristigen Aufgaben verzögern, indem der Körper Energie in kleinen Portionen verbraucht."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⛰️ Just like mountaineers who need to adapt to high altitudes, your body needs time to adjust to a new sleep schedule. Be patient and consistent!"
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚡ Polyphasic sleep can delay burnout in long-term tasks by having the body use energy in small portions."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⛰️ 高地に体を慣らす登山家みたいに、君の体も新しい睡眠スケジュールに慣れる時間が必要だよ。焦らず、コツコツ続けよう！"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚡ 多相睡眠は、体がエネルギーを小分けにして使うようになるから、長丁場のタスクでも燃え尽きにくくなるよ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⛰️ Sama seperti pendaki gunung yang perlu menyesuaikan diri dengan altitud tinggi, badan anda memerlukan masa untuk menyesuaikan diri dengan jadual tidur baharu. Bersabar dan konsisten!"
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚡ Tidur polifasa boleh melambatkan keletihan dalam tugas jangka panjang dengan membiarkan badan menggunakan tenaga dalam bahagian kecil."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⛰️ เช่นเดียวกับนักปีนเขาที่ต้องปรับตัวให้เข้ากับความสูง, ร่างกายของคุณต้องการเวลาในการปรับตัวเข้ากับตารางการนอนใหม่ อดทนและสม่ำเสมอ!"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚡ การนอนหลับแบบหลายเฟสสามารถชะลอการหมดไฟในงานระยะยาวโดยทำให้ร่างกายใช้พลังงานเป็นส่วนเล็กๆ"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⛰️ Tıpkı yüksek irtifaya alışması gereken dağcılar gibi, vücudunuzun da yeni uyku düzenine adapte olması için zamana ihtiyacı var. Sabırlı ve tutarlı olun!"
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚡ Polifazik uyku, vücudun enerjiyi küçük parçalara bölerek kullanması sayesinde uzun süreli görevlerde tükenmişliği geciktirebilir."
           }
         }
       }
     },
-    "tip.sleep.nasa" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚀 Polyphasischer Schlaf gehört zu den leistungsstärksten Methoden in der NASA-Forschung zu kurzen Nickerchen, die für Astronauten empfohlen werden."
+    "tip.sleep.esports": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎮 Polyphasischer Schlaf wurde unter E-Sport-Spielern zur Vorbereitung auf Turniere getestet, die eine intensive Konzentration erfordern."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚀 Polyphasic sleep is among the best-performing methods in NASA's short nap research recommended for astronauts."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎮 Polyphasic sleep has been tested among e-Sports players in preparation for tournaments requiring intense focus."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚀 NASAが宇宙飛行士に勧める短時間仮眠の研究でも、多相睡眠は特にパフォーマンスが高い方法の一つなんだ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎮 eスポーツ選手の間で、集中力が必要な大会の準備として多相睡眠が試されたことがあるんだ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚀 Tidur polifasa adalah antara kaedah berprestasi terbaik dalam penyelidikan tidur sebentar NASA yang disyorkan untuk angkasawan."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎮 Tidur polifasa telah diuji di kalangan pemain e-Sukan sebagai persediaan untuk kejohanan yang memerlukan tumpuan yang tinggi."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚀 การนอนหลับแบบหลายเฟสเป็นหนึ่งในวิธีการที่มีประสิทธิภาพดีที่สุดในการวิจัยการงีบสั้นๆ ของ NASA ที่แนะนำสำหรับนักบินอวกาศ"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎮 การนอนหลับแบบหลายเฟสได้รับการทดสอบในหมู่นักกีฬาอีสปอร์ตเพื่อเตรียมพร้อมสำหรับการแข่งขันที่ต้องการสมาธิอย่างเข้มข้น"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚀 Polifazik uyku, NASA'nın astronotlara önerdiği kısa şekerleme araştırmalarında en iyi performans gösteren yöntemler arasında yer alır."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎮 Polifazik uyku, e-Spor oyuncuları arasında yoğun odaklanma gerektiren turnuvalara hazırlık amacıyla test edilmiştir."
           }
         }
       }
     },
-    "tip.sleep.natural_wake" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ Polyphasischer Schlaf zeichnet sich dadurch aus, dass er bei richtiger Anpassung ein natürliches Aufwachmuster ohne morgendliche Wecker ermöglicht."
+    "tip.sleep.famous": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎯 Polyphasischer Schlaf ist als ein Muster bekannt, das den Schlafplänen von Genies wie Leonardo da Vinci und Nikola Tesla zugeschrieben wird."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ Polyphasic sleep stands out for providing a natural waking pattern without using morning alarms when properly adapted."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎯 Polyphasic sleep is known as a pattern attributed to the sleep schedules of geniuses like Leonardo da Vinci and Nikola Tesla."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ うまく適応できれば、朝のアラームなしで自然に起きられるようになるのが多相睡眠のすごいところ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎯 多相睡眠は、レオナルド・ダ・ヴィンチやニコラ・テスラみたいな天才たちの睡眠パターンとして知られているよ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ Tidur polifasa menonjol kerana menyediakan corak bangun semula jadi tanpa menggunakan penggera pagi apabila disesuaikan dengan betul."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎯 Tidur polifasa dikenali sebagai corak yang dikaitkan dengan jadual tidur orang genius seperti Leonardo da Vinci dan Nikola Tesla."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ การนอนหลับแบบหลายเฟสโดดเด่นด้วยการให้รูปแบบการตื่นที่เป็นธรรมชาติโดยไม่ต้องใช้นาฬิกาปลุกตอนเช้าเมื่อปรับตัวได้อย่างเหมาะสม"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎯 การนอนหลับแบบหลายเฟสเป็นที่รู้จักในฐานะรูปแบบที่เชื่อว่าเป็นตารางการนอนของอัจฉริยะเช่น เลโอนาร์โด ดา วินชี และ นิโคลา เทสลา"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⏰ Polifazik uyku, doğru adapte olunduğunda sabah alarmı kullanmadan doğal bir uyanma düzeni sağlamasıyla dikkat çeker."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎯 Polifazik uyku, Leonardo da Vinci ve Nikola Tesla gibi dahilerin uyku programlarına atfedilen bir düzen olarak bilinir."
           }
         }
       }
     },
-    "tip.sleep.parent" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "👶 Polyphasischer Schlaf wurde als theoretische Lösung für Eltern vorgeschlagen, die Tag und Nacht für die Babypflege wach bleiben müssen."
+    "tip.sleep.farmer": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🌾 Polyphasischer Schlaf wurde in der Vergangenheit von einigen Landwirten übernommen, um sich zu verschiedenen Zeiten um die Tiere zu kümmern."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "👶 Polyphasic sleep has come up as a theoretical solution for parents who need to stay awake day and night for baby care."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🌾 Polyphasic sleep has been adopted by some farmers in the past to care for animals at different hours."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "👶 赤ちゃんのお世話で昼も夜も起きてなきゃいけない親にとって、多相睡眠は理論上、一つの解決策として考えられているよ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🌾 昔は、違う時間に動物の世話をするために、一部の農家で多相睡眠が取り入れられていたんだ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "👶 Tidur polifasa telah muncul sebagai penyelesaian teori untuk ibu bapa yang perlu berjaga siang dan malam untuk penjagaan bayi."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🌾 Tidur polifasa telah diamalkan oleh sesetengah petani pada masa lalu untuk menjaga haiwan pada waktu yang berbeza."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "👶 การนอนหลับแบบหลายเฟสถูกเสนอเป็นทางออกทางทฤษฎีสำหรับผู้ปกครองที่ต้องตื่นทั้งวันทั้งคืนเพื่อดูแลทารก"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🌾 การนอนหลับแบบหลายเฟสถูกนำมาใช้โดยเกษตรกรบางคนในอดีตเพื่อดูแลสัตว์ในเวลาที่แตกต่างกัน"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "👶 Polifazik uyku, bebek bakımında gece gündüz uyanık kalma ihtiyacı duyan ebeveynler için teorik bir çare olarak gündeme gelmiştir."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🌾 Polifazik uyku, geçmişte bazı çiftçiler tarafından farklı saatlerde hayvan bakımı yapabilmek için benimsenmiştir."
           }
         }
       }
     },
-    "tip.sleep.sailor" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚢 Polyphasischer Schlaf ist ein Schlafansatz, den Seeleute auf Ozeanpatrouille Mitte des 20. Jahrhunderts mit ihrem Schichtsystem kombinierten."
+    "tip.sleep.history": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚔️ Polyphasischer Schlaf wurde im Laufe der Geschichte verwendet, um die Ausdauer bei langen Feldzügen und unter harten Bedingungen zu erhöhen, von den römischen Legionen bis zu den Samurai."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚢 Polyphasic sleep is a sleep approach that sailors on ocean patrol in the mid-20th century combined with their shift system."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚔️ Polyphasic sleep has been used throughout history to increase endurance in long campaigns and harsh conditions, from Roman legions to Samurai."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚢 20世紀半ば、海のパトロールをしていた船乗りたちが、シフト勤務と組み合わせて取り入れていたのが多相睡眠なんだ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚔️ 歴史上、ローマ軍団から侍まで、厳しい状況下での長期間の活動で体力を維持するために多相睡眠が使われてきたんだ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚢 Tidur polifasa adalah pendekatan tidur yang digabungkan oleh pelayar dalam rondaan lautan pada pertengahan abad ke-20 dengan sistem syif mereka."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚔️ Tidur polifasa telah digunakan sepanjang sejarah untuk meningkatkan daya tahan dalam kempen yang panjang dan keadaan yang teruk, dari legiun Rom hingga Samurai."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚢 การนอนหลับแบบหลายเฟสเป็นแนวทางการนอนที่กะลาสีเรือลาดตระเวนในมหาสมุทรในกลางศตวรรษที่ 20 นำมารวมกับระบบกะของพวกเขา"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚔️ การนอนหลับแบบหลายเฟสถูกใช้ตลอดประวัติศาสตร์เพื่อเพิ่มความทนทานในการรบที่ยาวนานและสภาวะที่โหดร้าย ตั้งแต่กองทหารโรมันไปจนถึงซามูไร"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚢 Polifazik uyku, 20. yüzyıl ortalarında okyanus devriyesi yapan denizcilerin vardiya sistemiyle harmanladığı bir uyku yaklaşımıdır."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⚔️ Polifazik uyku, geçmişte uzun seferlerde ve zorlu koşullarda dayanıklılığı artırmak için Roma lejyonlarından Samuraylara kadar kullanılmıştır."
           }
         }
       }
     },
-    "tip.sleep.startup" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "💼 Polyphasischer Schlaf hat einigen berühmten Unternehmern geholfen, ihre Projekte schneller wachsen zu lassen, indem sie während der Gründungsphase Zeit gespart haben."
+    "tip.sleep.japanese": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎌 Polyphasischer Schlaf zeigt Ähnlichkeit mit einer in der japanischen Kultur sozial akzeptierten Ruheform namens „Inemuri“ mit sofortigen Nickerchen."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "💼 Polyphasic sleep has helped some famous entrepreneurs grow their projects faster by saving time during start-up processes."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎌 Polyphasic sleep shows similarity to a socially accepted rest method in Japanese culture called 'inemuri' with instant naps."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "💼 有名な起業家の中には、スタートアップ期に多相睡眠で時間を確保して、プロジェクトを早く成長させた人もいるんだ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎌 日本の「居眠り」文化みたいに、多相睡眠も社会的に受け入れられている短い休息方法と似ているところがあるね。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "💼 Tidur polifasa telah membantu beberapa usahawan terkenal mengembangkan projek mereka dengan lebih cepat dengan menjimatkan masa semasa proses permulaan."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎌 Tidur polifasa menunjukkan persamaan dengan kaedah rehat yang diterima secara sosial dalam budaya Jepun yang dipanggil 'inemuri' dengan tidur sebentar segera."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "💼 การนอนหลับแบบหลายเฟสช่วยให้ผู้ประกอบการที่มีชื่อเสียงบางคนเติบโตโครงการของพวกเขาได้เร็วขึ้นโดยการประหยัดเวลาในระหว่างกระบวนการเริ่มต้น"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎌 การนอนหลับแบบหลายเฟสมีความคล้ายคลึงกับวิธีการพักผ่อนที่ยอมรับในสังคมญี่ปุ่นที่เรียกว่า 'อิเนะมุริ' ด้วยการงีบหลับทันที"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "💼 Polifazik uyku, bazı ünlü girişimcilerin start-up süreçlerinde zamandan tasarruf ederek projelerini daha hızlı büyütmelerine yardımcı olmuştur."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🎌 Polifazik uyku, Japon kültüründe 'inemuri' şeklinde anlık şekerlemelerle benzerlik göstererek sosyal kabul görmüş bir dinlenme yöntemiyle örtüşür."
           }
         }
       }
     },
-    "tip.sleep.stress_mechanism" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🛡️ Polyphasischer Schlaf ist ein Abwehrmechanismus, den das menschliche Gehirn in Krisen- oder extremen Stresssituationen vorübergehend von selbst annehmen kann."
+    "tip.sleep.melatonin": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🌙 Polyphasischer Schlaf kann helfen, ein neues Gleichgewicht im Schlaf-Wach-Zyklus herzustellen, indem der Melatonin-Freisetzungsrhythmus des Körpers in Teile aufgeteilt wird."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🛡️ Polyphasic sleep is a defense mechanism that the human brain can temporarily adopt on its own in crisis or extreme stress situations."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🌙 Polyphasic sleep can help establish a new balance in the sleep-wake cycle by dividing the body's melatonin release rhythm into parts."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🛡️ 実は多相睡眠って、脳が危機的な状況や極度のストレス下で、一時的に自分を守るために自然と行うまれな防御メカニズムなんだ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🌙 多相睡眠は、体のメラトニン分泌リズムを分けることで、睡眠と覚醒のサイクルに新しいバランスをもたらす手助けをしてくれるよ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🛡️ Tidur polifasa adalah mekanisme pertahanan yang boleh diamalkan oleh otak manusia secara sementara dalam situasi krisis atau tekanan yang melampau."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🌙 Tidur polifasa boleh membantu mewujudkan keseimbangan baru dalam kitaran tidur-bangun dengan membahagikan irama pelepasan melatonin badan kepada bahagian-bahagian."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🛡️ การนอนหลับแบบหลายเฟสเป็นกลไกการป้องกันที่สมองของมนุษย์สามารถนำมาใช้ชั่วคราวได้เองในสถานการณ์วิกฤตหรือความเครียดสุดขีด"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🌙 การนอนหลับแบบหลายเฟสสามารถช่วยสร้างสมดุลใหม่ในวงจรการนอน-ตื่นโดยการแบ่งจังหวะการหลั่งเมลาโทนินของร่างกายออกเป็นส่วนๆ"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🛡️ Polifazik uyku, insan beyninin kriz veya aşırı stres durumlarında kendiliğinden geçici olarak benimseyebildiği bir savunma mekanizmasıdır."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🌙 Polifazik uyku, bedenin melatonin salınım ritmini parçalara ayırarak uyku-uyanıklık döngüsünde yeni bir denge kurmaya yardımcı olabilir."
           }
         }
       }
     },
-    "tip.sleep.time_management" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⌚ Polyphasischer Schlaf ist zu einer gängigen Regelung für diejenigen geworden, die sich von traditionellen Zeitmanagement-Ansätzen befreien wollen."
+    "tip.sleep.memory_boost": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧠 Polyphasischer Schlaf bietet die Möglichkeit, das Gedächtnis zu stärken und Informationen zu festigen, da das Gehirn durch kurze Schlafperioden schnell die REM-Phase erreicht."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⌚ Polyphasic sleep has become a common arrangement for those seeking to break free from traditional time management approaches."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧠 Polyphasic sleep offers the opportunity to strengthen memory and consolidate information as the brain quickly reaches REM stage through short sleep periods."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⌚ これまでの時間管理術から自由になりたい人たちが、よく多相睡眠を試しているんだ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧠 短い睡眠を繰り返す多相睡眠は、脳がすぐにレム睡眠に入って情報を定着させるから、記憶力を高めるチャンスだよ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⌚ Tidur polifasa telah menjadi satu susunan biasa bagi mereka yang ingin bebas daripada pendekatan pengurusan masa tradisional."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧠 Tidur polifasa menawarkan peluang untuk menguatkan ingatan dan menyatukan maklumat kerana otak cepat mencapai peringkat REM melalui tempoh tidur yang singkat."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⌚ การนอนหลับแบบหลายเฟสกลายเป็นข้อตกลงทั่วไปสำหรับผู้ที่ต้องการหลุดพ้นจากแนวทางการบริหารเวลาแบบดั้งเดิม"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧠 การนอนหลับแบบหลายเฟสเปิดโอกาสให้เสริมสร้างความจำและรวบรวมข้อมูลเนื่องจากสมองเข้าถึงระยะ REM ได้อย่างรวดเร็วผ่านช่วงการนอนสั้นๆ"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "⌚ Polifazik uyku, zaman yönetimi konusunda geleneksel yaklaşımlardan bağımsızlaşmak isteyenlerin sık başvurduğu bir düzen haline gelmiştir."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🧠 Polifazik uyku, kısa uyku periyotları sayesinde beynin REM evresine hızla ulaşıp bilgileri pekiştirme ve hafızayı güçlendirme olanağı sunar."
           }
         }
       }
     },
-    "tip.sleep.travel" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚗 Polyphasischer Schlaf kann auch von Fahrern oder Fernreisenden bevorzugt werden, um mit kurzen Pausen sicher auf der Straße zu bleiben."
+    "tip.sleep.metabolism": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏃 Polyphasischer Schlaf kann durch Forschungen, die zeigen, dass kurze Nickerchen den Stoffwechsel ausgleichen, positiv zur körperlichen Gesundheit beitragen."
           }
         },
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚗 Polyphasic sleep can also be preferred by drivers or long-distance travelers to stay safe on the road with short breaks."
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏃 Polyphasic sleep can contribute positively to physical health through research showing that short sleeps balance metabolism."
           }
         },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚗 長距離ドライバーや旅行者が、短い休憩を挟んで安全運転を続けるために多相睡眠を選ぶこともあるよ。"
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏃 短い睡眠が代謝のバランスを整えるという研究もあって、多相睡眠は体の健康にも良い影響を与える可能性があるんだ。"
           }
         },
-        "ms" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚗 Tidur polifasa juga boleh lebih disukai oleh pemandu atau pengembara jarak jauh untuk kekal selamat di jalan raya dengan rehat yang singkat."
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏃 Tidur polifasa boleh menyumbang secara positif kepada kesihatan fizikal melalui penyelidikan yang menunjukkan bahawa tidur singkat mengimbangi metabolisme."
           }
         },
-        "th" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚗 การนอนหลับแบบหลายเฟสยังเป็นที่นิยมของคนขับรถหรือนักเดินทางระยะไกลเพื่อความปลอดภัยบนท้องถนนด้วยการพักสั้นๆ"
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏃 การนอนหลับแบบหลายเฟสสามารถส่งผลดีต่อสุขภาพร่างกายผ่านการวิจัยที่แสดงว่าการนอนสั้นๆ ช่วยปรับสมดุลการเผาผลาญ"
           }
         },
-        "tr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "🚗 Polifazik uyku, sürücüler veya uzun mesafe yolculuk yapan kişiler tarafından yolda kısa molalarla güvende kalmak için de tercih edilebilir."
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🏃 Polifazik uyku, kısa uykuların metabolizmayı dengelediğini gösteren araştırmalar sayesinde fiziksel sağlığa da olumlu katkıda bulunabilir."
+          }
+        }
+      }
+    },
+    "tip.sleep.mountaineer": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⛰️ Genau wie Bergsteiger, die sich an große Höhen anpassen müssen, braucht dein Körper Zeit, sich an einen neuen Schlafplan zu gewöhnen. Sei geduldig und konsequent!"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⛰️ Just like mountaineers who need to adapt to high altitudes, your body needs time to adjust to a new sleep schedule. Be patient and consistent!"
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⛰️ 高地に体を慣らす登山家みたいに、君の体も新しい睡眠スケジュールに慣れる時間が必要だよ。焦らず、コツコツ続けよう！"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⛰️ Sama seperti pendaki gunung yang perlu menyesuaikan diri dengan altitud tinggi, badan anda memerlukan masa untuk menyesuaikan diri dengan jadual tidur baharu. Bersabar dan konsisten!"
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⛰️ เช่นเดียวกับนักปีนเขาที่ต้องปรับตัวให้เข้ากับความสูง, ร่างกายของคุณต้องการเวลาในการปรับตัวเข้ากับตารางการนอนใหม่ อดทนและสม่ำเสมอ!"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⛰️ Tıpkı yüksek irtifaya alışması gereken dağcılar gibi, vücudunuzun da yeni uyku düzenine adapte olması için zamana ihtiyacı var. Sabırlı ve tutarlı olun!"
+          }
+        }
+      }
+    },
+    "tip.sleep.nasa": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚀 Polyphasischer Schlaf gehört zu den leistungsstärksten Methoden in der NASA-Forschung zu kurzen Nickerchen, die für Astronauten empfohlen werden."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚀 Polyphasic sleep is among the best-performing methods in NASA's short nap research recommended for astronauts."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚀 NASAが宇宙飛行士に勧める短時間仮眠の研究でも、多相睡眠は特にパフォーマンスが高い方法の一つなんだ。"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚀 Tidur polifasa adalah antara kaedah berprestasi terbaik dalam penyelidikan tidur sebentar NASA yang disyorkan untuk angkasawan."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚀 การนอนหลับแบบหลายเฟสเป็นหนึ่งในวิธีการที่มีประสิทธิภาพดีที่สุดในการวิจัยการงีบสั้นๆ ของ NASA ที่แนะนำสำหรับนักบินอวกาศ"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚀 Polifazik uyku, NASA'nın astronotlara önerdiği kısa şekerleme araştırmalarında en iyi performans gösteren yöntemler arasında yer alır."
+          }
+        }
+      }
+    },
+    "tip.sleep.natural_wake": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ Polyphasischer Schlaf zeichnet sich dadurch aus, dass er bei richtiger Anpassung ein natürliches Aufwachmuster ohne morgendliche Wecker ermöglicht."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ Polyphasic sleep stands out for providing a natural waking pattern without using morning alarms when properly adapted."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ うまく適応できれば、朝のアラームなしで自然に起きられるようになるのが多相睡眠のすごいところ。"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ Tidur polifasa menonjol kerana menyediakan corak bangun semula jadi tanpa menggunakan penggera pagi apabila disesuaikan dengan betul."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ การนอนหลับแบบหลายเฟสโดดเด่นด้วยการให้รูปแบบการตื่นที่เป็นธรรมชาติโดยไม่ต้องใช้นาฬิกาปลุกตอนเช้าเมื่อปรับตัวได้อย่างเหมาะสม"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⏰ Polifazik uyku, doğru adapte olunduğunda sabah alarmı kullanmadan doğal bir uyanma düzeni sağlamasıyla dikkat çeker."
+          }
+        }
+      }
+    },
+    "tip.sleep.parent": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "👶 Polyphasischer Schlaf wurde als theoretische Lösung für Eltern vorgeschlagen, die Tag und Nacht für die Babypflege wach bleiben müssen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "👶 Polyphasic sleep has come up as a theoretical solution for parents who need to stay awake day and night for baby care."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "👶 赤ちゃんのお世話で昼も夜も起きてなきゃいけない親にとって、多相睡眠は理論上、一つの解決策として考えられているよ。"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "👶 Tidur polifasa telah muncul sebagai penyelesaian teori untuk ibu bapa yang perlu berjaga siang dan malam untuk penjagaan bayi."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "👶 การนอนหลับแบบหลายเฟสถูกเสนอเป็นทางออกทางทฤษฎีสำหรับผู้ปกครองที่ต้องตื่นทั้งวันทั้งคืนเพื่อดูแลทารก"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "👶 Polifazik uyku, bebek bakımında gece gündüz uyanık kalma ihtiyacı duyan ebeveynler için teorik bir çare olarak gündeme gelmiştir."
+          }
+        }
+      }
+    },
+    "tip.sleep.sailor": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚢 Polyphasischer Schlaf ist ein Schlafansatz, den Seeleute auf Ozeanpatrouille Mitte des 20. Jahrhunderts mit ihrem Schichtsystem kombinierten."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚢 Polyphasic sleep is a sleep approach that sailors on ocean patrol in the mid-20th century combined with their shift system."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚢 20世紀半ば、海のパトロールをしていた船乗りたちが、シフト勤務と組み合わせて取り入れていたのが多相睡眠なんだ。"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚢 Tidur polifasa adalah pendekatan tidur yang digabungkan oleh pelayar dalam rondaan lautan pada pertengahan abad ke-20 dengan sistem syif mereka."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚢 การนอนหลับแบบหลายเฟสเป็นแนวทางการนอนที่กะลาสีเรือลาดตระเวนในมหาสมุทรในกลางศตวรรษที่ 20 นำมารวมกับระบบกะของพวกเขา"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚢 Polifazik uyku, 20. yüzyıl ortalarında okyanus devriyesi yapan denizcilerin vardiya sistemiyle harmanladığı bir uyku yaklaşımıdır."
+          }
+        }
+      }
+    },
+    "tip.sleep.startup": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💼 Polyphasischer Schlaf hat einigen berühmten Unternehmern geholfen, ihre Projekte schneller wachsen zu lassen, indem sie während der Gründungsphase Zeit gespart haben."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💼 Polyphasic sleep has helped some famous entrepreneurs grow their projects faster by saving time during start-up processes."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💼 有名な起業家の中には、スタートアップ期に多相睡眠で時間を確保して、プロジェクトを早く成長させた人もいるんだ。"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💼 Tidur polifasa telah membantu beberapa usahawan terkenal mengembangkan projek mereka dengan lebih cepat dengan menjimatkan masa semasa proses permulaan."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💼 การนอนหลับแบบหลายเฟสช่วยให้ผู้ประกอบการที่มีชื่อเสียงบางคนเติบโตโครงการของพวกเขาได้เร็วขึ้นโดยการประหยัดเวลาในระหว่างกระบวนการเริ่มต้น"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "💼 Polifazik uyku, bazı ünlü girişimcilerin start-up süreçlerinde zamandan tasarruf ederek projelerini daha hızlı büyütmelerine yardımcı olmuştur."
+          }
+        }
+      }
+    },
+    "tip.sleep.stress_mechanism": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🛡️ Polyphasischer Schlaf ist ein Abwehrmechanismus, den das menschliche Gehirn in Krisen- oder extremen Stresssituationen vorübergehend von selbst annehmen kann."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🛡️ Polyphasic sleep is a defense mechanism that the human brain can temporarily adopt on its own in crisis or extreme stress situations."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🛡️ 実は多相睡眠って、脳が危機的な状況や極度のストレス下で、一時的に自分を守るために自然と行うまれな防御メカニズムなんだ。"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🛡️ Tidur polifasa adalah mekanisme pertahanan yang boleh diamalkan oleh otak manusia secara sementara dalam situasi krisis atau tekanan yang melampau."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🛡️ การนอนหลับแบบหลายเฟสเป็นกลไกการป้องกันที่สมองของมนุษย์สามารถนำมาใช้ชั่วคราวได้เองในสถานการณ์วิกฤตหรือความเครียดสุดขีด"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🛡️ Polifazik uyku, insan beyninin kriz veya aşırı stres durumlarında kendiliğinden geçici olarak benimseyebildiği bir savunma mekanizmasıdır."
+          }
+        }
+      }
+    },
+    "tip.sleep.time_management": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌚ Polyphasischer Schlaf ist zu einer gängigen Regelung für diejenigen geworden, die sich von traditionellen Zeitmanagement-Ansätzen befreien wollen."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌚ Polyphasic sleep has become a common arrangement for those seeking to break free from traditional time management approaches."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌚ これまでの時間管理術から自由になりたい人たちが、よく多相睡眠を試しているんだ。"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌚ Tidur polifasa telah menjadi satu susunan biasa bagi mereka yang ingin bebas daripada pendekatan pengurusan masa tradisional."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌚ การนอนหลับแบบหลายเฟสกลายเป็นข้อตกลงทั่วไปสำหรับผู้ที่ต้องการหลุดพ้นจากแนวทางการบริหารเวลาแบบดั้งเดิม"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "⌚ Polifazik uyku, zaman yönetimi konusunda geleneksel yaklaşımlardan bağımsızlaşmak isteyenlerin sık başvurduğu bir düzen haline gelmiştir."
+          }
+        }
+      }
+    },
+    "tip.sleep.travel": {
+      "extractionState": "stale",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚗 Polyphasischer Schlaf kann auch von Fahrern oder Fernreisenden bevorzugt werden, um mit kurzen Pausen sicher auf der Straße zu bleiben."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚗 Polyphasic sleep can also be preferred by drivers or long-distance travelers to stay safe on the road with short breaks."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚗 長距離ドライバーや旅行者が、短い休憩を挟んで安全運転を続けるために多相睡眠を選ぶこともあるよ。"
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚗 Tidur polifasa juga boleh lebih disukai oleh pemandu atau pengembara jarak jauh untuk kekal selamat di jalan raya dengan rehat yang singkat."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚗 การนอนหลับแบบหลายเฟสยังเป็นที่นิยมของคนขับรถหรือนักเดินทางระยะไกลเพื่อความปลอดภัยบนท้องถนนด้วยการพักสั้นๆ"
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "🚗 Polifazik uyku, sürücüler veya uzun mesafe yolculuk yapan kişiler tarafından yolda kısa molalarla güvende kalmak için de tercih edilebilir."
+          }
+        }
+      }
+    },
+    "tip.nudge.default": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: protect your next sleep block on time."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: protect your next sleep block on time."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: protect your next sleep block on time."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: protect your next sleep block on time."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: protect your next sleep block on time."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bugünün tek adımı: sıradaki uyku bloğunu zamanında koru."
+          }
+        }
+      }
+    },
+    "tip.nudge.catch_up": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: start the next block on time, even if the rest of the day is messy."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: start the next block on time, even if the rest of the day is messy."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: start the next block on time, even if the rest of the day is messy."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: start the next block on time, even if the rest of the day is messy."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: start the next block on time, even if the rest of the day is messy."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bugünün tek adımı: gün dağınık geçse bile sıradaki bloğa zamanında başla."
+          }
+        }
+      }
+    },
+    "tip.nudge.deferred_quality": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: rate your last sleep so PolyNap can adapt tomorrow better."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: rate your last sleep so PolyNap can adapt tomorrow better."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: rate your last sleep so PolyNap can adapt tomorrow better."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: rate your last sleep so PolyNap can adapt tomorrow better."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: rate your last sleep so PolyNap can adapt tomorrow better."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bugünün tek adımı: PolyNap'in yarını daha iyi ayarlaması için son uykunu puanla."
+          }
+        }
+      }
+    },
+    "tip.nudge.recovery": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: reduce friction and protect recovery with one clean block."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: reduce friction and protect recovery with one clean block."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: reduce friction and protect recovery with one clean block."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: reduce friction and protect recovery with one clean block."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: reduce friction and protect recovery with one clean block."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bugünün tek adımı: sürtünmeyi azalt ve tek temiz blokla toparlanmanı koru."
+          }
+        }
+      }
+    },
+    "tip.nudge.consistency": {
+      "extractionState": "manual",
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: keep the rhythm. One on-time block is enough."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: keep the rhythm. One on-time block is enough."
+          }
+        },
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: keep the rhythm. One on-time block is enough."
+          }
+        },
+        "ms": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: keep the rhythm. One on-time block is enough."
+          }
+        },
+        "th": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today's next step: keep the rhythm. One on-time block is enough."
+          }
+        },
+        "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bugünün tek adımı: ritmi koru. Tek bir zamanında blok yeter."
           }
         }
       }
     }
   },
-  "version" : "1.0"
+  "version": "1.0"
 }

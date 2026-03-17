@@ -273,6 +273,7 @@ struct AddSleepEntrySheet: View {
     private var toolbarItems: some ToolbarContent {
         ToolbarItem(placement: .cancellationAction) {
             Button(L("general.cancel", table: "AddSleepEntrySheet")) {
+                HapticFeedbackManager.shared.trigger(.softCommit)
                 dismiss()
             }
             .foregroundColor(Color.appPrimary)
@@ -1138,9 +1139,19 @@ struct AddSleepEntrySheet: View {
     }
     
     private func saveEntry() {
-        saveSleepEntry()
-        UINotificationFeedbackGenerator().notificationOccurred(.success)
-        dismiss()
+        guard isValidEntry else {
+            HapticFeedbackManager.shared.trigger(.warning)
+            return
+        }
+
+        HapticFeedbackManager.shared.trigger(.strongCommit)
+        let didSave = saveSleepEntry()
+        if didSave {
+            HapticFeedbackManager.shared.trigger(.success)
+            dismiss()
+        } else {
+            HapticFeedbackManager.shared.trigger(.error)
+        }
     }
     
     // MARK: - Helper Methods
@@ -1229,7 +1240,7 @@ struct AddSleepEntrySheet: View {
         return (finalStartTime, finalEndTime)
     }
     
-    private func saveSleepEntry() {
+    private func saveSleepEntry() -> Bool {
         // For custom entries, create a temporary block or use nil
         let scheduledBlock = selectedBlockFromSchedule
         
@@ -1253,7 +1264,7 @@ struct AddSleepEntrySheet: View {
             // Original logic for scheduled blocks
             switch durationAdjustment {
             case .none:
-                guard let times = originalScheduledTimes else { return }
+                guard let times = originalScheduledTimes else { return false }
                 finalStartTime = times.start
                 finalEndTime = times.end
                 finalEmoji = SleepQualitySlider.getEmoji(for: sliderValue)
@@ -1262,7 +1273,7 @@ struct AddSleepEntrySheet: View {
                 adjustmentMinutes = nil
                 
             case .differentTime(let minutes):
-                guard let times = originalScheduledTimes else { return }
+                guard let times = originalScheduledTimes else { return false }
                 finalStartTime = times.start
                 finalEndTime = Calendar.current.date(byAdding: .minute, value: minutes, to: times.end)!
                 finalEmoji = SleepQualitySlider.getEmoji(for: sliderValue)
@@ -1279,7 +1290,7 @@ struct AddSleepEntrySheet: View {
                 adjustmentMinutes = nil
                 
             case .skipped:
-                guard let times = originalScheduledTimes else { return }
+                guard let times = originalScheduledTimes else { return false }
                 finalStartTime = times.start
                 finalEndTime = times.start // Zero duration
                 finalEmoji = "🚫"
@@ -1332,6 +1343,8 @@ struct AddSleepEntrySheet: View {
                 )
             }
         }
+
+        return true
     }
 }
 
@@ -1397,8 +1410,7 @@ private struct SleepQualitySlider: View {
                 Slider(value: $sliderValue, in: 0...4, step: 0.5)
                     .tint(Color.appPrimary)
                     .onChange(of: sliderValue) { newValue in
-                        let generator = UIImpactFeedbackGenerator(style: .light)
-                        generator.impactOccurred()
+                        HapticFeedbackManager.shared.trigger(.selection)
                     }
                 
                 // Slider Labels
