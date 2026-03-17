@@ -1,4 +1,0 @@
-module PolyNapSharedPackageTests {
-    header "/Users/tanercelik/Desktop/Projects/PolySleep/polynap/PolyNapShared/.build/arm64-apple-macosx/debug/PolyNapSharedPackageTests.build/PolyNapSharedPackageTests-Swift.h"
-    requires objc
-}

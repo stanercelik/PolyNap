@@ -1,6 +1,0 @@
-Target dependency graph (3 targets)
-Target 'PolyNap Watch Extension' in project 'polynap'
-➜ Explicit dependency on target 'PolyNapShared' in project 'PolyNapShared'
-Target 'PolyNapShared' in project 'PolyNapShared'
-➜ Explicit dependency on target 'PolyNapShared' in project 'PolyNapShared'
-Target 'PolyNapShared' in project 'PolyNapShared' (no dependencies)
