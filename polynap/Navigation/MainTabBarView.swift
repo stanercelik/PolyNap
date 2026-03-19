@@ -71,11 +71,13 @@ struct MainTabBarView: View {
                     tourManager.startTourIfNeeded()
                 }
                 
-                // Badge modal: starter badge onboarding sırasında kazanıldıysa ama modal gösterilmediyse
+                // Badge modal: starter badge onboarding sırasında kazanıldıysa ama modal gösterilmediyse.
+                // Tanıtım aktifse VEYA henüz tamamlanmamışsa (yakında başlayacak demek) badge'i pending'e al;
+                // onChange(of: tourManager.isShowingTour) tur bitince pending badge'i gösterecek.
                 if !hasShownOnboardingBadgeModal && BadgeManager.shared.earnedBadgeIds.contains("badge-starter") {
                     let all = BadgeDefinition.all(earnedIds: BadgeManager.shared.earnedBadgeIds)
                     if let starterBadge = all.first(where: { $0.id == "badge-starter" }) {
-                        if tourManager.isShowingTour {
+                        if tourManager.isShowingTour || !tourManager.hasCompletedTour {
                             pendingOnboardingBadge = starterBadge
                         } else {
                             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
@@ -138,9 +140,10 @@ struct MainTabBarView: View {
             guard let badge = all.first(where: { $0.id == badgeId }) else { return }
 
             if badge.id == "badge-starter" {
-                // Starter badge: defer until after tour, show only once
+                // Starter badge: defer until after tour, show only once.
+                // Tanıtım aktifse VEYA henüz tamamlanmamışsa badge'i pending'e al.
                 guard !hasShownOnboardingBadgeModal else { return }
-                if tourManager.isShowingTour {
+                if tourManager.isShowingTour || !tourManager.hasCompletedTour {
                     pendingOnboardingBadge = badge
                 } else {
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {

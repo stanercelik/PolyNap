@@ -13,7 +13,7 @@ struct HistoryView: View {
     private let analyticsManager = AnalyticsManager.shared
     
     var body: some View {
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Color.appBackground
                     .ignoresSafeArea()
@@ -61,7 +61,7 @@ struct HistoryView: View {
                     }
                 })
             }
-            .navigationBarHidden(true)
+            .toolbar(.hidden, for: .navigationBar)
             .sheet(isPresented: $viewModel.isDayDetailPresented) {
                 viewModel.selectedDay = nil
             } content: {

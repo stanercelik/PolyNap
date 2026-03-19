@@ -4,18 +4,18 @@ import SwiftUI
 enum OBColors {
     static let darkNavy = Color(hex: "0D1B3E")
     static let accentBlue = Color(hex: "4A90D9")
-    static let softGray = Color("BackgroundColor")
+    static let softGray = Color.appBackground
     static let cardGray = Color(hex: "EBEBEB")
     
     static let textPrimary = Color(hex: "1A1A1A")
     static let textSecondary = Color(hex: "6B7280")
     static let textMuted = Color(hex: "9CA3AF")
     
-    static let starGold = Color(hex: "F59E0B")
-    static let successGreen = Color(hex: "10B981")
-    static let warningRed = Color(hex: "EF4444")
+    static let starGold = Color.metricAmber
+    static let successGreen = Color.metricEmerald
+    static let warningRed = Color.appError
     
-    static let primaryColor = Color("GraphNapColor")
+    static let primaryColor = Color.appGraphNap
 }
 
 // MARK: - Onboarding Typography (SF Pro Rounded, lowercase)

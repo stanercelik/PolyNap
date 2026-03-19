@@ -13,48 +13,45 @@ enum OnboardingScreen: Int, CaseIterable {
     case beforeAfter = 4
     case transition = 5
     
-    // Section 2: Trust (6-8) — progress bar GÖZÜKMEYECEK
-    case trustScreen = 6
-    case nameInput = 7
-    case personalizedGreeting = 8
+    // Section 2: Trust (6-7) — progress bar GÖZÜKMEYECEK
+    case nameInput = 6
+    case personalizedGreeting = 7
     
-    // Section 3: Questions (9-27) — progress bar SADECE SORU EKRANLARINDA
-    case sleepExperience = 9
-    case experienceInfo = 10
-    case chronotype = 11
-    case ageRange = 12
-    case outcomeTimeCalc = 13
-    case workSchedule = 14
-    case napEnvironment = 15
-    case napEnvironmentInfo = 16
-    case lifestyle = 17
-    case knowledgeLevel = 18
-    case comparison = 19
-    case healthStatus = 20
-    case safetyNote = 21
-    case motivationLevel = 22
-    case chartReview = 23
-    case sleepGoal = 24
-    case goalSocialProof = 25
-    case socialObligations = 26
-    case disruptionTolerance = 27
+    // Section 3: Questions (8-25) — progress bar SADECE SORU EKRANLARINDA
+    case sleepExperience = 8
+    case experienceInfo = 9
+    case chronotype = 10
+    case ageRange = 11
+    case outcomeTimeCalc = 12
+    case workSchedule = 13
+    case napEnvironment = 14
+    case napEnvironmentInfo = 15
+    case lifestyle = 16
+    case knowledgeLevel = 17
+    case comparison = 18
+    case healthStatus = 19
+    case safetyNote = 20
+    case motivationLevel = 21
+    case sleepGoal = 22
+    case goalSocialProof = 23
+    case socialObligations = 24
+    case disruptionTolerance = 25
     
-    // Section 4: Results (28-35) — progress bar GÖZÜKMEYECEK
-    case resultIntro = 28
-    case recommendedProgram = 29
-    case timeline24h = 30
-    case firstBadge = 31
-    case notificationPrimer = 32
-    case alarmPrimer = 33
-    case final_ = 34
-    case commitment = 35
+    // Section 4: Results (26-32) — progress bar GÖZÜKMEYECEK
+    case resultIntro = 26
+    case timeline24h = 27
+    case firstBadge = 28
+    case notificationPrimer = 29
+    case alarmPrimer = 30
+    case final_ = 31
+    case commitment = 32
     
     var section: OnboardingSection {
         switch self.rawValue {
         case 0...5: return .story
-        case 6...8: return .trust
-        case 9...27: return .questions
-        case 28...35: return .results
+        case 6...7: return .trust
+        case 8...25: return .questions
+        case 26...32: return .results
         default: return .story
         }
     }
@@ -81,8 +78,8 @@ enum OnboardingScreen: Int, CaseIterable {
     
     var isDarkBackground: Bool {
         switch self {
-        case .splash, .nimmyIntro, .turningPoint, .trustScreen,
-             .chartReview, .goalSocialProof, .resultIntro, .recommendedProgram,
+        case .splash, .nimmyIntro, .turningPoint,
+             .goalSocialProof, .resultIntro,
              .firstBadge, .final_, .commitment:
             return true
         default:
@@ -366,21 +363,6 @@ final class NewOnboardingViewModel: ObservableObject {
             next += 1
         }
         
-        // recommendedProgram sayfası kaldırıldı, atla
-        if OnboardingScreen(rawValue: next) == .recommendedProgram {
-            next += 1
-        }
-        
-        // chartReview sayfası kaldırıldı, atla
-        if OnboardingScreen(rawValue: next) == .chartReview {
-            next += 1
-        }
-        
-        // trustScreen sayfası kaldırıldı, atla
-        if OnboardingScreen(rawValue: next) == .trustScreen {
-            next += 1
-        }
-        
         return next
     }
     
@@ -388,21 +370,6 @@ final class NewOnboardingViewModel: ObservableObject {
         var prev = index - 1
         
         if OnboardingScreen(rawValue: prev) == .napEnvironmentInfo && !shouldShowNapEnvironmentInfo {
-            prev -= 1
-        }
-        
-        // recommendedProgram sayfası kaldırıldı, atla
-        if OnboardingScreen(rawValue: prev) == .recommendedProgram {
-            prev -= 1
-        }
-        
-        // chartReview sayfası kaldırıldı, atla
-        if OnboardingScreen(rawValue: prev) == .chartReview {
-            prev -= 1
-        }
-        
-        // trustScreen sayfası kaldırıldı, atla
-        if OnboardingScreen(rawValue: prev) == .trustScreen {
             prev -= 1
         }
         
@@ -902,7 +869,6 @@ extension OnboardingScreen: CustomStringConvertible {
         case .turningPoint: return "turning_point"
         case .beforeAfter: return "before_after"
         case .transition: return "transition"
-        case .trustScreen: return "trust_screen"
         case .nameInput: return "name_input"
         case .personalizedGreeting: return "personalized_greeting"
         case .sleepExperience: return "sleep_experience"
@@ -919,13 +885,11 @@ extension OnboardingScreen: CustomStringConvertible {
         case .healthStatus: return "health_status"
         case .safetyNote: return "safety_note"
         case .motivationLevel: return "motivation_level"
-        case .chartReview: return "chart_review"
         case .sleepGoal: return "sleep_goal"
         case .goalSocialProof: return "goal_social_proof"
         case .socialObligations: return "social_obligations"
         case .disruptionTolerance: return "disruption_tolerance"
         case .resultIntro: return "result_intro"
-        case .recommendedProgram: return "recommended_program"
         case .timeline24h: return "timeline_24h"
         case .firstBadge: return "first_badge"
         case .notificationPrimer: return "notification_primer"

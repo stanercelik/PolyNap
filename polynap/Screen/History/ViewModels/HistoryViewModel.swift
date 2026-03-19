@@ -747,18 +747,101 @@ class HistoryViewModel: ObservableObject {
 
     // MARK: - Badge Evaluation
 
+    /// Tüm kayıtlı uyku verilerinden streak hesaplar (filtre uygulanmaz).
+    /// ProfileScreenViewModel ile aynı mantığı kullanır, böylece uyku kaydı
+    /// eklendikten hemen sonra güncel değerler ile badge evaluation yapılabilir.
+    private func calculateStreakFromAllHistory() -> (current: Int, longest: Int) {
+        guard let modelContext = modelContext else { return (0, 0) }
+        let allHistory: [HistoryModel]
+        do {
+            let descriptor = FetchDescriptor<HistoryModel>(
+                sortBy: [SortDescriptor(\HistoryModel.date, order: .ascending)]
+            )
+            allHistory = try modelContext.fetch(descriptor)
+        } catch {
+            return (0, 0)
+        }
+
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: Date())
+
+        let daysWithSleep: Set<Date> = Set(
+            allHistory.compactMap { model -> Date? in
+                guard let entries = model.sleepEntries,
+                      entries.contains(where: { $0.duration > 0 }) else { return nil }
+                return cal.startOfDay(for: model.date)
+            }
+        )
+
+        guard !daysWithSleep.isEmpty else { return (0, 0) }
+
+        let yesterday = cal.startOfDay(for: cal.date(byAdding: .day, value: -1, to: today)!)
+        let startDay: Date? = daysWithSleep.contains(today) ? today
+                            : daysWithSleep.contains(yesterday) ? yesterday
+                            : nil
+
+        var current = 0
+        if let start = startDay {
+            var checkDay = start
+            while daysWithSleep.contains(checkDay) {
+                current += 1
+                checkDay = cal.startOfDay(for: cal.date(byAdding: .day, value: -1, to: checkDay)!)
+            }
+        }
+
+        let sortedDays = daysWithSleep.sorted()
+        var longest = 0
+        var run = 0
+        var prevDay: Date? = nil
+        for day in sortedDays {
+            if let prev = prevDay,
+               day == cal.startOfDay(for: cal.date(byAdding: .day, value: 1, to: prev)!) {
+                run += 1
+            } else {
+                run = 1
+            }
+            if run > longest { longest = run }
+            prevDay = day
+        }
+        longest = max(longest, current)
+
+        return (current, longest)
+    }
+
     private func evaluateBadgesAfterSleepLog() {
-        let longestStreak = UserDefaults.standard.integer(forKey: "longestStreak")
-        let currentStreak = UserDefaults.standard.integer(forKey: "currentStreak")
+        // Streak değerlerini doğrudan tüm geçmişten hesapla;
+        // UserDefaults cache'i ProfileScreenViewModel henüz açılmadıysa
+        // güncel olmayabilir.
+        let (freshCurrent, freshLongest) = calculateStreakFromAllHistory()
+
+        // Cache'i güncelle (ProfileScreenViewModel ile tutarlılık için)
+        let storedLongest = UserDefaults.standard.integer(forKey: "longestStreak")
+        let newLongest = max(freshLongest, storedLongest)
+        UserDefaults.standard.set(freshCurrent, forKey: "currentStreak")
+        UserDefaults.standard.set(newLongest, forKey: "longestStreak")
+
+        // adaptationDuration: cache yoksa (profil hiç açılmadıysa) aktif
+        // program adından belirle, yoksa 21'e düş.
+        let cachedDuration = UserDefaults.standard.integer(forKey: "cachedAdaptationDuration")
+        let adaptationDuration: Int
+        if cachedDuration > 0 {
+            adaptationDuration = cachedDuration
+        } else if let name = ScheduleManager.shared.activeSchedule?.name.lowercased() {
+            let isLongProgram = name.contains("uberman")
+                || name.contains("dymaxion")
+                || (name.contains("everyman") && name.contains("1"))
+            adaptationDuration = isLongProgram ? 28 : 21
+        } else {
+            adaptationDuration = 21
+        }
 
         let context = BadgeManager.EvaluationContext(
             hasSchedule: ScheduleManager.shared.activeSchedule != nil,
-            longestStreak: longestStreak,
-            currentStreak: currentStreak,
+            longestStreak: newLongest,
+            currentStreak: freshCurrent,
             adaptationPhase: UserDefaults.standard.integer(forKey: "cachedAdaptationPhase"),
             currentAdaptationDay: UserDefaults.standard.integer(forKey: "cachedAdaptationDay"),
-            adaptationDuration: UserDefaults.standard.integer(forKey: "cachedAdaptationDuration") > 0
-                ? UserDefaults.standard.integer(forKey: "cachedAdaptationDuration") : 21,
+            adaptationDuration: adaptationDuration,
             isAdaptationComplete: UserDefaults.standard.bool(forKey: "cachedIsAdaptationComplete"),
             isPremium: RevenueCatManager.shared.userState == .premium
         )

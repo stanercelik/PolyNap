@@ -70,8 +70,6 @@ struct NewOnboardingContainerView: View {
                 TransitionScreen(viewModel: viewModel)
                 
             // SECTION 2: Trust
-            case .trustScreen:
-                TrustScreen(viewModel: viewModel)
             case .nameInput:
                 NameInputScreen(viewModel: viewModel)
             case .personalizedGreeting:
@@ -106,8 +104,6 @@ struct NewOnboardingContainerView: View {
                 SafetyNoteScreen(viewModel: viewModel)
             case .motivationLevel:
                 MotivationLevelScreen(viewModel: viewModel)
-            case .chartReview:
-                ChartReviewScreen(viewModel: viewModel)
             case .sleepGoal:
                 SleepGoalScreen(viewModel: viewModel)
             case .goalSocialProof:
@@ -120,8 +116,6 @@ struct NewOnboardingContainerView: View {
             // SECTION 4: Results
             case .resultIntro:
                 ResultIntroScreen(viewModel: viewModel)
-            case .recommendedProgram:
-                RecommendedProgramScreen(viewModel: viewModel)
             case .timeline24h:
                 Timeline24hScreen(viewModel: viewModel)
             case .firstBadge:

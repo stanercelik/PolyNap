@@ -110,7 +110,7 @@ struct MainScreenView: View {
                             }
                             
                             // Weekly Streak Tracker
-                            WeeklyStreakSection(viewModel: viewModel)
+                            WeeklyStreakSection()
                             
                             // Metrics Grid (Total Sleep + Schedule)
                             MetricsGridSection(viewModel: viewModel)
@@ -444,21 +444,38 @@ struct HeroShape: Shape {
 
 // MARK: - Weekly Streak Section
 struct WeeklyStreakSection: View {
-    @ObservedObject var viewModel: MainScreenViewModel
-    
+    // Streak sayısı UserDefaults cache'inden (ProfileScreenViewModel ve HistoryViewModel
+    // tarafından güncellenir), @AppStorage sayesinde değiştiğinde view otomatik yenilenir.
+    @AppStorage("currentStreak") private var currentStreak: Int = 0
+
+    // Bu haftanın uyku kayıtları SwiftData'dan doğrudan sorgulanır.
+    @Query private var weekHistory: [HistoryModel]
+
+    init() {
+        let cal = Calendar.current
+        var weekComps = cal.dateComponents([.yearForWeekOfYear, .weekOfYear], from: Date())
+        weekComps.weekday = 2 // Pazartesi
+        let monday = cal.startOfDay(for: cal.date(from: weekComps) ?? Date())
+        let nextMonday = cal.date(byAdding: .day, value: 7, to: monday) ?? monday
+        _weekHistory = Query(filter: #Predicate<HistoryModel> { model in
+            model.date >= monday && model.date < nextMonday
+        })
+    }
+
     var body: some View {
+        let isTR = LanguageManager.shared.currentLanguage == "tr"
         VStack(spacing: 8) {
             // Header
             HStack {
-                Text(LanguageManager.shared.currentLanguage == "tr" ? "Adaptasyon Serisi" : "Adaptation Streak")
+                Text(isTR ? "Uyku Serisi" : "Sleep Streak")
                     .font(.system(.subheadline, design: .rounded).weight(.semibold))
                     .foregroundColor(.appText)
                 Spacer()
-                // Total streak badge
+                // Streak badge — profil ekranındaki .metricAmber + flame diliyle tutarlı
                 HStack(spacing: 4) {
                     Text("🔥")
                         .font(.system(size: 14))
-                    Text(streakText)
+                    Text(isTR ? "\(currentStreak) gün" : "\(currentStreak) days")
                         .font(.system(.caption, design: .rounded).weight(.bold))
                         .foregroundColor(.metricAmber)
                 }
@@ -466,16 +483,19 @@ struct WeeklyStreakSection: View {
                 .padding(.vertical, 5)
                 .background(Color.metricAmber.opacity(0.12), in: Capsule())
             }
-            
-            // Week days row
+
+            // Haftanın 7 günü
             HStack(spacing: 0) {
                 ForEach(weekDays, id: \.dayName) { day in
                     VStack(spacing: 4) {
                         Text(day.dayName)
-                            .font(.system(size: 10, weight: day.isCompleted ? .semibold : .medium, design: .rounded))
-                            .foregroundColor(day.isCompleted && !day.isToday ? .metricAmber : .appTextSecondary)
-                        
-                        if day.isCompleted && !day.isToday {
+                            .font(.system(size: 10,
+                                          weight: day.isCompleted ? .semibold : .medium,
+                                          design: .rounded))
+                            .foregroundColor(day.isCompleted ? .metricAmber : .appTextSecondary)
+
+                        if day.isCompleted {
+                            // Geçmiş gün ve uyku kaydı var: alev ikonu
                             ZStack {
                                 Image(systemName: "flame.fill")
                                     .font(.system(size: 30))
@@ -493,13 +513,15 @@ struct WeeklyStreakSection: View {
                             }
                             .frame(width: 28, height: 28)
                         } else {
+                            // Bugün veya henüz kayıt yok: daire (bugün mavi, diğerleri boş)
                             Text(day.dateNum)
-                                .font(.system(size: 12, weight: day.isToday ? .bold : .medium, design: .rounded))
+                                .font(.system(size: 12,
+                                              weight: day.isToday ? .bold : .medium,
+                                              design: .rounded))
                                 .foregroundColor(day.isToday ? .white : .appTextTertiary)
                                 .frame(width: 28, height: 28)
                                 .background(
-                                    Circle()
-                                        .fill(day.isToday ? Color.heroBottom : Color.clear)
+                                    Circle().fill(day.isToday ? Color.heroBottom : Color.clear)
                                 )
                         }
                     }
@@ -512,45 +534,54 @@ struct WeeklyStreakSection: View {
         .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: 18))
         .shadow(color: .black.opacity(0.04), radius: 8, x: 0, y: 3)
     }
-    
-    private var streakText: String {
-        let days = viewModel.adaptationDayCount
-        return LanguageManager.shared.currentLanguage == "tr" ? "\(days) gün" : "\(days) days"
-    }
-    
+
     private struct WeekDay {
         let dayName: String
         let dateNum: String
         let isToday: Bool
+        /// Geçmiş bir gün VE en az bir uyku kaydı var
         let isCompleted: Bool
     }
-    
+
     private static let dayNumberFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "d"
         return f
     }()
 
+    /// Bu haftaki uyku kaydı olan günlerin kümesi
+    private var sleepDays: Set<Date> {
+        let cal = Calendar.current
+        return Set(weekHistory.compactMap { model -> Date? in
+            guard let entries = model.sleepEntries,
+                  entries.contains(where: { $0.duration > 0 }) else { return nil }
+            return cal.startOfDay(for: model.date)
+        })
+    }
+
     private var weekDays: [WeekDay] {
-        let calendar = Calendar.current
+        let cal = Calendar.current
         let today = Date()
         let isTR = LanguageManager.shared.currentLanguage == "tr"
-        
-        var comps = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
+
+        var comps = cal.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
         comps.weekday = 2 // Pazartesi
-        let monday = calendar.date(from: comps) ?? today
-        
+        let monday = cal.date(from: comps) ?? today
+
         let dayNames: [String] = isTR
             ? ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"]
             : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-        
-        let adaptationStart = viewModel.adaptationStartDate ?? today
+
         let formatter = Self.dayNumberFormatter
-        
+        let days = sleepDays
+
         return (0..<7).map { offset in
-            let date = calendar.date(byAdding: .day, value: offset, to: monday) ?? today
-            let isToday = calendar.isDateInToday(date)
-            let isCompleted = date >= calendar.startOfDay(for: adaptationStart) && date <= calendar.startOfDay(for: today)
+            let date = cal.date(byAdding: .day, value: offset, to: monday) ?? today
+            let isToday = cal.isDateInToday(date)
+            let startOfDate = cal.startOfDay(for: date)
+            // Bugün gösterilmiyor (bugün için ayrı daire stili),
+            // geçmiş günlerde uyku kaydı varsa alev ikonu çıkar.
+            let isCompleted = !isToday && days.contains(startOfDate)
             return WeekDay(
                 dayName: dayNames[offset],
                 dateNum: formatter.string(from: date),
@@ -889,11 +920,24 @@ struct SleepBlocksSection: View {
                         }
                     }
                 } else {
-                    PSIconButton(icon: "pencil") {
+                    Button(action: {
+                        HapticFeedbackManager.shared.trigger(.softCommit)
                         withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
                             viewModel.isEditing.toggle()
                         }
+                    }) {
+                        HStack(spacing: 4) {
+                            Image(systemName: "pencil")
+                                .font(.system(size: 12, weight: .medium))
+                            Text(L("mainScreen.chart.edit", table: "MainScreen"))
+                                .font(.system(.caption, design: .rounded).weight(.medium))
+                        }
+                        .foregroundColor(.appPrimary)
+                        .padding(.horizontal, PSSpacing.sm)
+                        .padding(.vertical, PSSpacing.xs)
+                        .background(Color.appPrimary.opacity(0.1), in: Capsule())
                     }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.horizontal, PSSpacing.md)
