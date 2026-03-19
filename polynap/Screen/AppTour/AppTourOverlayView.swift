@@ -137,81 +137,130 @@ struct AppTourOverlayView: View {
     // MARK: - Card Content
 
     private var cardContent: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            // Title
-            Text(L("tour.step\(tourManager.currentStepIndex).title", table: "Tour"))
-                .font(.system(size: 18, weight: .bold, design: .rounded))
-                .foregroundColor(Color(.label))
-                .fixedSize(horizontal: false, vertical: true)
-                .textCase(nil)
+        let stepCount = TourStep.allCases.count
+        let stepIndex = tourManager.currentStepIndex
 
-            // Description
-            Text(L("tour.step\(tourManager.currentStepIndex).desc", table: "Tour"))
-                .font(.system(size: 15, weight: .regular, design: .rounded))
-                .foregroundColor(Color(.secondaryLabel))
-                .lineSpacing(2.5)
-                .fixedSize(horizontal: false, vertical: true)
+        return VStack(alignment: .leading, spacing: 0) {
+            LinearGradient(
+                colors: [Color.appPrimary, Color.appPrimary.opacity(0.55)],
+                startPoint: .leading,
+                endPoint: .trailing
+            )
+            .frame(height: 5)
+            .accessibilityHidden(true)
 
-            // Controls row
-            HStack(alignment: .center, spacing: 0) {
-                // Back / Skip actions
-                HStack(spacing: 14) {
-                    if tourManager.currentStepIndex > 0 {
+            VStack(alignment: .leading, spacing: 16) {
+                HStack(alignment: .top, spacing: 12) {
+                    Image(systemName: "viewfinder")
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundStyle(Color.appPrimary)
+                        .accessibilityHidden(true)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(L("tour.step\(stepIndex).title", table: "Tour"))
+                            .font(.system(size: 19, weight: .bold, design: .rounded))
+                            .foregroundColor(Color.appText)
+                            .fixedSize(horizontal: false, vertical: true)
+                            .textCase(nil)
+
+                        Text(L("tour.step\(stepIndex).desc", table: "Tour"))
+                            .font(.system(size: 15, weight: .regular, design: .rounded))
+                            .foregroundColor(Color.appTextSecondary)
+                            .lineSpacing(3)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                }
+
+                HStack {
+                    Spacer(minLength: 0)
+                    Text("\(stepIndex + 1) / \(stepCount)")
+                        .font(.system(size: 12, weight: .semibold, design: .rounded))
+                        .foregroundColor(Color.appPrimary)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(Color.appPrimary.opacity(0.12), in: Capsule())
+                    Spacer(minLength: 0)
+                }
+
+                HStack(spacing: 6) {
+                    ForEach(0..<stepCount, id: \.self) { i in
+                        Capsule()
+                            .fill(i == stepIndex ? Color.appPrimary : Color.appBorder.opacity(0.55))
+                            .frame(width: i == stepIndex ? 18 : 5, height: 5)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .animation(.spring(response: 0.32, dampingFraction: 0.78), value: stepIndex)
+                .accessibilityHidden(true)
+
+                Rectangle()
+                    .fill(Color.appBorder.opacity(0.35))
+                    .frame(height: 1)
+
+                HStack(alignment: .center, spacing: 0) {
+                    HStack(spacing: 14) {
+                        if stepIndex > 0 {
+                            Button {
+                                tourManager.previousStep()
+                            } label: {
+                                Text(L("tour.back", table: "Tour"))
+                                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                                    .foregroundColor(Color.appTextSecondary)
+                            }
+                        }
+
                         Button {
-                            tourManager.previousStep()
+                            tourManager.skipTour()
                         } label: {
-                            Text(L("tour.back", table: "Tour"))
+                            Text(L("tour.skip", table: "Tour"))
                                 .font(.system(size: 15, weight: .medium, design: .rounded))
-                                .foregroundColor(Color(.secondaryLabel))
+                                .foregroundColor(Color.appTextSecondary)
                         }
                     }
 
+                    Spacer(minLength: 12)
+
                     Button {
-                        tourManager.skipTour()
+                        tourManager.nextStep()
                     } label: {
-                        Text(L("tour.skip", table: "Tour"))
-                            .font(.system(size: 15, weight: .medium, design: .rounded))
-                            .foregroundColor(Color(.secondaryLabel))
-                    }
-                }
-
-                Spacer()
-
-                // Step indicator dots
-                HStack(spacing: 5) {
-                    ForEach(0..<TourStep.allCases.count, id: \.self) { i in
-                        Circle()
-                            .fill(i == tourManager.currentStepIndex ? Color.appPrimary : Color(.tertiaryLabel))
-                            .frame(
-                                width: i == tourManager.currentStepIndex ? 7 : 4.5,
-                                height: i == tourManager.currentStepIndex ? 7 : 4.5
+                        Text(tourManager.currentStep.isLastStep
+                             ? L("tour.done", table: "Tour")
+                             : L("tour.next", table: "Tour"))
+                            .font(.system(size: 15, weight: .semibold, design: .rounded))
+                            .foregroundColor(Color.appTextOnPrimary)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 11)
+                            .background(
+                                Capsule()
+                                    .fill(Color.appPrimary)
+                                    .shadow(color: Color.appPrimary.opacity(0.45), radius: 8, x: 0, y: 4)
                             )
                     }
-                }
-                .animation(.spring(response: 0.3, dampingFraction: 0.75), value: tourManager.currentStepIndex)
-
-                Spacer()
-
-                // Next / Done button
-                Button {
-                    tourManager.nextStep()
-                } label: {
-                    Text(tourManager.currentStep.isLastStep
-                         ? L("tour.done", table: "Tour")
-                         : L("tour.next", table: "Tour"))
-                        .font(.system(size: 15, weight: .semibold, design: .rounded))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 9)
-                        .background(Color.appPrimary, in: Capsule())
+                    .buttonStyle(.plain)
                 }
             }
+            .padding(22)
         }
-        .padding(20)
         .background(
-            Color(.systemBackground)
-                .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                .shadow(color: .black.opacity(0.22), radius: 28, x: 0, y: 10)
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .fill(Color.appCardBackground)
+                .shadow(color: .black.opacity(0.12), radius: 2, x: 0, y: 1)
+                .shadow(color: .black.opacity(0.28), radius: 36, x: 0, y: 16)
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 22, style: .continuous)
+                .strokeBorder(
+                    LinearGradient(
+                        colors: [
+                            Color.appPrimary.opacity(0.45),
+                            Color.appBorder.opacity(0.65)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    lineWidth: 1.25
+                )
         )
     }
 }
