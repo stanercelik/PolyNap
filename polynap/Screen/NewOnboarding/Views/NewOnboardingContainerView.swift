@@ -25,6 +25,7 @@ struct NewOnboardingContainerView: View {
         }
         .onAppear {
             viewModel.setModelContext(modelContext)
+            analyticsManager.logOnboardingStarted()
             analyticsManager.logScreenView(screenName: "new_onboarding", screenClass: "NewOnboardingContainerView")
         }
         .statusBarHidden(viewModel.currentScreen == .splash)

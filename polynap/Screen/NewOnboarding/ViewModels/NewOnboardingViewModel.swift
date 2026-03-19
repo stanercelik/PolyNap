@@ -94,6 +94,15 @@ enum OnboardingScreen: Int, CaseIterable {
 enum OnboardingSection {
     case story, trust, questions, results
     
+    var analyticsName: String {
+        switch self {
+        case .story: return "story"
+        case .trust: return "trust"
+        case .questions: return "questions"
+        case .results: return "results"
+        }
+    }
+    
     var progressColor: Color {
         switch self {
         case .story: return OBColors.accentBlue
@@ -311,13 +320,27 @@ final class NewOnboardingViewModel: ObservableObject {
             self.isTransitioning = false
         }
         
-        analyticsManager.logOnboardingStepCompleted(step: nextIndex, stepName: currentScreen.description)
+        let answerValue = getCurrentAnswerValue()
+        analyticsManager.logOnboardingStepCompleted(
+            step: nextIndex,
+            stepName: currentScreen.description,
+            answerValue: answerValue
+        )
+        
+        let nextScreen = OnboardingScreen(rawValue: nextIndex) ?? .splash
+        analyticsManager.logOnboardingScreenViewed(
+            screenName: nextScreen.description,
+            screenIndex: nextIndex,
+            section: nextScreen.section.analyticsName,
+            progressPct: Int(progress * 100)
+        )
     }
     
     func goToPrevious() {
         guard !isTransitioning, currentScreenIndex > 0 else { return }
         
         let prevIndex = findPreviousScreen(from: currentScreenIndex)
+        let fromScreen = currentScreen.description
         
         isTransitioning = true
         navigationDirection = .backward
@@ -331,6 +354,9 @@ final class NewOnboardingViewModel: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.isTransitioning = false
         }
+        
+        let toScreen = (OnboardingScreen(rawValue: prevIndex) ?? .splash).description
+        analyticsManager.logOnboardingStepBack(fromScreen: fromScreen, toScreen: toScreen)
     }
     
     private func findNextScreen(from index: Int) -> Int {
@@ -424,10 +450,48 @@ final class NewOnboardingViewModel: ObservableObject {
         }
     }
     
+    // MARK: - Analytics Helpers
+    private func getCurrentAnswerValue() -> String? {
+        switch currentScreen {
+        case .sleepExperience:
+            return previousSleepExperience?.rawValue
+        case .chronotype:
+            return chronotype?.rawValue
+        case .ageRange:
+            return ageRange?.rawValue
+        case .workSchedule:
+            return workSchedule?.rawValue
+        case .napEnvironment:
+            return napEnvironment?.rawValue
+        case .lifestyle:
+            return lifestyle?.rawValue
+        case .knowledgeLevel:
+            return knowledgeLevel?.rawValue
+        case .healthStatus:
+            return healthStatus?.rawValue
+        case .motivationLevel:
+            return motivationLevel?.rawValue
+        case .sleepGoal:
+            return sleepGoal?.rawValue
+        case .socialObligations:
+            return socialObligations?.rawValue
+        case .disruptionTolerance:
+            return disruptionTolerance?.rawValue
+        case .nameInput:
+            return userName.isEmpty ? nil : "provided"
+        default:
+            return nil
+        }
+    }
+    
     // MARK: - Notification Permission
     func requestNotificationPermission() {
+        analyticsManager.logPermissionRequested(permissionType: "notifications")
+        
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
             DispatchQueue.main.async {
+                self.analyticsManager.logPermissionResult(permissionType: "notifications", granted: granted)
+                
                 if granted {
                     print("✅ Notification permission granted")
                 } else {
@@ -447,15 +511,23 @@ final class NewOnboardingViewModel: ObservableObject {
     
     // MARK: - Alarm Permission
     func requestAlarmPermission() {
+        analyticsManager.logPermissionRequested(permissionType: "alarm")
+        
         Task { @MainActor in
             await AlarmService.shared.requestPermissions()
+            let status = await AlarmService.shared.getAuthorizationStatus()
+            analyticsManager.logPermissionResult(permissionType: "alarm", granted: status == .authorized)
             self.goToNext()
         }
     }
     
     // MARK: - Skip Onboarding
     func skipOnboarding() async {
-        analyticsManager.logOnboardingSkipped()
+        analyticsManager.logOnboardingSkipped(
+            atScreen: currentScreen.description,
+            screenIndex: currentScreenIndex
+        )
+        analyticsManager.setUserProperties(["onboarding_status": "skipped"])
         await markOnboardingAsSkipped()
         await setupDefaultBiphasicSchedule()
     }
@@ -779,6 +851,23 @@ final class NewOnboardingViewModel: ObservableObject {
                 stepsCompleted: totalScreens,
                 selectedSchedule: ScheduleManager.shared.activeSchedule?.name ?? "default"
             )
+            
+            var userProps: [String: Any] = ["onboarding_status": "completed"]
+            if let chrono = chronotype { userProps["chronotype"] = chrono.rawValue }
+            if let age = ageRange { userProps["age_range"] = age.rawValue }
+            if let work = workSchedule { userProps["work_schedule"] = work.rawValue }
+            if let goal = sleepGoal { userProps["sleep_goal"] = goal.rawValue }
+            if let exp = previousSleepExperience { userProps["sleep_experience"] = exp.rawValue }
+            if let motivation = motivationLevel { userProps["motivation_level"] = motivation.rawValue }
+            if let health = healthStatus { userProps["health_status"] = health.rawValue }
+            if let knowledge = knowledgeLevel { userProps["knowledge_level"] = knowledge.rawValue }
+            if let life = lifestyle { userProps["lifestyle"] = life.rawValue }
+            if let nap = napEnvironment { userProps["nap_environment"] = nap.rawValue }
+            if let social = socialObligations { userProps["social_obligations"] = social.rawValue }
+            if let disruption = disruptionTolerance { userProps["disruption_tolerance"] = disruption.rawValue }
+            if !userName.isEmpty { userProps["user_name"] = userName }
+            userProps["selected_schedule"] = ScheduleManager.shared.activeSchedule?.name ?? "default"
+            analyticsManager.setUserProperties(userProps)
             
             isOnboardingComplete = true
             BadgeManager.shared.grantStarterBadge()

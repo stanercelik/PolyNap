@@ -274,11 +274,24 @@ struct MainScreenView: View {
         }
     }
 }
+// DateFormatter yalnızca dil değişiminde yeniden oluşturuluyor, her render'da değil
+private extension DateFormatter {
+    static func heroDateFormatter(languageCode: String) -> DateFormatter {
+        let f = DateFormatter()
+        f.locale = Locale(identifier: languageCode == "tr" ? "tr_TR" : "en_US")
+        f.dateFormat = languageCode == "tr" ? "EEEE, d MMM" : "EEEE, MMM d"
+        return f
+    }
+}
+
 struct MainHeroSection: View {
     @ObservedObject var viewModel: MainScreenViewModel
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var appeared = false
     @State private var descriptionExpanded = false
+    @State private var cachedStatusBarHeight: CGFloat = 54
+    @State private var cachedDateString: String = ""
+    @State private var cachedLanguage: String = ""
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -289,7 +302,7 @@ struct MainHeroSection: View {
                     .foregroundColor(.white.opacity(0.6))
                 Text("·")
                     .foregroundColor(.white.opacity(0.35))
-                Text(currentDateFormatted)
+                Text(cachedDateString)
                     .font(.system(.caption, design: .rounded).weight(.medium))
                     .foregroundColor(.white.opacity(0.6))
                     .lineLimit(1)
@@ -371,7 +384,7 @@ struct MainHeroSection: View {
                 .offset(y: appeared || reduceMotion ? 0 : 12)
         }
         .padding(.horizontal, 20)
-        .padding(.top, statusBarHeight + PSSpacing.lg)
+        .padding(.top, cachedStatusBarHeight + PSSpacing.lg)
         .padding(.bottom, 32)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(
@@ -389,20 +402,21 @@ struct MainHeroSection: View {
             withAnimation(.easeOut(duration: 0.4).delay(0.1)) {
                 appeared = true
             }
+            cachedStatusBarHeight = UIApplication.shared.connectedScenes
+                .compactMap { $0 as? UIWindowScene }
+                .first?.statusBarManager?.statusBarFrame.height ?? 54
+            refreshDateString()
+        }
+        .onChange(of: LanguageManager.shared.currentLanguage) { _, _ in
+            refreshDateString()
         }
     }
 
-    private var statusBarHeight: CGFloat {
-        UIApplication.shared.connectedScenes
-            .compactMap { $0 as? UIWindowScene }
-            .first?.statusBarManager?.statusBarFrame.height ?? 54
-    }
-
-    private var currentDateFormatted: String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: LanguageManager.shared.currentLanguage == "tr" ? "tr_TR" : "en_US")
-        formatter.dateFormat = LanguageManager.shared.currentLanguage == "tr" ? "EEEE, d MMM" : "EEEE, MMM d"
-        return formatter.string(from: Date())
+    private func refreshDateString() {
+        let lang = LanguageManager.shared.currentLanguage
+        guard lang != cachedLanguage || cachedDateString.isEmpty else { return }
+        cachedLanguage = lang
+        cachedDateString = DateFormatter.heroDateFormatter(languageCode: lang).string(from: Date())
     }
 
     private var heroAccessibilityLabel: String {
@@ -511,14 +525,19 @@ struct WeeklyStreakSection: View {
         let isCompleted: Bool
     }
     
+    private static let dayNumberFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "d"
+        return f
+    }()
+
     private var weekDays: [WeekDay] {
         let calendar = Calendar.current
         let today = Date()
         let isTR = LanguageManager.shared.currentLanguage == "tr"
         
-        // Find Monday of current week
         var comps = calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: today)
-        comps.weekday = 2 // Monday
+        comps.weekday = 2 // Pazartesi
         let monday = calendar.date(from: comps) ?? today
         
         let dayNames: [String] = isTR
@@ -526,8 +545,7 @@ struct WeeklyStreakSection: View {
             : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
         
         let adaptationStart = viewModel.adaptationStartDate ?? today
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "d"
+        let formatter = Self.dayNumberFormatter
         
         return (0..<7).map { offset in
             let date = calendar.date(byAdding: .day, value: offset, to: monday) ?? today
@@ -535,7 +553,7 @@ struct WeeklyStreakSection: View {
             let isCompleted = date >= calendar.startOfDay(for: adaptationStart) && date <= calendar.startOfDay(for: today)
             return WeekDay(
                 dayName: dayNames[offset],
-                dateNum: dateFormatter.string(from: date),
+                dateNum: formatter.string(from: date),
                 isToday: isToday,
                 isCompleted: isCompleted
             )
@@ -1030,14 +1048,8 @@ struct SleepBlockRow: View {
     @State private var showingEditSheet = false
     @State private var showDeleteConfirmation = false
     @ObservedObject var viewModel: MainScreenViewModel
-    
-    private var coreEmoji: String {
-        UserDefaults.standard.string(forKey: "selectedCoreEmoji") ?? "🌙"
-    }
-    
-    private var napEmoji: String {
-        UserDefaults.standard.string(forKey: "selectedNapEmoji") ?? "💤"
-    }
+    @AppStorage("selectedCoreEmoji") private var coreEmoji: String = "🌙"
+    @AppStorage("selectedNapEmoji") private var napEmoji: String = "💤"
     
     var body: some View {
         HStack(spacing: PSSpacing.md) {

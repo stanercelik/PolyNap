@@ -89,34 +89,39 @@ struct CircularSleepChart: View {
             .stroke(Color.appTextSecondary.opacity(0.12), lineWidth: strokeWidth)
             .frame(width: radius * 2, height: radius * 2)
             .position(center)
+            .drawingGroup()
     }
     
+    // 24 ayrı Path yerine 2 birleşik Path — view sayısı %92 azaldı
     private func hourTickMarks(center: CGPoint, radius: CGFloat, strokeWidth: CGFloat) -> some View {
-        ZStack {
-            ForEach(0..<24, id: \.self) { hour in
-                createTickMark(for: hour, center: center, radius: radius, strokeWidth: strokeWidth)
+        let outerR = radius + strokeWidth / 2
+        let innerR = radius - strokeWidth / 2
+        let toRad = Double.pi / 180
+
+        return ZStack {
+            Path { path in
+                for hour in stride(from: 0, to: 24, by: 3) {
+                    let angle = Double(hour) * (360.0 / 24.0) - 90
+                    let c = Foundation.cos(angle * toRad)
+                    let s = Foundation.sin(angle * toRad)
+                    path.move(to: CGPoint(x: center.x + outerR * c, y: center.y + outerR * s))
+                    path.addLine(to: CGPoint(x: center.x + innerR * c, y: center.y + innerR * s))
+                }
             }
+            .stroke(Color.appTextSecondary.opacity(0.3), lineWidth: 1)
+
+            Path { path in
+                for hour in 0..<24 where hour % 3 != 0 {
+                    let angle = Double(hour) * (360.0 / 24.0) - 90
+                    let c = Foundation.cos(angle * toRad)
+                    let s = Foundation.sin(angle * toRad)
+                    path.move(to: CGPoint(x: center.x + outerR * c, y: center.y + outerR * s))
+                    path.addLine(to: CGPoint(x: center.x + innerR * c, y: center.y + innerR * s))
+                }
+            }
+            .stroke(style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+            .foregroundColor(Color.appTextSecondary.opacity(0.2))
         }
-    }
-    
-    private func createTickMark(for hour: Int, center: CGPoint, radius: CGFloat, strokeWidth: CGFloat) -> some View {
-        let angle = Double(hour) * (360.0 / 24.0) - 90
-        
-        let outerRadius = radius + strokeWidth / 2
-        let innerRadius = radius - strokeWidth / 2
-        
-        let startX = center.x + outerRadius * cos(angle * .pi / 180)
-        let startY = center.y + outerRadius * sin(angle * .pi / 180)
-        
-        let endX = center.x + innerRadius * cos(angle * .pi / 180)
-        let endY = center.y + innerRadius * sin(angle * .pi / 180)
-        
-        return Path { path in
-            path.move(to: CGPoint(x: startX, y: startY))
-            path.addLine(to: CGPoint(x: endX, y: endY))
-        }
-        .stroke(style: StrokeStyle(lineWidth: 1, dash: hour % 3 == 0 ? [] : [4, 4]))
-        .foregroundColor(Color.appTextSecondary.opacity(hour % 3 == 0 ? 0.3 : 0.2))
     }
     
     private func hourMarkersView(center: CGPoint, radius: CGFloat, strokeWidth: CGFloat, labelPadding: CGFloat) -> some View {

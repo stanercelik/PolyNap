@@ -85,13 +85,16 @@ class AnalyticsManager: ObservableObject {
         ])
     }
     
-    func logOnboardingStepCompleted(step: Int, stepName: String, timeSpentSeconds: Int? = nil) {
+    func logOnboardingStepCompleted(step: Int, stepName: String, timeSpentSeconds: Int? = nil, answerValue: String? = nil) {
         var params: [String: Any] = [
             "step_number": step,
             "step_name": stepName
         ]
         if let time = timeSpentSeconds {
             params["time_spent_seconds"] = time
+        }
+        if let answer = answerValue {
+            params["answer_value"] = answer
         }
         logEvent("onboarding_step_completed", parameters: params)
     }
@@ -100,6 +103,24 @@ class AnalyticsManager: ObservableObject {
         logEvent("onboarding_step_back", parameters: [
             "from_screen": fromScreen,
             "to_screen": toScreen
+        ])
+    }
+    
+    func setUserProperties(_ properties: [String: Any]) {
+        PostHogSDK.shared.identify(
+            PostHogSDK.shared.getDistinctId(),
+            userProperties: properties
+        )
+    }
+    
+    func logPermissionRequested(permissionType: String) {
+        logEvent("permission_requested", parameters: ["permission_type": permissionType])
+    }
+    
+    func logPermissionResult(permissionType: String, granted: Bool) {
+        logEvent("permission_result", parameters: [
+            "permission_type": permissionType,
+            "granted": granted
         ])
     }
     

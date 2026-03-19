@@ -51,20 +51,29 @@ struct WatchCircularSleepChart: View {
             .position(center)
     }
     
+    // 24 ayrı Path → 2 birleşik Path (Watch'ta bellek daha kritik)
     private func hourTickMarks(center: CGPoint, radius: CGFloat, strokeWidth: CGFloat) -> some View {
-        ZStack {
-            ForEach(0..<24) { hour in
-                let angle = Angle(degrees: Double(hour) * 15.0 - 90.0)
-                let isMainHour = hour % 3 == 0
-                
-                Path { path in
-                    let startPoint = pointOnCircle(center: center, radius: radius - strokeWidth / 2, angle: angle)
-                    let endPoint = pointOnCircle(center: center, radius: radius + strokeWidth / 2, angle: angle)
-                    path.move(to: startPoint)
-                    path.addLine(to: endPoint)
+        let innerR = radius - strokeWidth / 2
+        let outerR = radius + strokeWidth / 2
+
+        return ZStack {
+            Path { path in
+                for hour in stride(from: 0, to: 24, by: 3) {
+                    let angle = Angle(degrees: Double(hour) * 15.0 - 90.0)
+                    path.move(to: pointOnCircle(center: center, radius: innerR, angle: angle))
+                    path.addLine(to: pointOnCircle(center: center, radius: outerR, angle: angle))
                 }
-                .stroke(Color.secondary.opacity(isMainHour ? 0.4 : 0.2), style: StrokeStyle(lineWidth: 0.5, dash: isMainHour ? [] : [2, 2]))
             }
+            .stroke(Color.secondary.opacity(0.4), style: StrokeStyle(lineWidth: 0.5))
+
+            Path { path in
+                for hour in 0..<24 where hour % 3 != 0 {
+                    let angle = Angle(degrees: Double(hour) * 15.0 - 90.0)
+                    path.move(to: pointOnCircle(center: center, radius: innerR, angle: angle))
+                    path.addLine(to: pointOnCircle(center: center, radius: outerR, angle: angle))
+                }
+            }
+            .stroke(Color.secondary.opacity(0.2), style: StrokeStyle(lineWidth: 0.5, dash: [2, 2]))
         }
     }
     
