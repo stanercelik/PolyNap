@@ -755,7 +755,7 @@ class HistoryViewModel: ObservableObject {
         let allHistory: [HistoryModel]
         do {
             let descriptor = FetchDescriptor<HistoryModel>(
-                sortBy: [SortDescriptor(\HistoryModel.date, order: .ascending)]
+                sortBy: [SortDescriptor(\HistoryModel.date, order: .forward)]
             )
             allHistory = try modelContext.fetch(descriptor)
         } catch {

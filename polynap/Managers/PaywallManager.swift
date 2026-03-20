@@ -32,8 +32,10 @@ final class PaywallManager: ObservableObject {
     private let userDefaults = UserDefaults.standard
     private let paywallCountKey = "paywall_presentation_count"
     private let lastPaywallDateKey = "last_paywall_presentation_date"
-    private let paywallDismissCountKey = "paywall_dismiss_count"
-    private let lastDailyDiscountOpenKey = "last_daily_discount_open_date"
+    // Total number of times the paywall has been *opened* (used for every-3rd logic)
+    private let paywallOpenCountKey = "paywall_open_count"
+    // Tracks whether this day's first paywall open has already been registered
+    private let lastDailyPaywallOpenKey = "last_daily_paywall_open_date"
     private var userStateObserver: AnyCancellable?
     
     private init() {
@@ -47,39 +49,36 @@ final class PaywallManager: ObservableObject {
     // MARK: - Public Methods
     
     /// Presents a Superwall paywall based on the trigger type.
-    /// - Parameter onComplete: Called when the paywall is dismissed or skipped (including when Superwall decides not to show it).
+    /// Automatically sets `is_discount_eligible` before presenting so the
+    /// Superwall dashboard can show the discount drawer on the X-button tap
+    /// when eligible (first paywall of the day OR every 3rd open).
     func presentPaywall(trigger: PaywallTrigger, onComplete: (() -> Void)? = nil) {
-        let currentCount = getPaywallPresentationCount()
         let placement = placementName(for: trigger)
         
-        print("\n📱 ========== SUPERWALL PAYWALL ==========")
-        print("📱 PaywallManager: Superwall placement register")
-        print("   Trigger: \(trigger)")
-        print("   Placement: \(placement)")
-        print("   Count: \(currentCount)")
-        
+        // Determine eligibility BEFORE presenting so the attribute is already
+        // set when Superwall evaluates the X-button audience rule.
+        let eligible = shouldShowDrawerOnNextOpen()
+        setDiscountEligibility(eligible)
+
+        incrementPaywallOpenCount()
         incrementPaywallCount()
         
-        print("   New count: \(getPaywallPresentationCount())")
+        print("\n📱 ========== SUPERWALL PAYWALL ==========")
+        print("📱 Trigger: \(trigger) | Placement: \(placement)")
+        print("📱 is_discount_eligible: \(eligible)")
+        print("📱 Open count: \(getPaywallOpenCount())")
         print("📱 =========================================\n")
         
-        // Superwall handles presentation, dismiss, and purchase flow
         #if canImport(SuperwallKit)
-        print("🧱 [Superwall] register(placement: \"\(placement)\") çağrılıyor...")
-        print("🧱 [Superwall] Mevcut subscriptionStatus: \(Superwall.shared.subscriptionStatus)")
-        print("🧱 [Superwall] ⚠️ NOT: Dashboard → Campaigns'de '\(placement)' adlı bir trigger/event tanımlı olmalı")
         let handler = PaywallPresentationHandler()
         handler.onDismiss { [weak self] _, _ in
-            DispatchQueue.main.async {
-                self?.trackPaywallDismissed()
-                onComplete?()
-            }
+            DispatchQueue.main.async { onComplete?() }
         }
         handler.onSkip { _ in DispatchQueue.main.async { onComplete?() } }
         handler.onError { _ in DispatchQueue.main.async { onComplete?() } }
         Superwall.shared.register(placement: placement, handler: handler)
         #else
-        print("⚠️ SuperwallKit not available. Add the SPM package to enable paywalls.")
+        print("⚠️ SuperwallKit not available.")
         onComplete?()
         #endif
     }
@@ -89,26 +88,15 @@ final class PaywallManager: ObservableObject {
         let oldCount = getPaywallPresentationCount()
         userDefaults.removeObject(forKey: paywallCountKey)
         userDefaults.removeObject(forKey: lastPaywallDateKey)
-        userDefaults.removeObject(forKey: paywallDismissCountKey)
-        userDefaults.removeObject(forKey: lastDailyDiscountOpenKey)
+        userDefaults.removeObject(forKey: paywallOpenCountKey)
+        userDefaults.removeObject(forKey: lastDailyPaywallOpenKey)
         UserDefaults.standard.removeObject(forKey: "has_triggered_onboarding_paywall")
         
         print("🔄 PaywallManager: History reset (was \(oldCount) → 0)")
     }
     
-    /// Call on every app foreground/launch to trigger discount drawer on first open of the day.
-    func checkFirstDailyOpen() {
-        let lastDate = userDefaults.object(forKey: lastDailyDiscountOpenKey) as? Date
-        let isFirstOpenToday = lastDate.map { !Calendar.current.isDateInToday($0) } ?? true
-        
-        setDiscountEligibility(isFirstOpenToday)
-        
-        if isFirstOpenToday {
-            userDefaults.set(Date(), forKey: lastDailyDiscountOpenKey)
-            print("🎯 [Discount] İlk günlük açılış — discount-drawer tetikleniyor")
-            triggerDiscountDrawer()
-        }
-    }
+    /// No-op kept for call-site compatibility; eligibility is now evaluated at open time.
+    func checkFirstDailyOpen() {}
     
     /// Prints debug status.
     func printPaywallStatus() {
@@ -141,8 +129,7 @@ final class PaywallManager: ObservableObject {
     }
     
     private func incrementPaywallCount() {
-        let currentCount = getPaywallPresentationCount()
-        userDefaults.set(currentCount + 1, forKey: paywallCountKey)
+        userDefaults.set(getPaywallPresentationCount() + 1, forKey: paywallCountKey)
         userDefaults.set(Date(), forKey: lastPaywallDateKey)
     }
     
@@ -156,33 +143,40 @@ final class PaywallManager: ObservableObject {
         }
     }
     
-    // MARK: - Discount Drawer Logic
+    // MARK: - Discount Drawer Eligibility
     
-    /// Called on every paywall dismiss; triggers discount drawer every 3rd close.
-    private func trackPaywallDismissed() {
-        let newCount = userDefaults.integer(forKey: paywallDismissCountKey) + 1
-        userDefaults.set(newCount, forKey: paywallDismissCountKey)
-        
-        let isEveryThird = newCount % 3 == 0
-        setDiscountEligibility(isEveryThird)
-        
-        if isEveryThird {
-            print("🎯 [Discount] Her 3. kapatma (\(newCount)) — discount-drawer tetikleniyor")
-            triggerDiscountDrawer()
-        }
+    /// Returns true when the discount drawer should be shown on the X-button tap:
+    /// • First paywall open of the day, OR
+    /// • Every 3rd paywall open total.
+    private func shouldShowDrawerOnNextOpen() -> Bool {
+        let isFirstToday = isFirstPaywallOpenToday()
+        let openCount = getPaywallOpenCount()
+        let isEveryThird = openCount > 0 && (openCount + 1) % 3 == 0
+        return isFirstToday || isEveryThird
     }
-    
-    /// Sets the Superwall user attribute `is_discount_eligible` for measurement.
+
+    private func isFirstPaywallOpenToday() -> Bool {
+        guard let last = userDefaults.object(forKey: lastDailyPaywallOpenKey) as? Date else { return true }
+        return !Calendar.current.isDateInToday(last)
+    }
+
+    private func getPaywallOpenCount() -> Int {
+        userDefaults.integer(forKey: paywallOpenCountKey)
+    }
+
+    private func incrementPaywallOpenCount() {
+        let newCount = getPaywallOpenCount() + 1
+        userDefaults.set(newCount, forKey: paywallOpenCountKey)
+        // Mark today as "paywall was opened today"
+        userDefaults.set(Date(), forKey: lastDailyPaywallOpenKey)
+    }
+
+    /// Sends `is_discount_eligible` user attribute to Superwall.
+    /// In the Superwall dashboard, add an audience filter on the paywall's
+    /// X-button action:  `is_discount_eligible == true` → trigger `discount-drawer`.
     private func setDiscountEligibility(_ eligible: Bool) {
         #if canImport(SuperwallKit)
         Superwall.shared.setUserAttributes(["is_discount_eligible": eligible])
-        #endif
-    }
-    
-    /// Registers the discount drawer placement in Superwall.
-    private func triggerDiscountDrawer() {
-        #if canImport(SuperwallKit)
-        Superwall.shared.register(placement: SuperwallPlacement.discountDrawer)
         #endif
     }
 }
