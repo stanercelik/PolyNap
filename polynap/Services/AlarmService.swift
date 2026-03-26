@@ -140,7 +140,8 @@ final class AlarmService: ObservableObject {
         
         var alarmCount = 0
         var reminderCount = 0
-        
+        var firstNudgePlan: BehavioralNudgePlan?
+
         for blockInstance in futureBlocks {
             // AlarmKit ile uyanma alarmı planla
             if alarmSettings.isEnabled {
@@ -156,7 +157,7 @@ final class AlarmService: ObservableObject {
                     print("🚨 AlarmKitService: Alarm planlanamadı: \(error.localizedDescription)")
                 }
             }
-            
+
             // UserNotifications ile uyku hatırlatıcısı planla
             let nudgePlan = buildNudgePlan(
                 preferences: userPreferences,
@@ -174,10 +175,27 @@ final class AlarmService: ObservableObject {
                         plan: nudgePlan
                     )
                     reminderCount += 1
+                    if firstNudgePlan == nil { firstNudgePlan = nudgePlan }
                 }
             }
         }
-        
+
+        // Log a single batch analytics event for all scheduled nudges
+        if let plan = firstNudgePlan {
+            analyticsManager.logNudgeGenerated(
+                type: "sleep_reminder",
+                reason: plan.reason,
+                confidence: plan.confidence,
+                recommendedAction: plan.recommendedAction
+            )
+            analyticsManager.logNudgeDelivered(
+                channel: "local_notification",
+                localTime: "batch",
+                leadTime: plan.adjustedLeadTimeMinutes,
+                type: "sleep_reminder"
+            )
+        }
+
         print("✅ AlarmService: \(alarmCount) AlarmKit alarmı + \(reminderCount) hatırlatıcı planlandı.")
     }
     
@@ -199,23 +217,25 @@ final class AlarmService: ObservableObject {
         await cancelAllNotifications()
         
         var scheduledCount = 0
-        
+        var reminderCount = 0
+        var firstNudgePlan: BehavioralNudgePlan?
+
         // 3. Gelecek 7 gün için uyku bloklarını işle
         let futureBlocks = calculateFutureBlocks(for: activeSchedule, daysInAdvance: 7)
-        
+
         for blockInstance in futureBlocks {
             // Limiti kontrol et
             if scheduledCount >= notificationLimit {
                 print("⚠️ AlarmService: Bildirim limitine (\(notificationLimit)) ulaşıldı. Planlama durduruldu.")
                 break
             }
-            
+
             // 4. UYKU ALARMINI PLANLA (eğer alarmlar aktifse)
             if alarmSettings.isEnabled {
                 await scheduleAlarm(at: blockInstance.endDate, with: alarmSettings, for: activeSchedule)
                 scheduledCount += 1
             }
-            
+
             // 5. HATIRLATICI BİLDİRİMİNİ PLANLA (eğer hatırlatma süresi 0'dan büyükse)
             let nudgePlan = buildNudgePlan(
                 preferences: userPreferences,
@@ -234,10 +254,28 @@ final class AlarmService: ObservableObject {
                         plan: nudgePlan
                     )
                     scheduledCount += 1
+                    reminderCount += 1
+                    if firstNudgePlan == nil { firstNudgePlan = nudgePlan }
                 }
             }
         }
-        
+
+        // Log a single batch analytics event for all scheduled nudges
+        if let plan = firstNudgePlan {
+            analyticsManager.logNudgeGenerated(
+                type: "sleep_reminder",
+                reason: plan.reason,
+                confidence: plan.confidence,
+                recommendedAction: plan.recommendedAction
+            )
+            analyticsManager.logNudgeDelivered(
+                channel: "local_notification",
+                localTime: "batch",
+                leadTime: plan.adjustedLeadTimeMinutes,
+                type: "sleep_reminder"
+            )
+        }
+
         print("✅ AlarmService: Başarıyla \(scheduledCount) bildirim (alarm ve hatırlatıcı) planlandı.")
         await printPendingNotifications() // Hata ayıklama için
     }
@@ -362,18 +400,6 @@ final class AlarmService: ObservableObject {
 
         do {
             try await notificationCenter.add(request)
-            analyticsManager.logNudgeGenerated(
-                type: "sleep_reminder",
-                reason: plan.reason,
-                confidence: plan.confidence,
-                recommendedAction: plan.recommendedAction
-            )
-            analyticsManager.logNudgeDelivered(
-                channel: "local_notification",
-                localTime: formatTime(date),
-                leadTime: leadTime,
-                type: "sleep_reminder"
-            )
         } catch {
             print("🚨 AlarmService: Hatırlatıcı planlanamadı: \(error.localizedDescription)")
         }

@@ -300,30 +300,34 @@ final class NewOnboardingViewModel: ObservableObject {
     // MARK: - Navigation
     func goToNext() {
         guard !isTransitioning else { return }
-        
+
         let nextIndex = findNextScreen(from: currentScreenIndex)
         guard nextIndex < totalScreens else { return }
-        
+
+        // Capture completed screen data BEFORE updating currentScreenIndex,
+        // since currentScreen is a computed property that reads currentScreenIndex.
+        let completedScreen = currentScreen
+        let answerValue = getCurrentAnswerValue()
+
         isTransitioning = true
         navigationDirection = .forward
-        
+
         withAnimation(.easeInOut(duration: 0.45)) {
             currentScreenIndex = nextIndex
         }
 
         triggerTransitionHaptic(targetScreenIndex: nextIndex, direction: .forward)
-        
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.isTransitioning = false
         }
-        
-        let answerValue = getCurrentAnswerValue()
+
         analyticsManager.logOnboardingStepCompleted(
-            step: nextIndex,
-            stepName: currentScreen.description,
+            step: completedScreen.rawValue,
+            stepName: completedScreen.description,
             answerValue: answerValue
         )
-        
+
         let nextScreen = OnboardingScreen(rawValue: nextIndex) ?? .splash
         analyticsManager.logOnboardingScreenViewed(
             screenName: nextScreen.description,
@@ -445,7 +449,7 @@ final class NewOnboardingViewModel: ObservableObject {
         case .disruptionTolerance:
             return disruptionTolerance?.rawValue
         case .nameInput:
-            return userName.isEmpty ? nil : "provided"
+            return userName.isEmpty ? nil : userName
         default:
             return nil
         }
@@ -454,11 +458,12 @@ final class NewOnboardingViewModel: ObservableObject {
     // MARK: - Notification Permission
     func requestNotificationPermission() {
         analyticsManager.logPermissionRequested(permissionType: "notifications")
-        
+
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { granted, error in
             DispatchQueue.main.async {
                 self.analyticsManager.logPermissionResult(permissionType: "notifications", granted: granted)
-                
+                self.analyticsManager.setUserProperties(["notification_permission": granted ? "granted" : "denied"])
+
                 if granted {
                     print("✅ Notification permission granted")
                 } else {
@@ -479,11 +484,13 @@ final class NewOnboardingViewModel: ObservableObject {
     // MARK: - Alarm Permission
     func requestAlarmPermission() {
         analyticsManager.logPermissionRequested(permissionType: "alarm")
-        
+
         Task { @MainActor in
             await AlarmService.shared.requestPermissions()
             let status = await AlarmService.shared.getAuthorizationStatus()
-            analyticsManager.logPermissionResult(permissionType: "alarm", granted: status == .authorized)
+            let granted = status == .authorized
+            analyticsManager.logPermissionResult(permissionType: "alarm", granted: granted)
+            analyticsManager.setUserProperties(["alarm_permission": granted ? "granted" : "denied"])
             self.goToNext()
         }
     }
@@ -668,10 +675,31 @@ final class NewOnboardingViewModel: ObservableObject {
 
             preferences.userName = userName
             applyBehavioralNudgeProfile(to: preferences)
-            
+
             try modelContext.save()
             AuthManager.shared.updateDisplayName(userName)
-            
+
+            // Persist all onboarding answers as PostHog user properties
+            var userProperties: [String: Any] = [
+                "onboarding_status": "completed",
+                "onboarding_sleep_experience": sleepExperience.rawValue,
+                "onboarding_chronotype": chronotype.rawValue,
+                "onboarding_age_range": ageRange.rawValue,
+                "onboarding_work_schedule": workSchedule.rawValue,
+                "onboarding_nap_environment": napEnvironment.rawValue,
+                "onboarding_lifestyle": lifestyle.rawValue,
+                "onboarding_knowledge_level": knowledgeLevel.rawValue,
+                "onboarding_health_status": healthStatus.rawValue,
+                "onboarding_motivation_level": motivationLevel.rawValue,
+                "onboarding_sleep_goal": sleepGoal.rawValue,
+                "onboarding_social_obligations": socialObligations.rawValue,
+                "onboarding_disruption_tolerance": disruptionTolerance.rawValue
+            ]
+            if !userName.isEmpty {
+                userProperties["onboarding_name"] = userName
+            }
+            analyticsManager.setUserProperties(userProperties)
+
             updateProgress(0.50, L("newOnboarding.resultIntro.stage3", table: "Onboarding"))
             try? await Task.sleep(nanoseconds: 800_000_000)
             

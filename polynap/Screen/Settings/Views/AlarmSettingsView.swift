@@ -76,71 +76,73 @@ struct AlarmSettingsView: View {
                     }
 
                     if isEnabled {
-                        // Sound Section
-                        SettingsGroup(title: L("alarmSettings.sound.title", table: "Settings")) {
-                            // Alarm Sound picker
-                            Menu {
-                                ForEach(availableSounds, id: \.0) { sound, name in
-                                    Button(action: {
-                                        HapticFeedbackManager.shared.trigger(.selection)
-                                        selectedSound = sound
-                                        scheduleSettingsSave()
-                                        previewSound(sound)
-                                    }) {
-                                        HStack {
-                                            Text(name)
-                                            if sound == selectedSound {
-                                                Spacer()
-                                                Image(systemName: "checkmark")
+                        // Sound Section — hidden on iOS 26+ (AlarmKit manages sound/vibration)
+                        if !AlarmKitService.isAvailable {
+                            SettingsGroup(title: L("alarmSettings.sound.title", table: "Settings")) {
+                                // Alarm Sound picker
+                                Menu {
+                                    ForEach(availableSounds, id: \.0) { sound, name in
+                                        Button(action: {
+                                            HapticFeedbackManager.shared.trigger(.selection)
+                                            selectedSound = sound
+                                            scheduleSettingsSave()
+                                            previewSound(sound)
+                                        }) {
+                                            HStack {
+                                                Text(name)
+                                                if sound == selectedSound {
+                                                    Spacer()
+                                                    Image(systemName: "checkmark")
+                                                }
                                             }
                                         }
                                     }
+                                } label: {
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "music.note")
+                                            .font(.system(size: 18, weight: .regular))
+                                            .foregroundColor(.appPrimary)
+                                            .frame(width: 24, height: 24)
+                                        Text(L("alarmSettings.sound.alarmSound", table: "Settings"))
+                                            .font(.system(.body, design: .rounded, weight: .medium))
+                                            .foregroundColor(.appText)
+                                        Spacer()
+                                        Text(availableSounds.first(where: { $0.0 == selectedSound })?.1 ?? "Alarm 1")
+                                            .font(.system(size: 14, design: .rounded))
+                                            .foregroundColor(.appTextSecondary)
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 12, weight: .semibold))
+                                            .foregroundColor(.appTextSecondary.opacity(0.4))
+                                    }
+                                    .padding(.horizontal, 16)
+                                    .padding(.vertical, 13)
+                                    .contentShape(Rectangle())
                                 }
-                            } label: {
+                                .buttonStyle(.plain)
+
+                                SettingsRowDivider()
+
+                                // Vibration toggle
                                 HStack(spacing: 12) {
-                                    Image(systemName: "music.note")
+                                    Image(systemName: "iphone.radiowaves.left.and.right")
                                         .font(.system(size: 18, weight: .regular))
                                         .foregroundColor(.appPrimary)
                                         .frame(width: 24, height: 24)
-                                    Text(L("alarmSettings.sound.alarmSound", table: "Settings"))
+                                    Text(L("alarmSettings.sound.vibration", table: "Settings"))
                                         .font(.system(.body, design: .rounded, weight: .medium))
                                         .foregroundColor(.appText)
                                     Spacer()
-                                    Text(availableSounds.first(where: { $0.0 == selectedSound })?.1 ?? "Alarm 1")
-                                        .font(.system(size: 14, design: .rounded))
-                                        .foregroundColor(.appTextSecondary)
-                                    Image(systemName: "chevron.right")
-                                        .font(.system(size: 12, weight: .semibold))
-                                        .foregroundColor(.appTextSecondary.opacity(0.4))
+                                    Toggle("", isOn: $vibrationEnabled)
+                                        .labelsHidden()
+                                        .onChange(of: vibrationEnabled) { _, _ in
+                                            HapticFeedbackManager.shared.trigger(.selection)
+                                            scheduleSettingsSave()
+                                        }
                                 }
                                 .padding(.horizontal, 16)
                                 .padding(.vertical, 13)
-                                .contentShape(Rectangle())
                             }
-                            .buttonStyle(.plain)
-
-                            SettingsRowDivider()
-
-                            // Vibration toggle
-                            HStack(spacing: 12) {
-                                Image(systemName: "iphone.radiowaves.left.and.right")
-                                    .font(.system(size: 18, weight: .regular))
-                                    .foregroundColor(.appPrimary)
-                                    .frame(width: 24, height: 24)
-                                Text(L("alarmSettings.sound.vibration", table: "Settings"))
-                                    .font(.system(.body, design: .rounded, weight: .medium))
-                                    .foregroundColor(.appText)
-                                Spacer()
-                                Toggle("", isOn: $vibrationEnabled)
-                                    .labelsHidden()
-                                    .onChange(of: vibrationEnabled) { _, _ in
-                                        HapticFeedbackManager.shared.trigger(.selection)
-                                        scheduleSettingsSave()
-                                    }
-                            }
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 13)
-                        }
+                        } // end !AlarmKitService.isAvailable
 
                         // Snooze Section
                         SettingsGroup(title: L("alarmSettings.snooze.title", table: "Settings")) {

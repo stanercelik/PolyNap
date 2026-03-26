@@ -4,9 +4,169 @@ import SwiftData
 import Combine
 import PolyNapShared
 
+enum MainScreenResizeHandle {
+    case start, end
+}
+
+enum MainScreenEditFeedbackType {
+    case none, moving, resizing, collision, tooShort, success
+}
+
+@MainActor
+final class MainScreenCountdownState: ObservableObject {
+    @Published private(set) var nextSleepBlock: SleepBlock?
+    @Published private(set) var timeUntilNextBlock: TimeInterval = 0
+
+    var nextSleepBlockFormatted: String {
+        guard nextSleepBlock != nil else {
+            return L("mainScreen.noUpcomingBlock", table: "MainScreen")
+        }
+
+        let hours = Int(timeUntilNextBlock) / 3600
+        let minutes = (Int(timeUntilNextBlock) % 3600) / 60
+
+        if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else if minutes > 0 {
+            return "\(minutes)m"
+        } else {
+            return L("mainScreen.imminent", table: "MainScreen")
+        }
+    }
+
+    var onCheckpoint: (() -> Void)?
+
+    private var sortedBlocks: [SleepBlock] = []
+    private var timerTickCount = 0
+    private var timerCancellable: AnyCancellable?
+
+    init() {
+        timerCancellable = Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.updateNow()
+            }
+    }
+
+    deinit {
+        timerCancellable?.cancel()
+    }
+
+    func updateSchedule(_ blocks: [SleepBlock]) {
+        sortedBlocks = blocks.sorted { lhs, rhs in
+            convertTimeStringToMinutes(lhs.startTime) < convertTimeStringToMinutes(rhs.startTime)
+        }
+        updateNow()
+    }
+
+    private func updateNow() {
+        let now = Date()
+        let calendar = Calendar.current
+        let currentTime = calendar.dateComponents([.hour, .minute], from: now)
+        let currentMinutes = (currentTime.hour ?? 0) * 60 + (currentTime.minute ?? 0)
+
+        var upcomingBlock: SleepBlock?
+        var upcomingInterval: TimeInterval = 0
+
+        for block in sortedBlocks {
+            let blockStartMinutes = convertTimeStringToMinutes(block.startTime)
+
+            if blockStartMinutes > currentMinutes {
+                upcomingBlock = block
+                upcomingInterval = TimeInterval((blockStartMinutes - currentMinutes) * 60)
+                break
+            }
+        }
+
+        if upcomingBlock == nil, let firstBlock = sortedBlocks.first {
+            upcomingBlock = firstBlock
+            let firstBlockMinutes = convertTimeStringToMinutes(firstBlock.startTime)
+            let minutesUntilMidnight = (24 * 60) - currentMinutes
+            let minutesFromMidnight = firstBlockMinutes
+            upcomingInterval = TimeInterval((minutesUntilMidnight + minutesFromMidnight) * 60)
+        }
+
+        if nextSleepBlock?.id != upcomingBlock?.id {
+            nextSleepBlock = upcomingBlock
+        }
+        if timeUntilNextBlock != upcomingInterval {
+            timeUntilNextBlock = upcomingInterval
+        }
+
+        timerTickCount += 1
+        if timerTickCount == 1 || timerTickCount % 30 == 0 {
+            onCheckpoint?()
+        }
+    }
+
+    private func convertTimeStringToMinutes(_ timeString: String) -> Int {
+        let components = timeString.split(separator: ":").compactMap { Int($0) }
+        guard components.count == 2 else { return 0 }
+        return components[0] * 60 + components[1]
+    }
+}
+
+@MainActor
+final class MainScreenChartState: ObservableObject {
+    @Published var isChartEditMode: Bool = false
+    @Published var draggedBlockId: UUID? = nil
+    @Published var draggedBlockPosition: CGPoint = .zero
+    @Published var snapInterval: Int = 10
+
+    @Published var floatingBlock: SleepBlock? = nil
+    @Published var floatingBlockPosition: CGPoint = .zero
+    @Published var isFloatingBlockVisible: Bool = false
+    @Published var isBlockFloating: Bool = false
+    @Published var canSnapToChart: Bool = false
+    @Published var originalBlockPosition: CGPoint = .zero
+    @Published var originalBlockId: UUID? = nil
+
+    @Published var chartExitThreshold: CGFloat = 80
+    @Published var chartEnterThreshold: CGFloat = 60
+    @Published var trashZoneThreshold: CGFloat = 50
+
+    @Published var showTrashArea: Bool = false
+    @Published var isInTrashZone: Bool = false
+    @Published var isReadyToDelete: Bool = false
+    @Published var dragDistanceFromCenter: CGFloat = 0
+
+    @Published var liveBlockTimeString: String? = nil
+
+    @Published var dragStartAngle: Double? = nil
+    @Published var dragAngleOffset: Double = 0
+    @Published var initialDragState: [UUID: (startTime: String, duration: Int)] = [:]
+    @Published var tempScheduleBlocks: [SleepBlock] = []
+
+    @Published var isResizing: Bool = false
+    @Published var resizeBlockId: UUID? = nil
+    @Published var resizeHandle: MainScreenResizeHandle? = nil
+    @Published var initialResizeBlock: SleepBlock? = nil
+
+    @Published var showChartBlockEditSheet: Bool = false
+    @Published var chartEditingBlock: SleepBlock? = nil
+    @Published var chartEditStartDate: Date = Date()
+    @Published var chartEditEndDate: Date = Date()
+
+    @Published var editFeedbackMessage: String = ""
+    @Published var editFeedbackType: MainScreenEditFeedbackType = .none
+    @Published var currentEditingTime: String = ""
+    @Published var currentEditingDuration: String = ""
+    @Published var isValidEdit: Bool = true
+
+    @Published var isDraggingNewBlock: Bool = false
+    @Published var newBlockDragPosition: CGPoint = .zero
+    @Published var previewBlock: SleepBlock? = nil
+    @Published var showPlusButton: Bool = true
+    @Published var isDragFromPlusValid: Bool = false
+}
+
 @MainActor
 class MainScreenViewModel: ObservableObject {
-    @Published var model: MainScreenModel
+    @Published var model: MainScreenModel {
+        didSet {
+            countdownState.updateSchedule(model.schedule.schedule)
+        }
+    }
     @Published var isEditing: Bool = false {
         didSet {
             if !isEditing && oldValue != isEditing {
@@ -14,8 +174,6 @@ class MainScreenViewModel: ObservableObject {
             }
         }
     }
-    @Published private(set) var nextSleepBlock: SleepBlock?
-    @Published private(set) var timeUntilNextBlock: TimeInterval = 0
     @Published private(set) var selectedSchedule: UserScheduleModel?
     @Published private(set) var adaptationStartDate: Date? = nil
     @Published var showAddBlockSheet: Bool = false
@@ -62,87 +220,9 @@ class MainScreenViewModel: ObservableObject {
         return preferences.hasSkippedOnboarding && !preferences.hasCompletedQuestions && !preferences.hasSeenSkippedOnboardingCard && showSkippedOnboardingCard
     }
     
-    // MARK: - Chart Edit Mode
-    @Published var isChartEditMode: Bool = false
-    @Published var draggedBlockId: UUID? = nil
-    @Published var draggedBlockPosition: CGPoint = .zero
-    @Published var snapInterval: Int = 10 // 5 veya 10 dakika
-    
-    // MARK: - Floating Block System
-    @Published var floatingBlock: SleepBlock? = nil
-    @Published var floatingBlockPosition: CGPoint = .zero
-    @Published var isFloatingBlockVisible: Bool = false
-    @Published var isBlockFloating: Bool = false // Chart dışında mı?
-    @Published var canSnapToChart: Bool = false // Chart'a yakın mı?
-    @Published var originalBlockPosition: CGPoint = .zero // Snap-back için
-    @Published var originalBlockId: UUID? = nil // Hangi blok sürükleniyor
-    
-    // MARK: - Drag Zones and Thresholds
-    @Published var chartExitThreshold: CGFloat = 80 // Chart'tan çıkma mesafesi (floating mode threshold)
-    @Published var chartEnterThreshold: CGFloat = 60 // Chart'a girme mesafesi (snap back threshold)
-    @Published var trashZoneThreshold: CGFloat = 50 // Trash zone aktivasyon mesafesi
-    
-    // MARK: - Trash Area Features
-    @Published var showTrashArea: Bool = false
-    @Published var isInTrashZone: Bool = false
-    @Published var isReadyToDelete: Bool = false
-    @Published var dragDistanceFromCenter: CGFloat = 0
-    
-    // Canlı zaman gösterimi için yeni değişken
-    @Published var liveBlockTimeString: String? = nil
-    
-    // Sürükleme işlemi için yeni değişkenler
-    @Published var dragStartAngle: Double? = nil
-    @Published var dragAngleOffset: Double = 0
-    @Published var initialDragState: [UUID: (startTime: String, duration: Int)] = [:]
-    
-    @Published var tempScheduleBlocks: [SleepBlock] = []
-    
-    // MARK: - Resizing Properties
-    @Published var isResizing: Bool = false
-    @Published var resizeBlockId: UUID? = nil
-    @Published var resizeHandle: ResizeHandle? = nil
-    @Published var initialResizeBlock: SleepBlock? = nil
-
-
     // MARK: - Arc Drag Haptic Tracking
     private var lastHapticSnappedTime: String = ""
     private var recentlyDragged: Bool = false
-    
-    // MARK: - Chart Block Tap Edit
-    @Published var showChartBlockEditSheet: Bool = false
-    @Published var chartEditingBlock: SleepBlock? = nil
-    @Published var chartEditStartDate: Date = Date()
-    @Published var chartEditEndDate: Date = Date()
-
-    // MARK: - Enhanced Edit Mode Features
-    @Published var editFeedbackMessage: String = ""
-    @Published var editFeedbackType: EditFeedbackType = .none
-    @Published var currentEditingTime: String = ""
-    @Published var currentEditingDuration: String = ""
-    @Published var isValidEdit: Bool = true
-    
-    // MARK: - Plus Button Drag Features
-    @Published var isDraggingNewBlock: Bool = false
-    @Published var newBlockDragPosition: CGPoint = .zero
-    @Published var previewBlock: SleepBlock? = nil
-    @Published var showPlusButton: Bool = true
-    @Published var isDragFromPlusValid: Bool = false
-    
-    
-    
-    // Cached calculation values for performance
-    private var cachedAngleCalculations: [String: Double] = [:]
-    private var lastUpdateTime: Date = Date()
-    private let updateDebounceInterval: TimeInterval = 0.016 // ~60fps
-    
-    enum ResizeHandle {
-        case start, end
-    }
-    
-    enum EditFeedbackType {
-        case none, moving, resizing, collision, tooShort, success
-    }
     
     // MARK: - Segment Management
     @Published var selectedSegment: Int = 0 {
@@ -175,7 +255,6 @@ class MainScreenViewModel: ObservableObject {
     }
     
     private var modelContext: ModelContext?
-    private var timerCancellable: AnyCancellable?
     private var languageManager: LanguageManager
     
     /// Son kontrol edilen tamamlanmış blok
@@ -189,6 +268,15 @@ class MainScreenViewModel: ObservableObject {
     
     private let ratedSleepBlocksKey = "ratedSleepBlocks"
     private let deferredSleepBlocksKey = "deferredSleepBlocks"
+    
+    let countdownState = MainScreenCountdownState()
+    let chartState = MainScreenChartState()
+
+    typealias ResizeHandle = MainScreenResizeHandle
+    typealias EditFeedbackType = MainScreenEditFeedbackType
+
+    private var cachedRatedBlocks: Set<String>?
+    private var cachedDeferredBlocks: Set<String>?
     
     // MARK: - Computed Properties
     
@@ -239,25 +327,15 @@ class MainScreenViewModel: ObservableObject {
     
     /// Bir sonraki uyku bloğunun formatlanmış zamanını döndürür
     var nextSleepBlockFormatted: String {
-        guard nextSleepBlock != nil else {
-            return L("mainScreen.noUpcomingBlock", table: "MainScreen")
-        }
-        
-        let hours = Int(timeUntilNextBlock) / 3600
-        let minutes = (Int(timeUntilNextBlock) % 3600) / 60
-        
-        if hours > 0 {
-            return "\(hours)h \(minutes)m"
-        } else if minutes > 0 {
-            return "\(minutes)m"
-        } else {
-            return L("mainScreen.imminent", table: "MainScreen")
-        }
+        countdownState.nextSleepBlockFormatted
     }
     
     /// Günlük ipucunu döndürür
-    var dailyTip: LocalizedStringKey {
-        DailyTipManager.getDailyTip(
+    // Günlük ipucu önbelleklenir — her saniye SwiftData fetch yapmayı önler
+    @Published private(set) var dailyTip: LocalizedStringKey = LocalizedStringKey("tip.sleep.adaptation")
+    
+    func refreshDailyTip() {
+        dailyTip = DailyTipManager.getDailyTip(
             preferences: userPreferences,
             modelContext: modelContext
         )
@@ -349,6 +427,215 @@ class MainScreenViewModel: ObservableObject {
         return SleepScheduleService.shared.getAllSchedules()
             .first(where: { $0.name == name })?.description.localized(for: lang) ?? ""
     }
+
+    var nextSleepBlock: SleepBlock? {
+        countdownState.nextSleepBlock
+    }
+
+    var isChartEditMode: Bool {
+        get { chartState.isChartEditMode }
+        set { chartState.isChartEditMode = newValue }
+    }
+
+    var draggedBlockId: UUID? {
+        get { chartState.draggedBlockId }
+        set { chartState.draggedBlockId = newValue }
+    }
+
+    var draggedBlockPosition: CGPoint {
+        get { chartState.draggedBlockPosition }
+        set { chartState.draggedBlockPosition = newValue }
+    }
+
+    var snapInterval: Int {
+        get { chartState.snapInterval }
+        set { chartState.snapInterval = newValue }
+    }
+
+    var floatingBlock: SleepBlock? {
+        get { chartState.floatingBlock }
+        set { chartState.floatingBlock = newValue }
+    }
+
+    var floatingBlockPosition: CGPoint {
+        get { chartState.floatingBlockPosition }
+        set { chartState.floatingBlockPosition = newValue }
+    }
+
+    var isFloatingBlockVisible: Bool {
+        get { chartState.isFloatingBlockVisible }
+        set { chartState.isFloatingBlockVisible = newValue }
+    }
+
+    var isBlockFloating: Bool {
+        get { chartState.isBlockFloating }
+        set { chartState.isBlockFloating = newValue }
+    }
+
+    var canSnapToChart: Bool {
+        get { chartState.canSnapToChart }
+        set { chartState.canSnapToChart = newValue }
+    }
+
+    var originalBlockPosition: CGPoint {
+        get { chartState.originalBlockPosition }
+        set { chartState.originalBlockPosition = newValue }
+    }
+
+    var originalBlockId: UUID? {
+        get { chartState.originalBlockId }
+        set { chartState.originalBlockId = newValue }
+    }
+
+    var chartExitThreshold: CGFloat {
+        get { chartState.chartExitThreshold }
+        set { chartState.chartExitThreshold = newValue }
+    }
+
+    var chartEnterThreshold: CGFloat {
+        get { chartState.chartEnterThreshold }
+        set { chartState.chartEnterThreshold = newValue }
+    }
+
+    var trashZoneThreshold: CGFloat {
+        get { chartState.trashZoneThreshold }
+        set { chartState.trashZoneThreshold = newValue }
+    }
+
+    var showTrashArea: Bool {
+        get { chartState.showTrashArea }
+        set { chartState.showTrashArea = newValue }
+    }
+
+    var isInTrashZone: Bool {
+        get { chartState.isInTrashZone }
+        set { chartState.isInTrashZone = newValue }
+    }
+
+    var isReadyToDelete: Bool {
+        get { chartState.isReadyToDelete }
+        set { chartState.isReadyToDelete = newValue }
+    }
+
+    var dragDistanceFromCenter: CGFloat {
+        get { chartState.dragDistanceFromCenter }
+        set { chartState.dragDistanceFromCenter = newValue }
+    }
+
+    var liveBlockTimeString: String? {
+        get { chartState.liveBlockTimeString }
+        set { chartState.liveBlockTimeString = newValue }
+    }
+
+    var dragStartAngle: Double? {
+        get { chartState.dragStartAngle }
+        set { chartState.dragStartAngle = newValue }
+    }
+
+    var dragAngleOffset: Double {
+        get { chartState.dragAngleOffset }
+        set { chartState.dragAngleOffset = newValue }
+    }
+
+    var initialDragState: [UUID: (startTime: String, duration: Int)] {
+        get { chartState.initialDragState }
+        set { chartState.initialDragState = newValue }
+    }
+
+    var tempScheduleBlocks: [SleepBlock] {
+        get { chartState.tempScheduleBlocks }
+        set { chartState.tempScheduleBlocks = newValue }
+    }
+
+    var isResizing: Bool {
+        get { chartState.isResizing }
+        set { chartState.isResizing = newValue }
+    }
+
+    var resizeBlockId: UUID? {
+        get { chartState.resizeBlockId }
+        set { chartState.resizeBlockId = newValue }
+    }
+
+    var resizeHandle: ResizeHandle? {
+        get { chartState.resizeHandle }
+        set { chartState.resizeHandle = newValue }
+    }
+
+    var initialResizeBlock: SleepBlock? {
+        get { chartState.initialResizeBlock }
+        set { chartState.initialResizeBlock = newValue }
+    }
+
+    var showChartBlockEditSheet: Bool {
+        get { chartState.showChartBlockEditSheet }
+        set { chartState.showChartBlockEditSheet = newValue }
+    }
+
+    var chartEditingBlock: SleepBlock? {
+        get { chartState.chartEditingBlock }
+        set { chartState.chartEditingBlock = newValue }
+    }
+
+    var chartEditStartDate: Date {
+        get { chartState.chartEditStartDate }
+        set { chartState.chartEditStartDate = newValue }
+    }
+
+    var chartEditEndDate: Date {
+        get { chartState.chartEditEndDate }
+        set { chartState.chartEditEndDate = newValue }
+    }
+
+    var editFeedbackMessage: String {
+        get { chartState.editFeedbackMessage }
+        set { chartState.editFeedbackMessage = newValue }
+    }
+
+    var editFeedbackType: EditFeedbackType {
+        get { chartState.editFeedbackType }
+        set { chartState.editFeedbackType = newValue }
+    }
+
+    var currentEditingTime: String {
+        get { chartState.currentEditingTime }
+        set { chartState.currentEditingTime = newValue }
+    }
+
+    var currentEditingDuration: String {
+        get { chartState.currentEditingDuration }
+        set { chartState.currentEditingDuration = newValue }
+    }
+
+    var isValidEdit: Bool {
+        get { chartState.isValidEdit }
+        set { chartState.isValidEdit = newValue }
+    }
+
+    var isDraggingNewBlock: Bool {
+        get { chartState.isDraggingNewBlock }
+        set { chartState.isDraggingNewBlock = newValue }
+    }
+
+    var newBlockDragPosition: CGPoint {
+        get { chartState.newBlockDragPosition }
+        set { chartState.newBlockDragPosition = newValue }
+    }
+
+    var previewBlock: SleepBlock? {
+        get { chartState.previewBlock }
+        set { chartState.previewBlock = newValue }
+    }
+
+    var showPlusButton: Bool {
+        get { chartState.showPlusButton }
+        set { chartState.showPlusButton = newValue }
+    }
+
+    var isDragFromPlusValid: Bool {
+        get { chartState.isDragFromPlusValid }
+        set { chartState.isDragFromPlusValid = newValue }
+    }
     
     init(model: MainScreenModel = MainScreenModel(schedule: UserScheduleModel.placeholder), languageManager: LanguageManager = LanguageManager.shared) {
         self.model = model
@@ -364,62 +651,20 @@ class MainScreenViewModel: ObservableObject {
     }
     
     deinit {
-        timerCancellable?.cancel()
         NotificationCenter.default.removeObserver(self)
     }
     
     /// **YENİ:** Sadece UI'daki geri sayım için kullanılan bir zamanlayıcı. Alarm tetiklemez.
     private func setupTimerForUI() {
-        updateNextSleepBlockForUI()
-        
-        timerCancellable = Timer.publish(every: 1, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                self?.updateNextSleepBlockForUI()
-            }
+        countdownState.onCheckpoint = { [weak self] in
+            self?.checkAndShowSleepQualityRating()
+        }
+        countdownState.updateSchedule(model.schedule.schedule)
     }
     
     /// UI için bir sonraki uyku bloğunu günceller
     private func updateNextSleepBlockForUI() {
-        let now = Date()
-        let calendar = Calendar.current
-        let currentTime = calendar.dateComponents([.hour, .minute], from: now)
-        let currentMinutes = (currentTime.hour ?? 0) * 60 + (currentTime.minute ?? 0)
-        
-        // Tüm blokları zamanlarına göre sırala
-        let sortedBlocks = model.schedule.schedule.sorted { 
-            convertTimeStringToMinutes($0.startTime) < convertTimeStringToMinutes($1.startTime) 
-        }
-        
-        // Bir sonraki bloğu bul
-        var nextBlock: SleepBlock?
-        var timeUntilNext: TimeInterval = 0
-        
-        for block in sortedBlocks {
-            let blockStartMinutes = convertTimeStringToMinutes(block.startTime)
-            
-            if blockStartMinutes > currentMinutes {
-                // Bugün içinde bir sonraki blok
-                nextBlock = block
-                timeUntilNext = TimeInterval((blockStartMinutes - currentMinutes) * 60)
-                break
-            }
-        }
-        
-        // Eğer bugün için blok bulunamadıysa, yarının ilk bloğunu al
-        if nextBlock == nil, let firstBlock = sortedBlocks.first {
-            nextBlock = firstBlock
-            let firstBlockMinutes = convertTimeStringToMinutes(firstBlock.startTime)
-            let minutesUntilMidnight = (24 * 60) - currentMinutes
-            let minutesFromMidnight = firstBlockMinutes
-            timeUntilNext = TimeInterval((minutesUntilMidnight + minutesFromMidnight) * 60)
-        }
-        
-        self.nextSleepBlock = nextBlock
-        self.timeUntilNextBlock = timeUntilNext
-        
-        // Tamamlanan blokları kontrol et
-        checkAndShowSleepQualityRating()
+        countdownState.updateSchedule(model.schedule.schedule)
     }
     
     /// Zaman string'ini dakikaya çevirir (örn: "14:30" -> 870)
@@ -463,7 +708,7 @@ class MainScreenViewModel: ObservableObject {
             let fetchDescriptor = FetchDescriptor<UserPreferences>()
             let preferences = try modelContext.fetch(fetchDescriptor).first
             
-            await MainActor.run {
+                await MainActor.run {
                 self.userPreferences = preferences
                 
                 // Show the skipped onboarding card if user skipped onboarding and hasn't seen the card yet
@@ -472,6 +717,9 @@ class MainScreenViewModel: ObservableObject {
                     self.showSkippedOnboardingCard = true
                     print("📱 MainScreenViewModel: Onboarding atlandı - bilgi kartı gösterilecek")
                 }
+                
+                // Günlük ipucunu bir kez hesapla (her saniye SwiftData fetch yapmamak için)
+                self.refreshDailyTip()
                 
                 print("✅ MainScreenViewModel: UserPreferences yüklendi - hasSkippedOnboarding: \(preferences?.hasSkippedOnboarding ?? false)")
             }
@@ -790,6 +1038,7 @@ class MainScreenViewModel: ObservableObject {
         if !ratedBlocks.contains(blockKey) {
             ratedBlocks.append(blockKey)
             UserDefaults.standard.set(ratedBlocks, forKey: ratedSleepBlocksKey)
+            cachedRatedBlocks = nil
             print("✅ Block rated olarak işaretlendi: \(blockKey)")
         }
     }
@@ -801,6 +1050,7 @@ class MainScreenViewModel: ObservableObject {
         if !deferredBlocks.contains(blockKey) {
             deferredBlocks.append(blockKey)
             UserDefaults.standard.set(deferredBlocks, forKey: deferredSleepBlocksKey)
+            cachedDeferredBlocks = nil
             print("⏸️ Block deferred olarak işaretlendi: \(blockKey)")
         }
     }
@@ -811,21 +1061,24 @@ class MainScreenViewModel: ObservableObject {
         let blockKey = blockKey(startTime: startTime, endTime: endTime)
         deferredBlocks.removeAll { $0 == blockKey }
         UserDefaults.standard.set(deferredBlocks, forKey: deferredSleepBlocksKey)
+        cachedDeferredBlocks = nil
         print("🗑️ Block deferred listesinden kaldırıldı: \(blockKey)")
     }
     
-    /// Bloğun puanlanıp puanlanmadığını kontrol eder
+    /// Bloğun puanlanıp puanlanmadığını kontrol eder (önbellek kullanır)
     private func isBlockRated(startTime: String, endTime: String) -> Bool {
-        let ratedBlocks = UserDefaults.standard.stringArray(forKey: ratedSleepBlocksKey) ?? []
-        let blockKey = blockKey(startTime: startTime, endTime: endTime)
-        return ratedBlocks.contains(blockKey)
+        if cachedRatedBlocks == nil {
+            cachedRatedBlocks = Set(UserDefaults.standard.stringArray(forKey: ratedSleepBlocksKey) ?? [])
+        }
+        return cachedRatedBlocks!.contains(blockKey(startTime: startTime, endTime: endTime))
     }
     
-    /// Bloğun ertelenip ertelenmediğini kontrol eder
+    /// Bloğun ertelenip ertelenmediğini kontrol eder (önbellek kullanır)
     private func isBlockDeferred(startTime: String, endTime: String) -> Bool {
-        let deferredBlocks = UserDefaults.standard.stringArray(forKey: deferredSleepBlocksKey) ?? []
-        let blockKey = blockKey(startTime: startTime, endTime: endTime)
-        return deferredBlocks.contains(blockKey)
+        if cachedDeferredBlocks == nil {
+            cachedDeferredBlocks = Set(UserDefaults.standard.stringArray(forKey: deferredSleepBlocksKey) ?? [])
+        }
+        return cachedDeferredBlocks!.contains(blockKey(startTime: startTime, endTime: endTime))
     }
     
     /// Uygulama başlangıcında bekleyen değerlendirmeleri kontrol eder

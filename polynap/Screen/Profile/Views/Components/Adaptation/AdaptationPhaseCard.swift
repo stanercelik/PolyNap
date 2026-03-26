@@ -238,15 +238,6 @@ struct AdaptationProgressCard: View {
                 .frame(height: 10)
             }
             
-            // Undo Section (Premium Feature)
-            if hasUndoData {
-                UndoAdaptationSection(
-                    isUndoing: isUndoing,
-                    onUndo: onUndo,
-                    onUndoLater: onUndoLater
-                )
-            }
-            
             // Status description
             Text(getStatusDescription())
                 .font(.footnote)

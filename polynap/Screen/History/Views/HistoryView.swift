@@ -28,9 +28,9 @@ struct HistoryView: View {
                             // Filter Section
                             FilterSectionCard(viewModel: viewModel)
                             
-                            // Unified Sleep Timeline - includes both manual and HealthKit data
-                            let healthKitDataToUse = viewModel.filteredHealthKitData.isEmpty ? viewModel.healthKitData : viewModel.filteredHealthKitData
-                            if viewModel.historyItems.isEmpty && healthKitDataToUse.isEmpty {
+                        // Unified Sleep Timeline - includes both manual and HealthKit data
+                        let healthKitDataToUse = viewModel.filteredHealthKitSessions.isEmpty ? viewModel.healthKitSessions : viewModel.filteredHealthKitSessions
+                        if viewModel.historyItems.isEmpty && healthKitDataToUse.isEmpty {
                                 EmptyStateCard()
                             } else {
                                 HistoryTimelineSection(viewModel: viewModel, profileViewModel: profileViewModel)
@@ -69,9 +69,8 @@ struct HistoryView: View {
                     DayDetailView(viewModel: viewModel)
                 }
             }
-            .onChange(of: viewModel.isDayDetailPresented) { isPresented in
+            .onChange(of: viewModel.isDayDetailPresented) { _, isPresented in
                 if isPresented {
-                    // Analytics: Day detail navigation
                     analyticsManager.logFeatureUsed(
                         featureName: "day_detail_navigation",
                         action: "day_selected"
@@ -473,54 +472,51 @@ struct HistoryTimelineSection: View {
     
     private func getUnifiedDailyData() -> [UnifiedDayData] {
         var unifiedDays: [UnifiedDayData] = []
-        
-        // Use filtered HealthKit data instead of raw data
-        let healthKitDataToUse = viewModel.filteredHealthKitData.isEmpty ? viewModel.healthKitData : viewModel.filteredHealthKitData
-        
-        // Merge manual entries and HealthKit data with time-based deduplication
+
+        let sessionsToUse = viewModel.filteredHealthKitSessions.isEmpty
+            ? viewModel.healthKitSessions
+            : viewModel.filteredHealthKitSessions
+
         let allDates = Set(viewModel.historyItems.map { Calendar.current.startOfDay(for: $0.date) })
-            .union(Set(healthKitDataToUse.map { Calendar.current.startOfDay(for: $0.startDate) }))
-        
+            .union(Set(sessionsToUse.map { Calendar.current.startOfDay(for: $0.startDate) }))
+
         for date in allDates.sorted(by: >) {
-            let manualEntries = viewModel.historyItems.filter { 
-                Calendar.current.isDate($0.date, inSameDayAs: date) 
+            let manualEntries = viewModel.historyItems.filter {
+                Calendar.current.isDate($0.date, inSameDayAs: date)
             }
-            
-            let healthKitEntries = healthKitDataToUse.filter { 
-                Calendar.current.isDate($0.startDate, inSameDayAs: date) 
+
+            let daySessions = sessionsToUse.filter {
+                Calendar.current.isDate($0.startDate, inSameDayAs: date)
             }
-            
-            // Separate manual entries from health entries based on source field
+
             let allSleepEntries = manualEntries.first?.sleepEntries ?? []
             let filteredManualEntries = applyManualEntryFilters(allSleepEntries.filter { $0.source == "manual" })
-            
-            // Smart deduplication: Filter out HealthKit entries that overlap with manual entries
-            let filteredHealthKitEntries = filterOverlappingHealthKitEntries(
-                healthKitEntries: healthKitEntries,
+
+            // Manuel girişlerle çakışan oturumları filtrele
+            let filteredSessions = filterOverlappingHealthKitEntries(
+                healthKitSessions: daySessions,
                 manualEntries: filteredManualEntries
             )
-            
-            // Skip this day if no entries remain after filtering
-            if filteredManualEntries.isEmpty && filteredHealthKitEntries.isEmpty {
+
+            if filteredManualEntries.isEmpty && filteredSessions.isEmpty {
                 continue
             }
-            
-            // Calculate combined rating including both manual and HealthKit ratings
+
             let combinedRating = calculateCombinedDayRating(
                 manualEntries: filteredManualEntries,
-                healthKitEntries: filteredHealthKitEntries
+                healthKitSessions: filteredSessions
             )
-            
+
             let dayData = UnifiedDayData(
                 date: date,
                 manualEntries: filteredManualEntries,
-                healthKitEntries: filteredHealthKitEntries,
+                healthKitSessions: filteredSessions,
                 rating: combinedRating
             )
-            
+
             unifiedDays.append(dayData)
         }
-        
+
         return unifiedDays
     }
     
@@ -592,56 +588,47 @@ struct HistoryTimelineSection: View {
         }
     }
     
-    /// Filters HealthKit entries that overlap with manual entries
+    /// Manuel girişlerle zaman olarak çakışan HealthKit oturumlarını filtreler
     private func filterOverlappingHealthKitEntries(
-        healthKitEntries: [HealthKitSleepSample],
+        healthKitSessions: [HealthKitSleepSession],
         manualEntries: [SleepEntry]
-    ) -> [HealthKitSleepSample] {
-        return healthKitEntries.filter { healthKitEntry in
-            // Check if this HealthKit entry overlaps with any manual entry
+    ) -> [HealthKitSleepSession] {
+        return healthKitSessions.filter { session in
             !manualEntries.contains { manualEntry in
                 timeRangesOverlap(
-                    start1: healthKitEntry.startDate,
-                    end1: healthKitEntry.endDate,
+                    start1: session.startDate,
+                    end1: session.endDate,
                     start2: manualEntry.startTime,
                     end2: manualEntry.endTime
                 )
             }
         }
     }
-    
-    /// Checks if two time ranges overlap
+
     private func timeRangesOverlap(start1: Date, end1: Date, start2: Date, end2: Date) -> Bool {
-        // Two ranges overlap if start1 < end2 AND start2 < end1
         return start1 < end2 && start2 < end1
     }
-    
-    /// Calculates combined day rating including both manual and HealthKit entries
+
     private func calculateCombinedDayRating(
         manualEntries: [SleepEntry],
-        healthKitEntries: [HealthKitSleepSample]
+        healthKitSessions: [HealthKitSleepSession]
     ) -> Double {
         var totalRating: Double = 0
-        var ratedEntriesCount: Int = 0
-        
-        // Add manual entry ratings (skip edilmiş entry'leri hariç tut)
+        var ratedCount: Int = 0
+
         for entry in manualEntries {
             if entry.rating > 0 && entry.adjustmentInfo != .skipped {
                 totalRating += entry.rating
-                ratedEntriesCount += 1
+                ratedCount += 1
             }
         }
-        
-        // Add HealthKit entry ratings
-        for sample in healthKitEntries {
-            if let rating = sample.rating, rating > 0 {
+        for session in healthKitSessions {
+            if let rating = session.rating, rating > 0 {
                 totalRating += rating
-                ratedEntriesCount += 1
+                ratedCount += 1
             }
         }
-        
-        // Return average rating or 0 if no rated entries
-        return ratedEntriesCount > 0 ? totalRating / Double(ratedEntriesCount) : 0
+        return ratedCount > 0 ? totalRating / Double(ratedCount) : 0
     }
 }
 
@@ -649,25 +636,26 @@ struct HistoryTimelineSection: View {
 struct UnifiedDayData {
     let date: Date
     let manualEntries: [SleepEntry]
-    let healthKitEntries: [HealthKitSleepSample]
+    let healthKitSessions: [HealthKitSleepSession]
     let rating: Double
-    
+
     var totalSleepDuration: TimeInterval {
-        let manualDuration = manualEntries.reduce(0) { $0 + $1.duration }
-        let healthKitDuration = healthKitEntries.reduce(0) { $0 + $1.duration }
+        let manualDuration = manualEntries.reduce(0.0) { $0 + $1.duration }
+        // Birleştirilmiş session'larda actualSleepMinutes kullan (ham segment toplamı değil)
+        let healthKitDuration = healthKitSessions.reduce(0.0) { $0 + Double($1.actualSleepMinutes) * 60 }
         return manualDuration + healthKitDuration
     }
-    
+
     var coreBlocksCount: Int {
         return manualEntries.filter { $0.isCore }.count
     }
-    
+
     var napBlocksCount: Int {
-        return manualEntries.filter { !$0.isCore }.count + healthKitEntries.count
+        return manualEntries.filter { !$0.isCore }.count + healthKitSessions.count
     }
-    
+
     var totalBlocksCount: Int {
-        return manualEntries.count + healthKitEntries.count
+        return manualEntries.count + healthKitSessions.count
     }
 }
 
@@ -736,7 +724,7 @@ struct DailySleepCard: View {
     private var displayRating: Double {
         // Hem manual hem HealthKit verileri varsa kombine rating'i göster
         // Hiç veri yoksa 0.0 döndür
-        return (dayData.manualEntries.isEmpty && dayData.healthKitEntries.isEmpty) ? 0.0 : dayData.rating
+        return (dayData.manualEntries.isEmpty && dayData.healthKitSessions.isEmpty) ? 0.0 : dayData.rating
     }
     
     private var hasAdjustments: Bool {
@@ -754,8 +742,7 @@ struct DailySleepCard: View {
             // TODO: Add schedule comparison for time adjustments
         }
         
-        // HealthKit entries are typically custom
-        if !dayData.healthKitEntries.isEmpty {
+        if !dayData.healthKitSessions.isEmpty {
             indicators.append(AdjustmentIndicator(color: .purple))
         }
         
@@ -905,14 +892,14 @@ struct DailySleepCard: View {
                     )
                     .drawingGroup() // GPU acceleration for complex views
                 }
-                ForEach(dayData.healthKitEntries, id: \.id) { sample in
+                ForEach(dayData.healthKitSessions, id: \.id) { session in
                     SleepEntryDetailRow(
-                        entry: .healthKit(sample), 
+                        entry: .healthKit(session),
                         onDelete: nil,
                         viewModel: viewModel,
                         profileViewModel: profileViewModel
                     )
-                        .drawingGroup() // GPU acceleration for complex views
+                    .drawingGroup()
                 }
             }
             .padding(.vertical, PSSpacing.sm)
@@ -965,7 +952,7 @@ struct SleepEntryDetailRow: View {
     
     enum SleepEntryType {
         case manual(SleepEntry)
-        case healthKit(HealthKitSleepSample)
+        case healthKit(HealthKitSleepSession)
     }
     
     var body: some View {
@@ -1144,11 +1131,11 @@ struct SleepEntryDetailRow: View {
     
     private var emojiIcon: String {
         switch entry {
-        case .manual(let sleepEntry): 
+        case .manual(let sleepEntry):
             return sleepEntry.isCore ? profileViewModel.selectedCoreEmoji : profileViewModel.selectedNapEmoji
-        case .healthKit(let sample): 
-            // HealthKit samples are usually naps (unless specifically core sleep)
-            return sample.type == .asleep ? profileViewModel.selectedCoreEmoji : profileViewModel.selectedNapEmoji
+        case .healthKit:
+            // Birleştirilmiş uyku oturumu — her zaman core emoji
+            return profileViewModel.selectedCoreEmoji
         }
     }
     
@@ -1161,8 +1148,7 @@ struct SleepEntryDetailRow: View {
     
     private var timeRange: String {
         switch entry {
-        case .manual(let sleepEntry): 
-            // For skipped entries, show original scheduled times if available
+        case .manual(let sleepEntry):
             if sleepEntry.adjustmentInfo == .skipped,
                let originalStart = sleepEntry.originalScheduledStartTime,
                let originalEnd = sleepEntry.originalScheduledEndTime {
@@ -1170,17 +1156,18 @@ struct SleepEntryDetailRow: View {
             } else {
                 return "\(formatTime(sleepEntry.startTime)) - \(formatTime(sleepEntry.endTime))"
             }
-        case .healthKit(let sample): return "\(formatTime(sample.startDate)) - \(formatTime(sample.endDate))"
+        case .healthKit(let session):
+            return "\(formatTime(session.startDate)) - \(formatTime(session.endDate))"
         }
     }
-    
+
     private var duration: String {
         switch entry {
-        case .manual(let sleepEntry): 
+        case .manual(let sleepEntry):
             return formatCompactDuration(Int(sleepEntry.duration / 60))
-        case .healthKit(let sample):
-            let totalMinutes = Int(sample.duration / 60)
-            return formatCompactDuration(totalMinutes)
+        case .healthKit(let session):
+            // Gerçek uyku süresi (awake ve inBed hariç)
+            return formatCompactDuration(session.actualSleepMinutes)
         }
     }
     
@@ -1208,7 +1195,7 @@ struct SleepEntryDetailRow: View {
     private var currentRating: Double? {
         switch entry {
         case .manual(let sleepEntry): return sleepEntry.rating > 0 ? sleepEntry.rating : nil
-        case .healthKit(let sample): return sample.rating
+        case .healthKit(let session): return session.rating
         }
     }
     
@@ -1224,37 +1211,35 @@ struct SleepEntryDetailRow: View {
         case .manual(let sleepEntry):
             sleepEntry.rating = rating
             viewModel.updateSleepEntry(sleepEntry)
-        case .healthKit(let sample):
-            viewModel.updateHealthKitRating(for: sample.id, rating: rating)
+        case .healthKit(let session):
+            viewModel.updateHealthKitRating(for: session.id, rating: rating)
         }
     }
-    
+
     private func deleteEntry() {
         switch entry {
         case .manual(let sleepEntry):
             viewModel.deleteSleepEntry(sleepEntry)
-        case .healthKit(let sample):
-            viewModel.deleteHealthKitSample(sample)
+        case .healthKit(let session):
+            viewModel.deleteHealthKitSample(session)
         }
     }
     
     private func getAdjustmentType() -> SleepAdjustmentType? {
         switch entry {
         case .manual(let sleepEntry):
-            // Use the stored adjustment type from SleepEntry
             return sleepEntry.adjustmentInfo
         case .healthKit:
-            // HealthKit entries are typically custom unless matched with schedule
             return .custom
         }
     }
-    
+
     private func getAdjustmentMinutes() -> Int? {
         switch entry {
         case .manual(let sleepEntry):
             return sleepEntry.adjustmentMinutes
         case .healthKit:
-            return nil // HealthKit entries don't have specific minute adjustments
+            return nil
         }
     }
     
@@ -1398,7 +1383,7 @@ struct SleepEntryRatingSheet: View {
                 VStack(spacing: 6) {
                     Slider(value: $sliderValue, in: 0...4, step: 0.5)
                         .tint(getSliderColor())
-                        .onChange(of: sliderValue) { newValue in
+                        .onChange(of: sliderValue) { _, _ in
                             let generator = UIImpactFeedbackGenerator(style: .light)
                             generator.impactOccurred()
                         }

@@ -267,6 +267,145 @@ class HealthKitManager: ObservableObject {
         return await fetchSleepAnalysis(startDate: startDate, endDate: endDate)
     }
     
+    /// Ham HealthKit segmentlerini gerçek uyku oturumlarına (session) dönüştürür.
+    /// Kaynak çakışmalarını giderir ve 30dk boşluk eşiği ile segmentleri birleştirir.
+    func fetchSleepSessions(startDate: Date, endDate: Date) async -> Result<[HealthKitSleepSession], HealthKitError> {
+        let result = await fetchSleepAnalysis(startDate: startDate, endDate: endDate)
+        switch result {
+        case .failure(let error):
+            return .failure(error)
+        case .success(let rawSamples):
+            let sessions = buildSleepSessions(from: rawSamples)
+            logger.info("Session aggregation: \(rawSamples.count) ham segment → \(sessions.count) oturum")
+            return .success(sessions)
+        }
+    }
+
+    // MARK: - Session Aggregation (private)
+
+    private func buildSleepSessions(from samples: [HealthKitSleepSample]) -> [HealthKitSleepSession] {
+        guard !samples.isEmpty else { return [] }
+
+        // Kronolojik sıralama
+        let sorted = samples.sorted { $0.startDate < $1.startDate }
+
+        // Ayrıntılı aşama varsa (Watch) generic `asleep`'i dedup et
+        let deduplicated = deduplicateStages(in: sorted)
+
+        // 30dk boşluk eşiği ile oturumları grupla
+        let gapThreshold: TimeInterval = 30 * 60
+        var sessionGroups: [[HealthKitSleepSample]] = []
+        var currentGroup: [HealthKitSleepSample] = []
+
+        for sample in deduplicated {
+            if currentGroup.isEmpty {
+                currentGroup.append(sample)
+            } else {
+                let lastEnd = currentGroup.max(by: { $0.endDate < $1.endDate })!.endDate
+                if sample.startDate.timeIntervalSince(lastEnd) <= gapThreshold {
+                    currentGroup.append(sample)
+                } else {
+                    sessionGroups.append(currentGroup)
+                    currentGroup = [sample]
+                }
+            }
+        }
+        if !currentGroup.isEmpty {
+            sessionGroups.append(currentGroup)
+        }
+
+        // Her grup için HealthKitSleepSession oluştur
+        var sessions: [HealthKitSleepSession] = []
+        for group in sessionGroups {
+            // Sadece inBed içeren grupları atla
+            let hasActualSleep = group.contains { $0.type != .inBed }
+            guard hasActualSleep else { continue }
+
+            // Oturum sınırlarını belirle
+            let inBedSamples = group.filter { $0.type == .inBed }
+            let nonBedSamples = group.filter { $0.type != .inBed }
+
+            let sessionStart: Date
+            let sessionEnd: Date
+            if let inBed = inBedSamples.sorted(by: { $0.startDate < $1.startDate }).first {
+                sessionStart = inBed.startDate
+                let inBedEnd = inBedSamples.max(by: { $0.endDate < $1.endDate })!.endDate
+                let lastSampleEnd = nonBedSamples.max(by: { $0.endDate < $1.endDate })?.endDate ?? inBedEnd
+                sessionEnd = max(inBedEnd, lastSampleEnd)
+            } else {
+                sessionStart = nonBedSamples.min(by: { $0.startDate < $1.startDate })!.startDate
+                sessionEnd = nonBedSamples.max(by: { $0.endDate < $1.endDate })!.endDate
+            }
+
+            // Gerçek uyku süresi: awake ve inBed hariç.
+            // Hem iPhone hem Watch aynı aşamaları yazabilir; örtüşen aralıkları
+            // birleştirerek her dakikayı yalnızca bir kez say.
+            let asleepTypes: Set<SleepAnalysisType> = [.asleep, .core, .deep, .rem]
+            let sleepIntervals = group
+                .filter { asleepTypes.contains($0.type) }
+                .map { ($0.startDate, $0.endDate) }
+            let mergedIntervals = mergeIntervals(sleepIntervals)
+            let actualSleepSeconds = mergedIntervals.reduce(0.0) { $0 + $1.1.timeIntervalSince($1.0) }
+            let actualSleepMinutes = Int(actualSleepSeconds / 60)
+
+            // Minimum 1 dakika uyku olmayan oturumları atla
+            guard actualSleepMinutes > 0 else { continue }
+
+            let source = group.first?.source ?? "Unknown"
+
+            sessions.append(HealthKitSleepSession(
+                id: UUID(),
+                startDate: sessionStart,
+                endDate: sessionEnd,
+                actualSleepMinutes: actualSleepMinutes,
+                source: source,
+                stages: group
+            ))
+        }
+
+        // En yeni oturum önce
+        return sessions.sorted { $0.startDate > $1.startDate }
+    }
+
+    /// Örtüşen (start, end) aralıklarını birleştirerek her zaman dilimini yalnızca bir kez temsil eden
+    /// minimal aralık listesi döndürür. Farklı kaynaklardan gelen çakışan segmentlerde çift sayımı önler.
+    private func mergeIntervals(_ intervals: [(Date, Date)]) -> [(Date, Date)] {
+        guard !intervals.isEmpty else { return [] }
+        let sorted = intervals.sorted { $0.0 < $1.0 }
+        var merged: [(Date, Date)] = [sorted[0]]
+        for interval in sorted.dropFirst() {
+            let last = merged[merged.count - 1]
+            if interval.0 <= last.1 {
+                // Örtüşme var — bitiş zamanını genişlet
+                if interval.1 > last.1 {
+                    merged[merged.count - 1] = (last.0, interval.1)
+                }
+            } else {
+                merged.append(interval)
+            }
+        }
+        return merged
+    }
+
+    /// Ayrıntılı aşamalar (Core/Deep/REM) ile çakışan generic `asleep` segmentlerini filtreler.
+    /// Apple Watch ayrıntılı veri yazarken iPhone da aynı dönem için `asleep` yazar;
+    /// bu fonksiyon çift sayımı önler.
+    private func deduplicateStages(in samples: [HealthKitSleepSample]) -> [HealthKitSleepSample] {
+        let detailedTypes: Set<SleepAnalysisType> = [.core, .deep, .rem]
+        let detailedSamples = samples.filter { detailedTypes.contains($0.type) }
+
+        guard !detailedSamples.isEmpty else { return samples }
+
+        return samples.filter { sample in
+            guard sample.type == .asleep else { return true }
+            // Ayrıntılı bir aşama ile çakışıyorsa bu generic asleep'i at
+            let overlaps = detailedSamples.contains { detailed in
+                sample.startDate < detailed.endDate && detailed.startDate < sample.endDate
+            }
+            return !overlaps
+        }
+    }
+    
     // MARK: - Heart Rate Data
     
     func fetchHeartRateData(
@@ -558,6 +697,30 @@ struct HealthKitSleepSample: Identifiable {
     // HealthKit sample'ı için unique identifier
     var healthKitIdentifier: String {
         return "\(startDate.timeIntervalSince1970)_\(endDate.timeIntervalSince1970)_\(type.rawValue)_\(source)"
+    }
+}
+
+// Birleştirilmiş uyku oturumu (ham segmentlerden oluşturulur)
+struct HealthKitSleepSession: Identifiable {
+    let id: UUID
+    let startDate: Date       // oturumun başlangıcı (inBed veya ilk segment)
+    let endDate: Date         // oturumun bitişi (inBed veya son segment)
+    let actualSleepMinutes: Int  // sadece asleep aşamaları toplamı (awake ve inBed hariç)
+    let source: String
+    var rating: Double?
+    var stages: [HealthKitSleepSample]  // ham segmentler (Analytics için)
+
+    var duration: TimeInterval {
+        return endDate.timeIntervalSince(startDate)
+    }
+
+    var hasRating: Bool {
+        return rating != nil
+    }
+
+    // Persistence için unique identifier
+    var healthKitIdentifier: String {
+        return "\(startDate.timeIntervalSince1970)_\(endDate.timeIntervalSince1970)_\(source)"
     }
 }
 

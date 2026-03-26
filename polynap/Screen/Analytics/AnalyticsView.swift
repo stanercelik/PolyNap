@@ -22,7 +22,7 @@ public struct AnalyticsView: View {
                 Color.appBackground
                     .ignoresSafeArea()
                 
-                ScrollView {
+                ScrollView(.vertical, showsIndicators: false) {
                     VStack(alignment: .leading, spacing: PSSpacing.xl) {
                         // Başlık
                         Text(L("tabbar.analytics", table: "Common"))
@@ -239,6 +239,7 @@ public struct AnalyticsView: View {
                         }
                     }
                     .padding(.bottom, PSSpacing.xxl)
+                    .frame(maxWidth: .infinity)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)

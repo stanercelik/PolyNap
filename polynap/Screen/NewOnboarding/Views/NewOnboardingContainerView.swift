@@ -27,6 +27,14 @@ struct NewOnboardingContainerView: View {
             viewModel.setModelContext(modelContext)
             analyticsManager.logOnboardingStarted()
             analyticsManager.logScreenView(screenName: "new_onboarding", screenClass: "NewOnboardingContainerView")
+            // Track initial screen view (first screen has no preceding goToNext call)
+            let firstScreen = viewModel.currentScreen
+            analyticsManager.logOnboardingScreenViewed(
+                screenName: firstScreen.description,
+                screenIndex: firstScreen.rawValue,
+                section: firstScreen.section.analyticsName,
+                progressPct: 0
+            )
         }
         .statusBarHidden(viewModel.currentScreen == .splash)
     }

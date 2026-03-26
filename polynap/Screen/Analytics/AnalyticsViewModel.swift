@@ -555,8 +555,10 @@ class AnalyticsViewModel: ObservableObject {
         let daysWithDataCount = daysWithData.count
         stats.averageDailyHours = daysWithDataCount > 0 ? stats.totalSleepHours / Double(daysWithDataCount) : 0
         
-        let totalScoreSum = allSleepEntries.reduce(0) { $0 + $1.rating }
-        stats.averageSleepScore = allSleepEntries.isEmpty ? 0 : Double(totalScoreSum) / Double(allSleepEntries.count)
+        // Puan verilmemiş girişler (rating == 0) ortalamaya dahil edilmez
+        let ratedEntries = allSleepEntries.filter { $0.rating > 0 }
+        let totalScoreSum = ratedEntries.reduce(0.0) { $0 + $1.rating }
+        stats.averageSleepScore = ratedEntries.isEmpty ? 0 : totalScoreSum / Double(ratedEntries.count)
         
         let traditionalSleepHours = 8.0 * Double(daysWithDataCount)
         stats.timeGained = max(0, traditionalSleepHours - stats.totalSleepHours)
@@ -568,16 +570,23 @@ class AnalyticsViewModel: ObservableObject {
         for dayDate in daysWithData {
             let dayEntries = allSleepEntries.filter { calendar.isDate($0.date, inSameDayAs: dayDate) }
             if dayEntries.isEmpty { continue }
-            
+
             let dayTotalHours = dayEntries.reduce(0.0) { $0 + $1.duration / 3600.0 }
-            let dayTotalScore = dayEntries.reduce(0) { $0 + $1.rating }
-            let dayAverageScore = Double(dayTotalScore) / Double(dayEntries.count)
-            
-            if bestDay == nil || dayAverageScore > bestDay!.score {
-                bestDay = (dayDate, dayTotalHours, dayAverageScore)
+            let dayRatedEntries = dayEntries.filter { $0.rating > 0 }
+            let dayAverageScore: Double
+            if dayRatedEntries.isEmpty {
+                dayAverageScore = 0
+            } else {
+                dayAverageScore = dayRatedEntries.reduce(0.0) { $0 + $1.rating } / Double(dayRatedEntries.count)
             }
-            if worstDay == nil || dayAverageScore < worstDay!.score {
-                worstDay = (dayDate, dayTotalHours, dayAverageScore)
+
+            if dayAverageScore > 0 {
+                if bestDay == nil || dayAverageScore > bestDay!.score {
+                    bestDay = (dayDate, dayTotalHours, dayAverageScore)
+                }
+                if worstDay == nil || dayAverageScore < worstDay!.score {
+                    worstDay = (dayDate, dayTotalHours, dayAverageScore)
+                }
             }
         }
         
@@ -625,9 +634,10 @@ class AnalyticsViewModel: ObservableObject {
         var qualityStats = SleepQualityStats()
         for dayDate in daysWithData {
             let dayEntries = allSleepEntries.filter { calendar.isDate($0.date, inSameDayAs: dayDate) }
-            if dayEntries.isEmpty { continue }
-            let dayTotalScore = dayEntries.reduce(0) { $0 + $1.rating }
-            let dayAvgScore = Double(dayTotalScore) / Double(dayEntries.count)
+            let dayRatedEntries = dayEntries.filter { $0.rating > 0 }
+            // Puan verilmemiş günler kalite istatistiğine dahil edilmez
+            if dayRatedEntries.isEmpty { continue }
+            let dayAvgScore = dayRatedEntries.reduce(0.0) { $0 + $1.rating } / Double(dayRatedEntries.count)
             let category = SleepQualityCategory.fromRating(dayAvgScore)
             
             switch category {

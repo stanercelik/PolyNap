@@ -74,14 +74,14 @@ class ScheduleManager: ObservableObject {
             return
         }
         
+        // Eş zamanlı çağrıların throttle'ı atlamasını önlemek için ağır işe başlamadan önce kaydet
+        self.lastNotificationUpdateTime = now
+        self.lastUpdatedScheduleID = schedule.id
+        
         print("🔄 ScheduleManager: Bildirimler '\(schedule.name)' programı için yeniden planlanıyor...")
         
         // Merkezi alarm servisini çağır
         await AlarmService.shared.rescheduleNotificationsForActiveSchedule(modelContext: context)
-        
-        // Son güncelleme bilgilerini kaydet
-        self.lastNotificationUpdateTime = now
-        self.lastUpdatedScheduleID = schedule.id
     }
     
     /// Belirtilen bir programı aktif hale getirir.

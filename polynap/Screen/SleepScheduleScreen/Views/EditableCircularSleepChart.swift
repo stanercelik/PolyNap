@@ -2,15 +2,19 @@ import SwiftUI
 
 struct EditableCircularSleepChart: View {
     @ObservedObject var viewModel: MainScreenViewModel
+    @ObservedObject private var chartState: MainScreenChartState
     let chartSize: CircularChartSize
     @Environment(\.colorScheme) var colorScheme
     
     @Binding var activeDragInfo: String?
-    
+
     @State private var center: CGPoint = .zero
     @State private var radius: CGFloat = 0
     @State private var strokeWidth: CGFloat = 0
-    
+
+    // Sabit label padding — hesaplamada her zaman 8 kullanılır
+    private let chartLabelPadding: CGFloat = 8
+
     // Threshold constants for better UX
     private let dragThreshold: CGFloat = 40 // Chart'tan bu mesafede floating mode'a geçer
     private let snapBackThreshold: CGFloat = 40 // Bu mesafede chart'a geri snap olur
@@ -19,84 +23,89 @@ struct EditableCircularSleepChart: View {
     private var defaultStrokeWidth: CGFloat { chartSize.strokeWidth }
     private let hourMarkers = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22]
 
-    init(viewModel: MainScreenViewModel, chartSize: CircularChartSize = .extraLarge, activeDragInfo: Binding<String?>) {
+    init(
+        viewModel: MainScreenViewModel,
+        chartState: MainScreenChartState,
+        chartSize: CircularChartSize = .extraLarge,
+        activeDragInfo: Binding<String?>
+    ) {
         self.viewModel = viewModel
+        self._chartState = ObservedObject(wrappedValue: chartState)
         self.chartSize = chartSize
         self._activeDragInfo = activeDragInfo
     }
 
     var body: some View {
-        GeometryReader { geometry in
-            let availableWidth = geometry.size.width
-            let labelFontSize = max(8, availableWidth / 35)
-            let labelWidthApproximation = labelFontSize * 5
-            let labelPadding: CGFloat = 8
+        // GeometryReader yerine onGeometryChange kullanılıyor:
+        // GeometryReader tüm chart içeriğini sarması nedeniyle layout değişikliklerinde
+        // (örn. hero section açılıp kapandığında) tüm ZStack'i yeniden inşa ediyordu.
+        // onGeometryChange sadece genişlik değiştiğinde tetiklenir; ZStack @State üzerinden render eder.
+        ZStack {
+            if radius > 0 {
+                backgroundCircle(center: center, radius: radius, strokeWidth: strokeWidth)
+                editableSleepBlocksView(center: center, radius: radius, strokeWidth: strokeWidth)
+                hourTickMarks(center: center, radius: radius, strokeWidth: strokeWidth)
+                hourMarkersView(center: center, radius: radius, strokeWidth: strokeWidth, labelPadding: chartLabelPadding)
+                innerTimeLabelsView(center: center, radius: radius, strokeWidth: strokeWidth)
 
-            let totalPadding = defaultStrokeWidth + labelPadding + labelWidthApproximation
-            let chartDiameter = availableWidth - totalPadding
-            let adjustedRadius = chartDiameter / 2
-            let chartCenter = CGPoint(x: adjustedRadius + totalPadding/2, y: adjustedRadius + totalPadding/2)
-            let adjustedStrokeWidth = adjustedRadius * (defaultStrokeWidth / circleRadius)
+                if chartState.isChartEditMode {
+                    snapIndicators(center: center, radius: radius)
 
-            VStack {
-                ZStack {
-                    backgroundCircle(center: chartCenter, radius: adjustedRadius, strokeWidth: adjustedStrokeWidth)
-                    editableSleepBlocksView(center: chartCenter, radius: adjustedRadius, strokeWidth: adjustedStrokeWidth)
-                    hourTickMarks(center: chartCenter, radius: adjustedRadius, strokeWidth: adjustedStrokeWidth)
-                    hourMarkersView(center: chartCenter, radius: adjustedRadius, strokeWidth: adjustedStrokeWidth, labelPadding: labelPadding)
-                    innerTimeLabelsView(center: chartCenter, radius: adjustedRadius, strokeWidth: adjustedStrokeWidth)
-                    
-                    if viewModel.isChartEditMode {
-                        snapIndicators(center: chartCenter, radius: adjustedRadius)
-                        
-                        // Plus Button - Sağ alt köşe (her zaman görünür)
-                        plusButton(center: chartCenter, radius: adjustedRadius, strokeWidth: adjustedStrokeWidth)
-                        
-                        // Trash Area - Sol alt köşe (her zaman görünür)
-                        trashArea(center: chartCenter, radius: adjustedRadius, strokeWidth: adjustedStrokeWidth)
-                        
-                        // Preview Block (deprecated - keeping for backward compatibility)
-                        if let previewBlock = viewModel.previewBlock {
-                            previewBlockView(
-                                block: previewBlock,
-                                center: chartCenter,
-                                radius: adjustedRadius,
-                                strokeWidth: adjustedStrokeWidth
-                            )
-                        }
-                        
-                        // Floating Block System - Sadece threshold dışına çıktığında göster
-                        if let floatingBlock = viewModel.floatingBlock, 
-                           viewModel.isFloatingBlockVisible, 
-                           viewModel.isBlockFloating {
-                            handDraggedBlockView(
-                                block: floatingBlock,
-                                position: viewModel.floatingBlockPosition,
-                                center: chartCenter,
-                                radius: adjustedRadius
-                            )
-                        }
+                    // Plus Button - Sağ alt köşe
+                    plusButton(center: center, radius: radius, strokeWidth: strokeWidth)
+
+                    // Trash Area - Sol alt köşe
+                    trashArea(center: center, radius: radius, strokeWidth: strokeWidth)
+
+                    // Preview Block (deprecated - keeping for backward compatibility)
+                    if let previewBlock = chartState.previewBlock {
+                        previewBlockView(
+                            block: previewBlock,
+                            center: center,
+                            radius: radius,
+                            strokeWidth: strokeWidth
+                        )
+                    }
+
+                    // Floating Block System
+                    if let floatingBlock = chartState.floatingBlock,
+                       chartState.isFloatingBlockVisible,
+                       chartState.isBlockFloating {
+                        handDraggedBlockView(
+                            block: floatingBlock,
+                            position: chartState.floatingBlockPosition,
+                            center: center,
+                            radius: radius
+                        )
                     }
                 }
-                .onAppear {
-                    center = chartCenter
-                    radius = adjustedRadius
-                    strokeWidth = adjustedStrokeWidth
-                }
-                .onChange(of: chartCenter) { _, newCenter in
-                    center = newCenter
-                }
-                .onChange(of: adjustedRadius) { _, newRadius in
-                    radius = newRadius
-                }
-                .onChange(of: adjustedStrokeWidth) { _, newStrokeWidth in
-                    strokeWidth = newStrokeWidth
-                }
             }
-            .frame(width: availableWidth, height: availableWidth)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .aspectRatio(1, contentMode: .fit)
-        .animation(.easeInOut(duration: 0.3), value: viewModel.isChartEditMode)
+        .onGeometryChange(for: CGFloat.self) { proxy in
+            proxy.size.width
+        } action: { width in
+            updateChartGeometry(availableWidth: width)
+        }
+        .animation(.easeInOut(duration: 0.3), value: chartState.isChartEditMode)
+    }
+
+    /// Geometri değiştiğinde (ilk render dahil) @State değerlerini günceller.
+    /// Yalnızca gerçekten değiştiğinde state güncellenir — gereksiz re-render engellenir.
+    private func updateChartGeometry(availableWidth: CGFloat) {
+        guard availableWidth > 0 else { return }
+        let labelFontSize = max(8, availableWidth / 35)
+        let labelWidthApproximation = labelFontSize * 5
+        let totalPadding = defaultStrokeWidth + chartLabelPadding + labelWidthApproximation
+        let chartDiameter = availableWidth - totalPadding
+        let adjustedRadius = chartDiameter / 2
+        let newCenter = CGPoint(x: adjustedRadius + totalPadding / 2, y: adjustedRadius + totalPadding / 2)
+        let newStrokeWidth = adjustedRadius * (defaultStrokeWidth / circleRadius)
+
+        if center != newCenter { center = newCenter }
+        if radius != adjustedRadius { radius = adjustedRadius }
+        if strokeWidth != newStrokeWidth { strokeWidth = newStrokeWidth }
     }
     
     // MARK: - Background Circle with Shimmer Effect
@@ -155,6 +164,7 @@ struct EditableCircularSleepChart: View {
             .stroke(style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
             .foregroundColor(Color.appTextSecondary.opacity(0.2))
         }
+        .drawingGroup() // Tick mark path'lerini tek Metal katmanına flatten et
     }
     
     // MARK: - Hour Markers
@@ -165,6 +175,7 @@ struct EditableCircularSleepChart: View {
                 hourMarkerLabel(for: hour, center: center, radius: radius, strokeWidth: strokeWidth, labelPadding: labelPadding)
             }
         }
+        .drawingGroup() // 12 Text view'ı tek Metal katmanına flatten et
     }
     
     private func hourMarkerLabel(for hour: Int, center: CGPoint, radius: CGFloat, strokeWidth: CGFloat, labelPadding: CGFloat) -> some View {
@@ -377,8 +388,9 @@ struct EditableCircularSleepChart: View {
     private func innerTimeLabelsView(center: CGPoint, radius: CGFloat, strokeWidth: CGFloat) -> some View {
         ZStack {
             let schedule = viewModel.isChartEditMode ? viewModel.tempScheduleBlocks : viewModel.model.schedule.schedule
-            ForEach(schedule.indices, id: \.self) { index in
-                timeLabel(for: schedule[index], center: center, radius: radius, strokeWidth: strokeWidth)
+            // .indices yerine stabil \.id kullanılıyor — schedule değiştiğinde gereksiz re-create engellendi
+            ForEach(schedule, id: \.id) { block in
+                timeLabel(for: block, center: center, radius: radius, strokeWidth: strokeWidth)
             }
         }
     }
@@ -437,24 +449,19 @@ struct EditableCircularSleepChart: View {
     // MARK: - Snap Indicators
     
     private func snapIndicators(center: CGPoint, radius: CGFloat) -> some View {
-        let totalMinutes = 24 * 60
-        let snapInterval = 5 // 5 dakika sabit
-        let indicatorCount = totalMinutes / snapInterval
+        // 288 ayrı Circle view yerine tek Path — view hiyerarşisi dramatik şekilde küçüldü
         let indicatorRadius = radius + 8
-        
-        return ZStack {
-            ForEach(0..<indicatorCount, id: \.self) { index in
-                let angle = Double(index * snapInterval) * (360.0 / Double(totalMinutes)) - 90
-                
-                let indicatorX = center.x + indicatorRadius * cos(angle * .pi / 180)
-                let indicatorY = center.y + indicatorRadius * sin(angle * .pi / 180)
-                
-                Circle()
-                    .fill(Color.appAccent.opacity(0.3))
-                    .frame(width: 2, height: 2)
-                    .position(x: indicatorX, y: indicatorY)
+        let toRad = Double.pi / 180
+
+        return Path { path in
+            for index in 0..<288 {
+                let angle = Double(index * 5) * (360.0 / (24.0 * 60.0)) - 90
+                let x = center.x + indicatorRadius * CGFloat(Foundation.cos(angle * toRad))
+                let y = center.y + indicatorRadius * CGFloat(Foundation.sin(angle * toRad))
+                path.addEllipse(in: CGRect(x: x - 1, y: y - 1, width: 2, height: 2))
             }
         }
+        .fill(Color.appAccent.opacity(0.3))
     }
     
     // MARK: - Helper Functions

@@ -8493,6 +8493,9 @@
         }
       }
     },
+    "tip.sleep.adaptation" : {
+
+    },
     "Transition completed successfully!" : {
       "localizations" : {
         "de" : {

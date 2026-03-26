@@ -67,6 +67,7 @@ struct AnimatedMaskModifier: ViewModifier {
 
 struct MainScreenView: View {
     @StateObject private var viewModel: MainScreenViewModel
+    @ObservedObject private var chartState: MainScreenChartState
     @StateObject private var tourManager = AppTourManager.shared
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var languageManager: LanguageManager
@@ -79,6 +80,7 @@ struct MainScreenView: View {
     init(viewModel: MainScreenViewModel? = nil) {
         let initialViewModel = viewModel ?? MainScreenViewModel(languageManager: LanguageManager.shared)
         _viewModel = StateObject(wrappedValue: initialViewModel)
+        _chartState = ObservedObject(wrappedValue: initialViewModel.chartState)
     }
     
     var body: some View {
@@ -91,7 +93,13 @@ struct MainScreenView: View {
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: 0) {
                         // Hero Section (gradient header – extends behind status bar)
-                        MainHeroSection(viewModel: viewModel)
+                        MainHeroSection(
+                            greetingText: viewModel.greetingText,
+                            scheduleName: viewModel.model.schedule.name,
+                            scheduleDescription: viewModel.currentScheduleDescription,
+                            countdownState: viewModel.countdownState,
+                            onSelectSchedule: viewModel.showScheduleSelectionSheet
+                        )
                             .id("scroll.main.top")
                         
                         // Content Area
@@ -113,15 +121,18 @@ struct MainScreenView: View {
                             WeeklyStreakSection()
                             
                             // Metrics Grid (Total Sleep + Schedule)
-                            MetricsGridSection(viewModel: viewModel)
+                            MetricsGridSection(
+                                totalSleepFormatted: viewModel.totalSleepTimeFormatted,
+                                blockCount: viewModel.model.schedule.schedule.count
+                            )
                             
                             // Circular Sleep Chart
-                            MainChartCard(viewModel: viewModel)
+                            MainChartCard(viewModel: viewModel, chartState: chartState)
                                 .tourTarget("tour.main.chartCard")
                                 .id("tour.main.chartCard")
                             
                             // Daily Tip Section (Nimmy)
-                            DailyTipSection(viewModel: viewModel)
+                            DailyTipSection(dailyTip: viewModel.dailyTip)
                         }
                         .padding(.horizontal, PSSpacing.lg)
                         .padding(.top, PSSpacing.xl)
@@ -177,7 +188,7 @@ struct MainScreenView: View {
             .toolbarBackground(.hidden, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    if viewModel.isChartEditMode {
+                    if chartState.isChartEditMode {
                         Button(action: {
                             UIImpactFeedbackGenerator(style: .light).impactOccurred()
                             viewModel.cancelChartEdit()
@@ -191,7 +202,7 @@ struct MainScreenView: View {
                 }
                 
                 ToolbarItem(placement: .navigationBarTrailing) {
-                    if viewModel.isChartEditMode {
+                    if chartState.isChartEditMode {
                         Button(action: {
                             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
                             viewModel.saveChartEdit()
@@ -267,9 +278,9 @@ struct MainScreenView: View {
     private func handleTourEditMode(newIndex: Int) {
         if newIndex == TourStep.editButton.rawValue {
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-                if !viewModel.isChartEditMode { viewModel.startChartEdit() }
+                if !chartState.isChartEditMode { viewModel.startChartEdit() }
             }
-        } else if newIndex > TourStep.editButton.rawValue && viewModel.isChartEditMode {
+        } else if newIndex > TourStep.editButton.rawValue && chartState.isChartEditMode {
             viewModel.cancelChartEdit()
         }
     }
@@ -285,7 +296,11 @@ private extension DateFormatter {
 }
 
 struct MainHeroSection: View {
-    @ObservedObject var viewModel: MainScreenViewModel
+    let greetingText: String
+    let scheduleName: String
+    let scheduleDescription: String
+    @ObservedObject var countdownState: MainScreenCountdownState
+    let onSelectSchedule: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var appeared = false
     @State private var descriptionExpanded = false
@@ -297,7 +312,7 @@ struct MainHeroSection: View {
         VStack(alignment: .leading, spacing: 0) {
             // Row 1: Greeting · Date
             HStack(alignment: .center, spacing: PSSpacing.xs) {
-                Text(viewModel.greetingText)
+                Text(greetingText)
                     .font(.system(.caption, design: .rounded).weight(.medium))
                     .foregroundColor(.white.opacity(0.6))
                 Text("·")
@@ -316,10 +331,10 @@ struct MainHeroSection: View {
             HStack(spacing: PSSpacing.xs) {
                 Button(action: {
                     UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                    viewModel.showScheduleSelectionSheet()
+                    onSelectSchedule()
                 }) {
                     HStack(spacing: PSSpacing.xs) {
-                        Text(viewModel.model.schedule.name)
+                        Text(scheduleName)
                             .font(.system(.title3, design: .rounded).weight(.bold))
                             .foregroundColor(.white)
                             .lineLimit(1)
@@ -334,7 +349,7 @@ struct MainHeroSection: View {
                 Spacer()
 
                 // Info toggle for schedule description
-                if !viewModel.currentScheduleDescription.isEmpty {
+                if !scheduleDescription.isEmpty {
                     Button(action: {
                         withAnimation(.spring(response: 0.35, dampingFraction: 0.85)) {
                             descriptionExpanded.toggle()
@@ -354,7 +369,7 @@ struct MainHeroSection: View {
 
             // Row 3: Collapsible description
             if descriptionExpanded {
-                Text(viewModel.currentScheduleDescription)
+                Text(scheduleDescription)
                     .font(.system(size: 13, weight: .regular, design: .rounded))
                     .foregroundColor(.white.opacity(0.75))
                     .lineSpacing(3)
@@ -374,7 +389,7 @@ struct MainHeroSection: View {
                 .opacity(appeared ? 1 : 0)
 
             // Row 5: Big countdown
-            Text(viewModel.nextSleepBlockFormatted)
+            Text(countdownState.nextSleepBlockFormatted)
                 .font(.system(size: 44, weight: .bold, design: .rounded))
                 .foregroundColor(.white)
                 .monospacedDigit()
@@ -420,9 +435,8 @@ struct MainHeroSection: View {
     }
 
     private var heroAccessibilityLabel: String {
-        let next = viewModel.nextSleepBlockFormatted
-        let schedule = viewModel.model.schedule.name
-        return "\(viewModel.greetingText). \(schedule). \(L("mainScreen.nextSleepBlock", table: "MainScreen")) \(next)"
+        let next = countdownState.nextSleepBlockFormatted
+        return "\(greetingText). \(scheduleName). \(L("mainScreen.nextSleepBlock", table: "MainScreen")) \(next)"
     }
 }
 
@@ -594,16 +608,18 @@ struct WeeklyStreakSection: View {
 
 // MARK: - Metrics Grid Section
 struct MetricsGridSection: View {
-    @ObservedObject var viewModel: MainScreenViewModel
+    let totalSleepFormatted: String
+    let blockCount: Int
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var appeared = false
 
     var body: some View {
+        let isTR = LanguageManager.shared.currentLanguage == "tr"
         HStack(spacing: 0) {
             CompactMetricItem(
                 emoji: "🌙",
-                value: viewModel.totalSleepTimeFormatted,
-                label: LanguageManager.shared.currentLanguage == "tr" ? "Toplam Uyku" : "Total Sleep"
+                value: totalSleepFormatted,
+                label: isTR ? "Toplam Uyku" : "Total Sleep"
             )
 
             Rectangle()
@@ -612,8 +628,8 @@ struct MetricsGridSection: View {
 
             CompactMetricItem(
                 emoji: "🛏️",
-                value: "\(viewModel.model.schedule.schedule.count)",
-                label: LanguageManager.shared.currentLanguage == "tr" ? "Uyku Bloğu" : "Sleep Blocks"
+                value: "\(blockCount)",
+                label: isTR ? "Uyku Bloğu" : "Sleep Blocks"
             )
         }
         .padding(.vertical, PSSpacing.sm)
@@ -659,6 +675,7 @@ private struct CompactMetricItem: View {
 // MARK: - Chart Card
 struct MainChartCard: View {
     @ObservedObject var viewModel: MainScreenViewModel
+    @ObservedObject var chartState: MainScreenChartState
     @State private var chartDragInfo: String? = nil
     
     var body: some View {
@@ -669,7 +686,7 @@ struct MainChartCard: View {
                     .font(.system(.headline, design: .rounded).weight(.semibold))
                     .foregroundColor(.appText)
                 Spacer()
-                if !viewModel.isChartEditMode {
+                if !chartState.isChartEditMode {
                     Button(action: { viewModel.startChartEdit() }) {
                         HStack(spacing: 4) {
                             Image(systemName: "pencil")
@@ -690,6 +707,7 @@ struct MainChartCard: View {
             // Chart
             EditableCircularSleepChart(
                 viewModel: viewModel,
+                chartState: chartState,
                 chartSize: .extraLarge,
                 activeDragInfo: $chartDragInfo
             )
@@ -697,7 +715,7 @@ struct MainChartCard: View {
             .frame(minHeight: 260)
             
             // Chart edit feedback
-            if viewModel.isChartEditMode {
+            if chartState.isChartEditMode {
                 if let dragInfo = chartDragInfo {
                     Text(dragInfo)
                         .font(.system(.caption, design: .monospaced).weight(.medium))
@@ -705,7 +723,7 @@ struct MainChartCard: View {
                         .transition(.opacity)
                         .id(dragInfo)
                 } else {
-                    ChartEditControls(viewModel: viewModel)
+                    ChartEditControls(viewModel: viewModel, chartState: chartState)
                         .transition(.opacity.combined(with: .scale(0.95, anchor: .bottom)))
                 }
             }
@@ -713,9 +731,9 @@ struct MainChartCard: View {
         .padding(PSSpacing.md)
         .background(Color.appCardBackground, in: RoundedRectangle(cornerRadius: PSCornerRadius.extraLarge))
         .shadow(color: .black.opacity(0.18), radius: 8, x: 0, y: 3)
-        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: viewModel.isChartEditMode)
-        .sheet(isPresented: $viewModel.showChartBlockEditSheet) {
-            ChartBlockEditSheet(viewModel: viewModel)
+        .animation(.spring(response: 0.35, dampingFraction: 0.85), value: chartState.isChartEditMode)
+        .sheet(isPresented: $chartState.showChartBlockEditSheet) {
+            ChartBlockEditSheet(viewModel: viewModel, chartState: chartState)
         }
     }
 }
@@ -723,9 +741,10 @@ struct MainChartCard: View {
 // MARK: - Chart Edit UI Components
 struct ChartEditControls: View {
     @ObservedObject var viewModel: MainScreenViewModel
+    @ObservedObject var chartState: MainScreenChartState
     
     private var isDragging: Bool {
-        viewModel.draggedBlockId != nil || viewModel.isResizing
+        chartState.draggedBlockId != nil || chartState.isResizing
     }
     
     var body: some View {
@@ -777,6 +796,7 @@ private struct EditChip: View {
 // MARK: - Chart Block Tap Edit Sheet
 struct ChartBlockEditSheet: View {
     @ObservedObject var viewModel: MainScreenViewModel
+    @ObservedObject var chartState: MainScreenChartState
     @Environment(\.dismiss) private var dismiss
     private var isTR: Bool { LanguageManager.shared.currentLanguage == "tr" }
 
@@ -784,7 +804,7 @@ struct ChartBlockEditSheet: View {
         NavigationStack {
             VStack(spacing: 0) {
                 // Block type badge
-                if let block = viewModel.chartEditingBlock {
+                if let block = chartState.chartEditingBlock {
                     HStack(spacing: PSSpacing.sm) {
                         Image(systemName: block.isCore ? "moon.fill" : "powersleep")
                             .font(.system(size: 13, weight: .semibold))
@@ -812,7 +832,7 @@ struct ChartBlockEditSheet: View {
                         .padding(.top, PSSpacing.md)
 
                     DatePicker("",
-                               selection: $viewModel.chartEditStartDate,
+                               selection: $chartState.chartEditStartDate,
                                displayedComponents: .hourAndMinute)
                         .datePickerStyle(.wheel)
                         .labelsHidden()
@@ -830,7 +850,7 @@ struct ChartBlockEditSheet: View {
                         .padding(.top, PSSpacing.sm)
 
                     DatePicker("",
-                               selection: $viewModel.chartEditEndDate,
+                               selection: $chartState.chartEditEndDate,
                                displayedComponents: .hourAndMinute)
                         .datePickerStyle(.wheel)
                         .labelsHidden()
@@ -864,8 +884,8 @@ struct ChartBlockEditSheet: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button(action: {
-                        viewModel.showChartBlockEditSheet = false
-                        viewModel.chartEditingBlock = nil
+                        chartState.showChartBlockEditSheet = false
+                        chartState.chartEditingBlock = nil
                     }) {
                         Text(L("common.cancel", table: "Common"))
                             .font(.system(.body, design: .rounded).weight(.regular))
@@ -977,7 +997,7 @@ struct SleepBlocksSection: View {
 
 // MARK: - Daily Tip Section
 struct DailyTipSection: View {
-    @ObservedObject var viewModel: MainScreenViewModel
+    let dailyTip: LocalizedStringKey
     
     var body: some View {
         VStack(spacing: PSSpacing.sm) {
@@ -995,7 +1015,7 @@ struct DailyTipSection: View {
             HStack(alignment: .top, spacing: PSSpacing.md) {
                 NimmyImage(.meditation, size: 64)
                 
-                Text(viewModel.dailyTip, tableName: "Tips")
+                Text(dailyTip, tableName: "Tips")
                     .font(.system(.subheadline, design: .rounded))
                     .foregroundColor(.appText)
                     .lineSpacing(4)
@@ -1426,6 +1446,3 @@ struct CurrentTimeIndicator: View {
             .position(indicatorPosition)
     }
 }
-
-
-

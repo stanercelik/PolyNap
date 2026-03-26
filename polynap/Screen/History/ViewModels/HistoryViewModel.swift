@@ -87,9 +87,9 @@ class HistoryViewModel: ObservableObject {
     @Published var isSyncing = false
     @Published var syncError: String?
     @Published var syncStatus: SyncStatus = .synced
-    @Published var healthKitData: [HealthKitSleepSample] = []
+    @Published var healthKitSessions: [HealthKitSleepSession] = []
     @Published var isHealthKitDataLoaded = false
-    @Published var filteredHealthKitData: [HealthKitSleepSample] = []
+    @Published var filteredHealthKitSessions: [HealthKitSleepSession] = []
     
     // MARK: - Private Properties
     var modelContext: ModelContext?
@@ -349,23 +349,22 @@ class HistoryViewModel: ObservableObject {
     }
     
     private func applyHealthKitFilters() {
-        filteredHealthKitData = healthKitData.filter { sample in
-            // Apply sleep type filter
-            if selectedSleepTypeFilter != .all {
-                let isCore = sample.type == .asleep || sample.type == .inBed
-                switch selectedSleepTypeFilter {
-                case .core:
-                    if !isCore { return false }
-                case .nap:
-                    if isCore { return false }
+        filteredHealthKitSessions = healthKitSessions.filter { session in
+            // Kaynak filtresi
+            if selectedSourceFilter != .all {
+                switch selectedSourceFilter {
+                case .manual:
+                    return false // HealthKit verileri manual-only filtresinde çıkar
+                case .health:
+                    break
                 case .all:
                     break
                 }
             }
-            
-            // Apply rating filter
+
+            // Rating filtresi
             if selectedRatingFilter != .all {
-                let rating = sample.rating ?? 0
+                let rating = session.rating ?? 0
                 switch selectedRatingFilter {
                 case .zeroOne:
                     if rating < 0 || rating > 1 { return false }
@@ -383,29 +382,17 @@ class HistoryViewModel: ObservableObject {
                     break
                 }
             }
-            
-            // Apply source filter
-            if selectedSourceFilter != .all {
-                switch selectedSourceFilter {
-                case .manual:
-                    return false // HealthKit data should be filtered out for manual-only
-                case .health:
-                    break // HealthKit data should be included for health-only
-                case .all:
-                    break
-                }
-            }
-            
-            // Apply adjustment filter
+
+            // Düzeltme tipi filtresi
             if selectedAdjustmentFilter != .all {
                 switch selectedAdjustmentFilter {
                 case .custom:
-                    break // HealthKit is typically custom
+                    break // HealthKit oturumları custom sayılır
                 default:
-                    return false // HealthKit doesn't have other adjustment types
+                    return false
                 }
             }
-            
+
             return true
         }
     }
@@ -498,60 +485,115 @@ class HistoryViewModel: ObservableObject {
     
     // MARK: - HealthKit Integration
     
-    /// HealthKit verilerini yükler
+    /// HealthKit oturumlarını yükler (ham segmentleri birleştirilmiş session'lara dönüştürür)
     func loadHealthKitData() async {
         let healthKitManager = HealthKitManager.shared
-        
-        // Authorization kontrolü - asenkron authorization check
+
         let authStatus = await withCheckedContinuation { continuation in
             healthKitManager.getAuthorizationStatus { status in
                 continuation.resume(returning: status)
             }
         }
-        
+
         guard authStatus == .sharingAuthorized else {
             print("ℹ️ HistoryViewModel: HealthKit izni yok (\(authStatus)), veriler yüklenmeyecek")
             await MainActor.run {
                 isHealthKitDataLoaded = false
-                healthKitData = []
+                healthKitSessions = []
             }
             return
         }
-        
-        // Filtre durumuna göre tarih aralığını belirle
+
         let (startDate, endDate) = getDateRangeForFilter()
-        
-        // HealthKit verilerini çek
-        let result = await healthKitManager.fetchSleepAnalysis(
+
+        let result = await healthKitManager.fetchSleepSessions(
             startDate: startDate,
             endDate: endDate
         )
-        
+
         await MainActor.run {
             switch result {
-            case .success(let samples):
-                // Rating'leri yükle ve samples ile eşleştir
-                var updatedSamples = samples
-                loadHealthKitRatingsFromPersistence(for: &updatedSamples)
-                
-                healthKitData = updatedSamples
+            case .success(let sessions):
+                var updatedSessions = sessions
+                loadHealthKitRatingsFromPersistence(for: &updatedSessions)
+
+                healthKitSessions = updatedSessions
                 isHealthKitDataLoaded = true
-                print("✅ HistoryViewModel: \(samples.count) adet HealthKit verisi yüklendi (Filtre: \(selectedFilter.rawValue), Tarih aralığı: \(startDate) - \(endDate))")
-                objectWillChange.send() // UI güncelleme için explicit trigger
-                
+                print("✅ HistoryViewModel: \(sessions.count) adet HealthKit oturumu yüklendi (Filtre: \(selectedFilter.rawValue), Tarih: \(startDate) - \(endDate))")
+
+                // Analytics için SwiftData'ya otomatik senkronize et (puan gerektirmez)
+                autoSyncHealthKitSessionsToSwiftData(sessions)
+
+                objectWillChange.send()
+
             case .failure(let error):
-                healthKitData = []
+                healthKitSessions = []
                 isHealthKitDataLoaded = false
-                print("🚨 HistoryViewModel: HealthKit verisi yüklenemedi: \(error.localizedDescription)")
+                print("🚨 HistoryViewModel: HealthKit oturumları yüklenemedi: \(error.localizedDescription)")
             }
         }
     }
-    
-    /// Belirtilen tarih için HealthKit verilerini döndürür
-    func getHealthKitData(for date: Date) -> [HealthKitSleepSample] {
+
+    /// HealthKit oturumlarını SwiftData'ya senkronize eder; böylece Analytics puan
+    /// verilmemiş oturumları da süre hesabına dahil edebilir.
+    /// Var olan girişler güncellenmez (rating korunur), sadece yeni oturumlar eklenir.
+    private func autoSyncHealthKitSessionsToSwiftData(_ sessions: [HealthKitSleepSession]) {
+        guard let modelContext = modelContext, !sessions.isEmpty else { return }
+
+        do {
+            let predicate = #Predicate<SleepEntry> { $0.source == "health" }
+            let descriptor = FetchDescriptor(predicate: predicate)
+            let existingEntries = try modelContext.fetch(descriptor)
+
+            // Var olan oturumları hızlı arama için anahtar seti
+            let existingKeys = Set(existingEntries.map {
+                "\($0.startTime.timeIntervalSince1970)_\($0.endTime.timeIntervalSince1970)"
+            })
+
+            let calendar = Calendar.current
+            var addedCount = 0
+
+            for session in sessions {
+                let key = "\(session.startDate.timeIntervalSince1970)_\(session.endDate.timeIntervalSince1970)"
+                guard !existingKeys.contains(key) else { continue }
+
+                let entryDate = calendar.startOfDay(for: session.startDate)
+                let newEntry = SleepEntry(
+                    date: entryDate,
+                    startTime: session.startDate,
+                    endTime: session.endDate,
+                    durationMinutes: session.actualSleepMinutes,
+                    isCore: true,
+                    source: "health"
+                )
+
+                let historyPredicate = #Predicate<HistoryModel> { $0.date == entryDate }
+                let historyDescriptor = FetchDescriptor(predicate: historyPredicate)
+                var historyModel = try modelContext.fetch(historyDescriptor).first
+                if historyModel == nil {
+                    historyModel = HistoryModel(date: entryDate)
+                    modelContext.insert(historyModel!)
+                }
+                newEntry.historyDay = historyModel
+                historyModel?.sleepEntries?.append(newEntry)
+                modelContext.insert(newEntry)
+                addedCount += 1
+            }
+
+            if addedCount > 0 {
+                try modelContext.save()
+                print("✅ \(addedCount) yeni HealthKit oturumu SwiftData'ya eklendi (Analytics için)")
+            }
+        } catch {
+            print("🚨 HealthKit otomatik senkronizasyon hatası: \(error.localizedDescription)")
+        }
+    }
+
+    /// Belirtilen tarih için HealthKit oturumlarını döndürür
+    func getHealthKitData(for date: Date) -> [HealthKitSleepSession] {
         let calendar = Calendar.current
-        return healthKitData.filter { sample in
-            calendar.isDate(sample.startDate, inSameDayAs: date)
+        return healthKitSessions.filter { session in
+            calendar.isDate(session.startDate, inSameDayAs: date)
         }
     }
     
@@ -579,170 +621,144 @@ class HistoryViewModel: ObservableObject {
     }
     
     /// HealthKit ve PolyNap verilerini birleştirerek kombine günlük data döndürür
-    func getCombinedDayData(for date: Date) -> (polyNapEntry: HistoryModel?, healthKitData: [HealthKitSleepSample]) {
+    func getCombinedDayData(for date: Date) -> (polyNapEntry: HistoryModel?, healthKitSessions: [HealthKitSleepSession]) {
         let polyNapEntry = getHistoryItem(for: date)
-        let healthKitEntries = getHealthKitData(for: date)
-        
-        return (polyNapEntry, healthKitEntries)
+        let sessions = getHealthKitData(for: date)
+        return (polyNapEntry, sessions)
     }
     
     // MARK: - HealthKit Data Management
-    
-    /// HealthKit verisi için puan günceller ve kaydeder
-    func updateHealthKitRating(for sampleId: UUID, rating: Double) {
-        guard let modelContext = modelContext else {
+
+    /// HealthKit oturumu için puan günceller ve kaydeder
+    func updateHealthKitRating(for sessionId: UUID, rating: Double) {
+        guard modelContext != nil else {
             print("🚨 ModelContext not available for HealthKit rating")
             return
         }
-        
-        if let index = healthKitData.firstIndex(where: { $0.id == sampleId }) {
-            let sample = healthKitData[index]
-            healthKitData[index].rating = rating
-            
-            // Database'e kalıcı olarak kaydet
-            saveHealthKitRatingToPersistence(sample: sample, rating: rating)
-            
-            // UI'ı güncelle (günün ortalama rating'i değişebilir)
+
+        if let index = healthKitSessions.firstIndex(where: { $0.id == sessionId }) {
+            let session = healthKitSessions[index]
+            healthKitSessions[index].rating = rating
+            saveHealthKitRatingToPersistence(session: session, rating: rating)
             reloadData()
-            
-            print("✅ HealthKit sample rating güncellendi ve kaydedildi: \(rating)")
+            print("✅ HealthKit oturum rating güncellendi: \(rating)")
         }
     }
-    
-    /// HealthKit rating'ini SleepEntry olarak SwiftData'ya kaydeder
-    private func saveHealthKitRatingToPersistence(sample: HealthKitSleepSample, rating: Double) {
+
+    /// HealthKit oturum rating'ini SleepEntry olarak SwiftData'ya kaydeder
+    private func saveHealthKitRatingToPersistence(session: HealthKitSleepSession, rating: Double) {
         guard let modelContext = modelContext else { return }
-        
+
         do {
             let calendar = Calendar.current
-            let entryDate = calendar.startOfDay(for: sample.startDate)
-            
-            // Önce aynı HealthKit sample için SleepEntry olup olmadığını kontrol et  
-            let sampleStartDate = sample.startDate
-            let sampleEndDate = sample.endDate
+            let entryDate = calendar.startOfDay(for: session.startDate)
+
+            let sessionStart = session.startDate
+            let sessionEnd = session.endDate
             let predicate = #Predicate<SleepEntry> { entry in
                 entry.source == "health" &&
-                entry.startTime == sampleStartDate &&
-                entry.endTime == sampleEndDate
+                entry.startTime == sessionStart &&
+                entry.endTime == sessionEnd
             }
             let descriptor = FetchDescriptor(predicate: predicate)
-            
+
             if let existingEntry = try modelContext.fetch(descriptor).first {
-                // Mevcut SleepEntry'yi güncelle
                 existingEntry.rating = rating
                 existingEntry.updatedAt = Date()
-                print("✅ Mevcut HealthKit SleepEntry rating'i güncellendi: \(rating)")
+                print("✅ Mevcut HealthKit SleepEntry rating güncellendi: \(rating)")
             } else {
-                // Yeni SleepEntry oluştur (HealthKit verisi olarak işaretle)
-                let durationMinutes = Int(sample.endDate.timeIntervalSince(sample.startDate) / 60)
-                
                 let newEntry = SleepEntry(
                     date: entryDate,
-                    startTime: sample.startDate,
-                    endTime: sample.endDate,
-                    durationMinutes: durationMinutes,
-                    isCore: sample.type == .inBed || sample.type == .asleep, // HealthKit core sleep types
-                    blockId: nil, // HealthKit verileri schedule block'una bağlı değil
-                    emoji: nil, // HealthKit verileri emoji içermez
+                    startTime: session.startDate,
+                    endTime: session.endDate,
+                    durationMinutes: session.actualSleepMinutes,
+                    isCore: true, // oturum düzeyinde her zaman core
+                    blockId: nil,
+                    emoji: nil,
                     rating: rating,
-                    source: "health" // HealthKit verisi olduğunu belirt
+                    source: "health"
                 )
-                
-                // HistoryModel'i bul veya oluştur
+
                 let historyPredicate = #Predicate<HistoryModel> { $0.date == entryDate }
                 let historyDescriptor = FetchDescriptor(predicate: historyPredicate)
-                
                 var historyModel = try modelContext.fetch(historyDescriptor).first
                 if historyModel == nil {
                     historyModel = HistoryModel(date: entryDate)
                     modelContext.insert(historyModel!)
                 }
-                
-                // SleepEntry'yi HistoryModel'e bağla
                 newEntry.historyDay = historyModel
                 historyModel?.sleepEntries?.append(newEntry)
                 modelContext.insert(newEntry)
-                
                 print("✅ Yeni HealthKit SleepEntry oluşturuldu: \(rating)")
             }
-            
+
             try modelContext.save()
             print("✅ HealthKit rating SleepEntry olarak kaydedildi")
-            
+
         } catch {
-            print("🚨 HealthKit rating SleepEntry kaydetme hatası: \(error.localizedDescription)")
+            print("🚨 HealthKit rating kaydetme hatası: \(error.localizedDescription)")
         }
     }
-    
-    /// HealthKit samples'ları için kaydedilmiş rating'leri SleepEntry'lerden yükler
-    private func loadHealthKitRatingsFromPersistence(for samples: inout [HealthKitSleepSample]) {
+
+    /// HealthKit oturumları için kaydedilmiş rating'leri SleepEntry'lerden yükler
+    private func loadHealthKitRatingsFromPersistence(for sessions: inout [HealthKitSleepSession]) {
         guard let modelContext = modelContext else { return }
-        
+
         do {
-            // HealthKit kaynaklı SleepEntry'leri çek
             let predicate = #Predicate<SleepEntry> { $0.source == "health" }
             let descriptor = FetchDescriptor(predicate: predicate)
             let healthSleepEntries = try modelContext.fetch(descriptor)
-            
-            // Her sample için ilgili SleepEntry'yi bul ve rating'i ata
-            for index in samples.indices {
-                let sample = samples[index]
-                
-                // Aynı başlangıç ve bitiş zamanına sahip SleepEntry'yi bul
+
+            for index in sessions.indices {
+                let session = sessions[index]
                 if let matchingEntry = healthSleepEntries.first(where: { entry in
-                    entry.startTime == sample.startDate && entry.endTime == sample.endDate
+                    entry.startTime == session.startDate && entry.endTime == session.endDate
                 }) {
-                    samples[index].rating = matchingEntry.rating
+                    sessions[index].rating = matchingEntry.rating > 0 ? matchingEntry.rating : nil
                 }
             }
-            
-            let ratedCount = samples.filter { $0.rating != nil }.count
-            print("✅ \(ratedCount) adet HealthKit sample için rating SleepEntry'lerden yüklendi")
-            
+
+            let ratedCount = sessions.filter { $0.rating != nil }.count
+            print("✅ \(ratedCount) adet HealthKit oturumu için rating yüklendi")
+
         } catch {
-            print("🚨 HealthKit rating'leri SleepEntry'lerden yüklenirken hata: \(error.localizedDescription)")
+            print("🚨 HealthKit rating'ler yüklenirken hata: \(error.localizedDescription)")
         }
     }
-    
-    /// HealthKit verisini siler (sadece uygulama içinde)
-    func deleteHealthKitSample(_ sample: HealthKitSleepSample) {
-        healthKitData.removeAll { $0.id == sample.id }
-        
-        // Rating'i de veritabanından sil
-        deleteHealthKitRatingFromPersistence(sample: sample)
-        
-        print("✅ HealthKit sample silindi: \(sample.id)")
+
+    /// HealthKit oturumunu siler (sadece uygulama içinde)
+    func deleteHealthKitSample(_ session: HealthKitSleepSession) {
+        healthKitSessions.removeAll { $0.id == session.id }
+        deleteHealthKitRatingFromPersistence(session: session)
+        print("✅ HealthKit oturumu silindi: \(session.id)")
     }
-    
+
     /// HealthKit için oluşturulan SleepEntry'yi veritabanından siler
-    private func deleteHealthKitRatingFromPersistence(sample: HealthKitSleepSample) {
+    private func deleteHealthKitRatingFromPersistence(session: HealthKitSleepSession) {
         guard let modelContext = modelContext else { return }
-        
+
         do {
-            // İlgili SleepEntry'yi bul
-            let sampleStartDate = sample.startDate
-            let sampleEndDate = sample.endDate
+            let sessionStart = session.startDate
+            let sessionEnd = session.endDate
             let predicate = #Predicate<SleepEntry> { entry in
                 entry.source == "health" &&
-                entry.startTime == sampleStartDate &&
-                entry.endTime == sampleEndDate
+                entry.startTime == sessionStart &&
+                entry.endTime == sessionEnd
             }
             let descriptor = FetchDescriptor(predicate: predicate)
-            
             if let entryToDelete = try modelContext.fetch(descriptor).first {
                 modelContext.delete(entryToDelete)
                 try modelContext.save()
                 print("✅ HealthKit SleepEntry veritabanından silindi")
             }
-            
         } catch {
             print("🚨 HealthKit rating silme hatası: \(error.localizedDescription)")
         }
     }
-    
-    /// HealthKit verisini düzenler
-    func editHealthKitSample(_ sample: HealthKitSleepSample, newRating: Double) {
-        updateHealthKitRating(for: sample.id, rating: newRating)
+
+    /// HealthKit oturumunu düzenler
+    func editHealthKitSample(_ session: HealthKitSleepSession, newRating: Double) {
+        updateHealthKitRating(for: session.id, rating: newRating)
     }
 
     // MARK: - Badge Evaluation
